@@ -25,7 +25,7 @@ pub struct LatestBarsResponse {
     pub bars: HashMap<String, Bar>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestQuotesResponse {
     pub quotes: HashMap<String, Quote>,
 }

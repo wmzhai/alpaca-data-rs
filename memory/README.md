@@ -20,5 +20,5 @@
 
 - 这是一个新项目，当前仍以设计约束和路线文档为主，但已经开始落地共享基础层代码。
 - 当前已经落下最小 Rust crate 骨架：`Cargo.toml`、`src/`、`tests/`、`.gitignore`。
-- 已完成的最小真实代码落地包括：`ClientBuilder` 运行时配置、认证配对校验、`InvalidConfiguration` 错误类型、`tests/client_builder.rs`，以及共享 `QueryWriter` / `Endpoint` 基础设施。
+- 已完成的最小真实代码落地包括：`ClientBuilder` 运行时配置、认证配对校验、`InvalidConfiguration` 错误类型、`tests/client_builder.rs`、共享 `QueryWriter` / `Endpoint`，以及共享 `HttpClient` 与异常路径 mock 测试。
 - `memory/` 现在既记录设计约束，也要记录已经落地的真实代码入口，后续随着 transport、分页和资源实现补齐继续同步更新。

@@ -352,7 +352,7 @@ git commit -m "feat: add shared query writer and endpoint routing"
 - Modify: `src/transport/rate_limit.rs`
 - Test: `tests/mock_transport_errors.rs`
 
-- [ ] **Step 1: Write failing exceptional-path tests with mock HTTP responses**
+- [x] **Step 1: Write failing exceptional-path tests with mock HTTP responses**
 
 ```rust
 use alpaca_data::{Client, Error, crypto};
@@ -420,12 +420,12 @@ async fn malformed_json_maps_deserialize_error() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cargo test --test mock_transport_errors -v`
 Expected: FAIL because `wiremock` is not configured and `crypto.latest_quotes` still returns `NotImplemented`.
 
-- [ ] **Step 3: Implement `reqwest` transport, retry, and error mapping**
+- [x] **Step 3: Implement `reqwest` transport, retry, and error mapping**
 
 ```rust
 pub(crate) struct HttpClient {
@@ -486,12 +486,12 @@ impl HttpClient {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cargo test --test mock_transport_errors -v`
 Expected: PASS with mock exceptional-path coverage only.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml src/client.rs src/auth.rs src/error.rs src/transport/http.rs src/transport/retry.rs src/transport/rate_limit.rs tests/mock_transport_errors.rs

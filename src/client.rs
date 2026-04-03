@@ -2,8 +2,14 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use crate::{
-    auth::Auth, corporate_actions::CorporateActionsClient, crypto::CryptoClient, error::Error,
-    news::NewsClient, options::OptionsClient, stocks::StocksClient,
+    auth::Auth,
+    corporate_actions::CorporateActionsClient,
+    crypto::CryptoClient,
+    error::Error,
+    news::NewsClient,
+    options::OptionsClient,
+    stocks::StocksClient,
+    transport::{http::HttpClient, rate_limit::RateLimiter, retry::RetryPolicy},
 };
 
 #[derive(Clone, Debug)]
@@ -19,6 +25,7 @@ pub(crate) struct Inner {
     pub(crate) timeout: Duration,
     pub(crate) max_retries: u32,
     pub(crate) max_in_flight: Option<usize>,
+    pub(crate) http: HttpClient,
 }
 
 #[derive(Clone, Debug)]
@@ -68,16 +75,23 @@ impl Client {
         timeout: Duration,
         max_retries: u32,
         max_in_flight: Option<usize>,
-    ) -> Self {
-        Self {
+    ) -> Result<Self, Error> {
+        let http = HttpClient::new(
+            timeout,
+            RetryPolicy::new(max_retries),
+            RateLimiter::new(max_in_flight),
+        )?;
+
+        Ok(Self {
             inner: Arc::new(Inner {
                 auth,
                 base_url,
                 timeout,
                 max_retries,
                 max_in_flight,
+                http,
             }),
-        }
+        })
     }
 }
 
@@ -131,12 +145,12 @@ impl ClientBuilder {
             .base_url
             .unwrap_or_else(|| "https://data.alpaca.markets".to_string());
 
-        Ok(Client::from_parts(
+        Client::from_parts(
             auth,
             base_url,
             self.timeout,
             self.max_retries,
             self.max_in_flight,
-        ))
+        )
     }
 }

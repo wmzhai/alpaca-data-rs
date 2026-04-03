@@ -8,6 +8,29 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.0.4
+
+### Added
+
+- 接入 `reqwest`、`serde`、`serde_json`、`tokio` 与 `wiremock` 作为共享 transport 和异常测试基础依赖
+- 新建 `tests/mock_transport_errors.rs`，覆盖 429 retry-after 和损坏 JSON 的异常映射
+- 为 `Auth` 增加 request header 注入能力
+- 为 `HttpClient` 增加 async JSON GET 通路
+
+### Changed
+
+- `Client` 现在持有共享 `HttpClient`，并根据 builder runtime config 初始化 timeout、retry 和 rate limiting
+- `RetryPolicy` 和 `RateLimiter` 现在具备最小实际行为，而不再只是占位结构
+- `Error::RateLimited` 现在同时保留 `retry_after` 与 `body`
+- `crypto.latest_quotes` 现在已经接到共享 transport，可用于 mock 异常测试链路
+
+### Docs
+
+- 更新 `AGENTS.md` 当前项目状态
+- 更新 `memory/README.md` 与 `memory/core/system-map.md`
+- 更新 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
+- 更新 `docs/superpowers/plans/2026-04-03-phase-1-shared-core.md`
+
 ## v0.0.3
 
 ### Added

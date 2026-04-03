@@ -3,7 +3,11 @@ use std::sync::Arc;
 use crate::{
     Error,
     client::Inner,
-    common::response::{ResponseStream, empty_stream},
+    common::{
+        query::QueryWriter,
+        response::{ResponseStream, empty_stream},
+    },
+    transport::endpoint::Endpoint,
 };
 
 use super::{
@@ -98,12 +102,21 @@ impl CryptoClient {
 
     pub async fn latest_quotes(
         &self,
-        _request: LatestQuotesRequest,
+        request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.latest_quotes",
-        })
+        let endpoint = Endpoint::crypto_latest_quotes(request.loc.unwrap_or_default());
+        let mut query = QueryWriter::default();
+        query.push_csv("symbols", &request.symbols);
+
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                query.finish(),
+            )
+            .await
     }
 
     pub async fn latest_trades(

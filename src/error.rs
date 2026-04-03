@@ -6,12 +6,20 @@ pub enum Error {
     MissingCredentials,
     Transport(String),
     Timeout(String),
-    RateLimited { retry_after: Option<u64> },
-    HttpStatus { status: u16, body: Option<String> },
+    RateLimited {
+        retry_after: Option<u64>,
+        body: Option<String>,
+    },
+    HttpStatus {
+        status: u16,
+        body: Option<String>,
+    },
     Deserialize(String),
     InvalidRequest(String),
     Pagination(String),
-    NotImplemented { operation: &'static str },
+    NotImplemented {
+        operation: &'static str,
+    },
 }
 
 impl Display for Error {
@@ -23,9 +31,13 @@ impl Display for Error {
             Self::MissingCredentials => write!(f, "missing credentials"),
             Self::Transport(message) => write!(f, "transport error: {message}"),
             Self::Timeout(message) => write!(f, "timeout error: {message}"),
-            Self::RateLimited { retry_after } => match retry_after {
-                Some(value) => write!(f, "rate limited, retry_after={value}"),
-                None => write!(f, "rate limited"),
+            Self::RateLimited { retry_after, body } => match (retry_after, body) {
+                (Some(value), Some(body)) => {
+                    write!(f, "rate limited, retry_after={value}, body={body}")
+                }
+                (Some(value), None) => write!(f, "rate limited, retry_after={value}"),
+                (None, Some(body)) => write!(f, "rate limited, body={body}"),
+                (None, None) => write!(f, "rate limited"),
             },
             Self::HttpStatus { status, body } => match body {
                 Some(body) => write!(f, "http status error: {status}, body={body}"),
@@ -42,3 +54,13 @@ impl Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+impl Error {
+    pub(crate) fn from_reqwest(error: reqwest::Error) -> Self {
+        if error.is_timeout() {
+            Self::Timeout(error.to_string())
+        } else {
+            Self::Transport(error.to_string())
+        }
+    }
+}

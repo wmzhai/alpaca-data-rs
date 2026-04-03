@@ -1,4 +1,5 @@
 use crate::Error;
+use reqwest::RequestBuilder;
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Auth {
@@ -22,5 +23,22 @@ impl Auth {
 
     pub(crate) fn has_credentials(&self) -> bool {
         self.api_key.is_some() && self.secret_key.is_some()
+    }
+
+    pub(crate) fn apply(
+        &self,
+        request: RequestBuilder,
+        requires_auth: bool,
+    ) -> Result<RequestBuilder, Error> {
+        if !requires_auth {
+            return Ok(request);
+        }
+
+        match (&self.api_key, &self.secret_key) {
+            (Some(api_key), Some(secret_key)) => Ok(request
+                .header("APCA-API-KEY-ID", api_key)
+                .header("APCA-API-SECRET-KEY", secret_key)),
+            _ => Err(Error::MissingCredentials),
+        }
     }
 }

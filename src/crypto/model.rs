@@ -5,9 +5,14 @@ pub struct Bar {
     pub t: Option<Timestamp>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Quote {
     pub t: Option<Timestamp>,
+    pub bp: Option<f64>,
+    pub bs: Option<f64>,
+    pub ap: Option<f64>,
+    #[serde(rename = "as")]
+    pub r#as: Option<f64>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]

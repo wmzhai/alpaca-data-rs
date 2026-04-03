@@ -62,6 +62,8 @@
 - `tests/client_builder.rs` 已覆盖 builder/runtime config 与认证校验
 - `src/common/query.rs` 已提供最小 query 参数构造能力
 - `src/transport/endpoint.rs` 已提供 crypto latest quotes 的官方路径路由
+- `src/transport/http.rs`、`src/transport/retry.rs`、`src/transport/rate_limit.rs` 已具备最小实际行为
+- `tests/mock_transport_errors.rs` 已覆盖共享 transport 的异常路径
 
 **Primary Scope:**
 
