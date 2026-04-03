@@ -49,33 +49,56 @@ pub struct TradesSingleResponse {
     pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestBarsResponse {
     pub bars: HashMap<String, Bar>,
+    pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct LatestBarResponse {
+    pub symbol: String,
+    pub bar: Bar,
+    pub currency: Option<Currency>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestQuotesResponse {
     pub quotes: HashMap<String, Quote>,
+    pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestQuoteResponse {
+    pub symbol: String,
     pub quote: Quote,
+    pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestTradesResponse {
     pub trades: HashMap<String, Trade>,
+    pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct LatestTradeResponse {
+    pub symbol: String,
+    pub trade: Trade,
+    pub currency: Option<Currency>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct SnapshotsResponse {
+    #[serde(flatten)]
     pub snapshots: HashMap<String, Snapshot>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct SnapshotResponse {
+    pub symbol: String,
+    pub currency: Option<Currency>,
+    #[serde(flatten)]
     pub snapshot: Snapshot,
 }
 
@@ -192,7 +215,11 @@ impl PaginatedResponse for TradesSingleResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::{BarsSingleResponse, QuotesSingleResponse, TradesSingleResponse};
+    use super::{
+        BarsSingleResponse, LatestBarResponse, LatestBarsResponse, LatestQuoteResponse,
+        LatestQuotesResponse, LatestTradeResponse, LatestTradesResponse, QuotesSingleResponse,
+        SnapshotResponse, SnapshotsResponse, TradesSingleResponse,
+    };
     use crate::{Error, transport::pagination::PaginatedResponse};
 
     #[test]
@@ -292,5 +319,99 @@ mod tests {
             })
             .expect_err("mismatched currencies should fail");
         assert!(matches!(currency_error, Error::Pagination(_)));
+    }
+
+    #[test]
+    fn latest_responses_deserialize_official_wrapper_shapes() {
+        let batch_bars: LatestBarsResponse = serde_json::from_str(
+            r#"{"bars":{"AAPL":{"t":"2024-03-01T20:00:00Z","c":179.66}},"currency":"USD"}"#,
+        )
+        .expect("latest bars response should deserialize");
+        assert!(batch_bars.bars.contains_key("AAPL"));
+        assert_eq!(
+            batch_bars.currency.as_ref().map(|value| value.as_str()),
+            Some("USD")
+        );
+
+        let single_bar: LatestBarResponse = serde_json::from_str(
+            r#"{"symbol":"AAPL","bar":{"t":"2024-03-01T20:00:00Z","c":179.66},"currency":"USD"}"#,
+        )
+        .expect("latest bar response should deserialize");
+        assert_eq!(single_bar.symbol, "AAPL");
+        assert!(single_bar.bar.c.is_some());
+
+        let batch_quotes: LatestQuotesResponse = serde_json::from_str(
+            r#"{"quotes":{"AAPL":{"t":"2024-03-01T20:00:00Z","bp":179.65}},"currency":"USD"}"#,
+        )
+        .expect("latest quotes response should deserialize");
+        assert!(batch_quotes.quotes.contains_key("AAPL"));
+
+        let single_quote: LatestQuoteResponse = serde_json::from_str(
+            r#"{"symbol":"AAPL","quote":{"t":"2024-03-01T20:00:00Z","bp":179.65},"currency":"USD"}"#,
+        )
+        .expect("latest quote response should deserialize");
+        assert_eq!(single_quote.symbol, "AAPL");
+        assert!(single_quote.quote.bp.is_some());
+
+        let batch_trades: LatestTradesResponse = serde_json::from_str(
+            r#"{"trades":{"AAPL":{"t":"2024-03-01T20:00:00Z","p":179.64}},"currency":"USD"}"#,
+        )
+        .expect("latest trades response should deserialize");
+        assert!(batch_trades.trades.contains_key("AAPL"));
+
+        let single_trade: LatestTradeResponse = serde_json::from_str(
+            r#"{"symbol":"AAPL","trade":{"t":"2024-03-01T20:00:00Z","p":179.64},"currency":"USD"}"#,
+        )
+        .expect("latest trade response should deserialize");
+        assert_eq!(single_trade.symbol, "AAPL");
+        assert!(single_trade.trade.p.is_some());
+    }
+
+    #[test]
+    fn snapshot_responses_deserialize_official_batch_and_single_shapes() {
+        let batch: SnapshotsResponse = serde_json::from_str(
+            r#"{
+                "AAPL":{
+                    "latestTrade":{"t":"2024-03-01T20:00:00Z","p":179.64},
+                    "latestQuote":{"t":"2024-03-01T20:00:00Z","bp":179.65},
+                    "minuteBar":{"t":"2024-03-01T20:00:00Z","c":179.66},
+                    "dailyBar":{"t":"2024-03-01T20:00:00Z","c":179.66},
+                    "prevDailyBar":{"t":"2024-02-29T20:00:00Z","c":180.75}
+                }
+            }"#,
+        )
+        .expect("batch snapshots response should deserialize");
+        let aapl = batch
+            .snapshots
+            .get("AAPL")
+            .expect("batch snapshots response should keep the symbol as the top-level key");
+        assert!(aapl.latestTrade.is_some());
+        assert!(aapl.latestQuote.is_some());
+        assert!(aapl.minuteBar.is_some());
+        assert!(aapl.dailyBar.is_some());
+        assert!(aapl.prevDailyBar.is_some());
+
+        let single: SnapshotResponse = serde_json::from_str(
+            r#"{
+                "symbol":"AAPL",
+                "currency":"USD",
+                "latestTrade":{"t":"2024-03-01T20:00:00Z","p":179.64},
+                "latestQuote":{"t":"2024-03-01T20:00:00Z","bp":179.65},
+                "minuteBar":{"t":"2024-03-01T20:00:00Z","c":179.66},
+                "dailyBar":{"t":"2024-03-01T20:00:00Z","c":179.66},
+                "prevDailyBar":{"t":"2024-02-29T20:00:00Z","c":180.75}
+            }"#,
+        )
+        .expect("single snapshot response should deserialize");
+        assert_eq!(single.symbol, "AAPL");
+        assert_eq!(
+            single.currency.as_ref().map(|value| value.as_str()),
+            Some("USD")
+        );
+        assert!(single.snapshot.latestTrade.is_some());
+        assert!(single.snapshot.latestQuote.is_some());
+        assert!(single.snapshot.minuteBar.is_some());
+        assert!(single.snapshot.dailyBar.is_some());
+        assert!(single.snapshot.prevDailyBar.is_some());
     }
 }

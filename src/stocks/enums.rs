@@ -98,6 +98,7 @@ impl Display for Adjustment {
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum DataFeed {
+    DelayedSip,
     Iex,
     Otc,
     #[default]
@@ -109,6 +110,7 @@ pub enum DataFeed {
 impl Display for DataFeed {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.write_str(match self {
+            Self::DelayedSip => "delayed_sip",
             Self::Iex => "iex",
             Self::Otc => "otc",
             Self::Sip => "sip",

@@ -44,16 +44,28 @@ fn resource_modules_expose_short_type_names() {
 fn stocks_module_exposes_batch_and_single_type_names() {
     let _ = stocks::BarsRequest::default();
     let _ = stocks::BarsSingleRequest::default();
-    let _ = stocks::QuotesSingleRequest::default();
-    let _ = stocks::TradesSingleRequest::default();
+    let _ = stocks::LatestBarRequest::default();
+    let _ = stocks::LatestBarsRequest::default();
     let _ = stocks::LatestQuoteRequest::default();
+    let _ = stocks::LatestQuotesRequest::default();
+    let _ = stocks::LatestTradeRequest::default();
+    let _ = stocks::LatestTradesRequest::default();
+    let _ = stocks::QuotesSingleRequest::default();
     let _ = stocks::SnapshotRequest::default();
+    let _ = stocks::SnapshotsRequest::default();
+    let _ = stocks::TradesSingleRequest::default();
     let _ = stocks::ConditionCodesRequest::default();
+    let _ = stocks::LatestBarResponse::default();
+    let _ = stocks::LatestBarsResponse::default();
+    let _ = stocks::LatestQuoteResponse::default();
+    let _ = stocks::LatestQuotesResponse::default();
+    let _ = stocks::LatestTradeResponse::default();
+    let _ = stocks::LatestTradesResponse::default();
     let _ = stocks::BarsSingleResponse::default();
     let _ = stocks::QuotesSingleResponse::default();
-    let _ = stocks::TradesSingleResponse::default();
-    let _ = stocks::LatestQuoteResponse::default();
     let _ = stocks::SnapshotResponse::default();
+    let _ = stocks::SnapshotsResponse::default();
+    let _ = stocks::TradesSingleResponse::default();
 }
 
 #[test]
@@ -96,10 +108,22 @@ fn stocks_client_exposes_batch_and_single_method_names() {
         .trades_single_stream(stocks::TradesSingleRequest::default());
     let _ = client
         .stocks()
+        .latest_bars(stocks::LatestBarsRequest::default());
+    let _ = client
+        .stocks()
+        .latest_bar(stocks::LatestBarRequest::default());
+    let _ = client
+        .stocks()
         .latest_quotes(stocks::LatestQuotesRequest::default());
     let _ = client
         .stocks()
         .latest_quote(stocks::LatestQuoteRequest::default());
+    let _ = client
+        .stocks()
+        .latest_trades(stocks::LatestTradesRequest::default());
+    let _ = client
+        .stocks()
+        .latest_trade(stocks::LatestTradeRequest::default());
     let _ = client
         .stocks()
         .snapshots(stocks::SnapshotsRequest::default());

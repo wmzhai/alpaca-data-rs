@@ -10,8 +10,9 @@ use crate::{
 
 use super::{
     BarsRequest, BarsResponse, BarsSingleRequest, BarsSingleResponse, ConditionCodesRequest,
-    ConditionCodesResponse, ExchangeCodesResponse, LatestBarsRequest, LatestBarsResponse,
-    LatestQuoteRequest, LatestQuoteResponse, LatestQuotesRequest, LatestQuotesResponse,
+    ConditionCodesResponse, ExchangeCodesResponse, LatestBarRequest, LatestBarResponse,
+    LatestBarsRequest, LatestBarsResponse, LatestQuoteRequest, LatestQuoteResponse,
+    LatestQuotesRequest, LatestQuotesResponse, LatestTradeRequest, LatestTradeResponse,
     LatestTradesRequest, LatestTradesResponse, QuotesRequest, QuotesResponse, QuotesSingleRequest,
     QuotesSingleResponse, SnapshotRequest, SnapshotResponse, SnapshotsRequest, SnapshotsResponse,
     TradesRequest, TradesResponse, TradesSingleRequest, TradesSingleResponse,
@@ -254,56 +255,133 @@ impl StocksClient {
 
     pub async fn latest_bars(
         &self,
-        _request: LatestBarsRequest,
+        request: LatestBarsRequest,
     ) -> Result<LatestBarsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.latest_bars",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksLatestBars,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn latest_bar(&self, request: LatestBarRequest) -> Result<LatestBarResponse, Error> {
+        self.ensure_credentials()?;
+        let endpoint = Endpoint::StocksLatestBar {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn latest_quotes(
         &self,
-        _request: LatestQuotesRequest,
+        request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.latest_quotes",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksLatestQuotes,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn latest_quote(
         &self,
-        _request: LatestQuoteRequest,
+        request: LatestQuoteRequest,
     ) -> Result<LatestQuoteResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.latest_quote",
-        })
+        let endpoint = Endpoint::StocksLatestQuote {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn latest_trades(
         &self,
-        _request: LatestTradesRequest,
+        request: LatestTradesRequest,
     ) -> Result<LatestTradesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.latest_trades",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksLatestTrades,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
-    pub async fn snapshots(&self, _request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
+    pub async fn latest_trade(
+        &self,
+        request: LatestTradeRequest,
+    ) -> Result<LatestTradeResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.snapshots",
-        })
+        let endpoint = Endpoint::StocksLatestTrade {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
-    pub async fn snapshot(&self, _request: SnapshotRequest) -> Result<SnapshotResponse, Error> {
+    pub async fn snapshots(&self, request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.snapshot",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksSnapshots,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn snapshot(&self, request: SnapshotRequest) -> Result<SnapshotResponse, Error> {
+        self.ensure_credentials()?;
+        let endpoint = Endpoint::StocksSnapshot {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn condition_codes(

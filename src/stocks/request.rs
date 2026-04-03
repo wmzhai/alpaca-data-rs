@@ -93,6 +93,13 @@ pub struct LatestBarsRequest {
 }
 
 #[derive(Clone, Debug, Default)]
+pub struct LatestBarRequest {
+    pub symbol: String,
+    pub feed: Option<DataFeed>,
+    pub currency: Option<Currency>,
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct LatestQuotesRequest {
     pub symbols: Vec<String>,
     pub feed: Option<DataFeed>,
@@ -109,6 +116,13 @@ pub struct LatestQuoteRequest {
 #[derive(Clone, Debug, Default)]
 pub struct LatestTradesRequest {
     pub symbols: Vec<String>,
+    pub feed: Option<DataFeed>,
+    pub currency: Option<Currency>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct LatestTradeRequest {
+    pub symbol: String,
     pub feed: Option<DataFeed>,
     pub currency: Option<Currency>,
 }
@@ -236,6 +250,54 @@ impl TradesSingleRequest {
     }
 }
 
+impl LatestBarsRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_batch_query(self.symbols, self.feed, self.currency)
+    }
+}
+
+impl LatestBarRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_single_query(self.feed, self.currency)
+    }
+}
+
+impl LatestQuotesRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_batch_query(self.symbols, self.feed, self.currency)
+    }
+}
+
+impl LatestQuoteRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_single_query(self.feed, self.currency)
+    }
+}
+
+impl LatestTradesRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_batch_query(self.symbols, self.feed, self.currency)
+    }
+}
+
+impl LatestTradeRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_single_query(self.feed, self.currency)
+    }
+}
+
+impl SnapshotsRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_batch_query(self.symbols, self.feed, self.currency)
+    }
+}
+
+impl SnapshotRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_single_query(self.feed, self.currency)
+    }
+}
+
 impl PaginatedRequest for BarsSingleRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -252,6 +314,28 @@ impl PaginatedRequest for QuotesSingleRequest {
     }
 }
 
+fn latest_batch_query(
+    symbols: Vec<String>,
+    feed: Option<DataFeed>,
+    currency: Option<Currency>,
+) -> Vec<(String, String)> {
+    let mut query = QueryWriter::default();
+    query.push_csv("symbols", symbols);
+    query.push_opt("feed", feed);
+    query.push_opt("currency", currency);
+    query.finish()
+}
+
+fn latest_single_query(
+    feed: Option<DataFeed>,
+    currency: Option<Currency>,
+) -> Vec<(String, String)> {
+    let mut query = QueryWriter::default();
+    query.push_opt("feed", feed);
+    query.push_opt("currency", currency);
+    query.finish()
+}
+
 impl PaginatedRequest for TradesSingleRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -266,6 +350,7 @@ mod tests {
 
     #[test]
     fn stocks_data_feed_serializes_to_official_strings() {
+        assert_eq!(DataFeed::DelayedSip.to_string(), "delayed_sip");
         assert_eq!(DataFeed::Iex.to_string(), "iex");
         assert_eq!(DataFeed::Otc.to_string(), "otc");
         assert_eq!(DataFeed::Sip.to_string(), "sip");
@@ -476,6 +561,102 @@ mod tests {
                 ("page_token".to_string(), "page-789".to_string()),
                 ("sort".to_string(), "desc".to_string()),
                 ("asof".to_string(), "2024-03-04".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn latest_batch_requests_serialize_official_query_words() {
+        let bars = LatestBarsRequest {
+            symbols: vec!["AAPL".into(), "MSFT".into()],
+            feed: Some(DataFeed::DelayedSip),
+            currency: Some(Currency::from("USD")),
+        };
+
+        assert_eq!(
+            bars.to_query(),
+            vec![
+                ("symbols".to_string(), "AAPL,MSFT".to_string()),
+                ("feed".to_string(), "delayed_sip".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+            ]
+        );
+
+        let trades = LatestTradesRequest {
+            symbols: vec!["AAPL".into(), "MSFT".into()],
+            feed: Some(DataFeed::Iex),
+            currency: Some(Currency::from("USD")),
+        };
+
+        assert_eq!(
+            trades.to_query(),
+            vec![
+                ("symbols".to_string(), "AAPL,MSFT".to_string()),
+                ("feed".to_string(), "iex".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn latest_single_requests_serialize_official_query_words() {
+        let bar = LatestBarRequest {
+            symbol: "AAPL".into(),
+            feed: Some(DataFeed::Sip),
+            currency: Some(Currency::from("USD")),
+        };
+
+        assert_eq!(
+            bar.to_query(),
+            vec![
+                ("feed".to_string(), "sip".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+            ]
+        );
+
+        let trade = LatestTradeRequest {
+            symbol: "AAPL".into(),
+            feed: Some(DataFeed::Boats),
+            currency: Some(Currency::from("USD")),
+        };
+
+        assert_eq!(
+            trade.to_query(),
+            vec![
+                ("feed".to_string(), "boats".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn snapshot_requests_serialize_official_query_words() {
+        let batch = SnapshotsRequest {
+            symbols: vec!["AAPL".into(), "MSFT".into()],
+            feed: Some(DataFeed::Overnight),
+            currency: Some(Currency::from("USD")),
+        };
+
+        assert_eq!(
+            batch.to_query(),
+            vec![
+                ("symbols".to_string(), "AAPL,MSFT".to_string()),
+                ("feed".to_string(), "overnight".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+            ]
+        );
+
+        let single = SnapshotRequest {
+            symbol: "AAPL".into(),
+            feed: Some(DataFeed::Otc),
+            currency: Some(Currency::from("USD")),
+        };
+
+        assert_eq!(
+            single.to_query(),
+            vec![
+                ("feed".to_string(), "otc".to_string()),
+                ("currency".to_string(), "USD".to_string()),
             ]
         );
     }

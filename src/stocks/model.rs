@@ -38,13 +38,14 @@ pub struct Trade {
     pub u: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[allow(non_snake_case)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Snapshot {
-    pub latest_trade: Option<Trade>,
-    pub latest_quote: Option<Quote>,
-    pub minute_bar: Option<Bar>,
-    pub daily_bar: Option<Bar>,
-    pub prev_daily_bar: Option<Bar>,
+    pub latestTrade: Option<Trade>,
+    pub latestQuote: Option<Quote>,
+    pub minuteBar: Option<Bar>,
+    pub dailyBar: Option<Bar>,
+    pub prevDailyBar: Option<Bar>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]

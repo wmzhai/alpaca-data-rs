@@ -8,6 +8,29 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.4
+
+### Added
+
+- 为 `stocks` latest + snapshot family 新增完整公开类型：`LatestBarRequest` / `LatestBarResponse`、`LatestTradeRequest` / `LatestTradeResponse`，并将 batch/single latest 与 snapshot request/response 全部补齐为可实际使用的官方镜像层
+- 新建 `tests/live_stocks_latest_snapshot.rs`，在 `ALPACA_LIVE_TESTS=1` 时使用真实 Alpaca API 覆盖 `latest_bars` / `latest_bar`、`latest_quotes` / `latest_quote`、`latest_trades` / `latest_trade`、`snapshots` / `snapshot`
+
+### Changed
+
+- `StocksClient` 现在已接通 `GET /v2/stocks/bars|quotes|trades/latest`、`GET /v2/stocks/{symbol}/bars|quotes|trades/latest`、`GET /v2/stocks/snapshots` 与 `GET /v2/stocks/{symbol}/snapshot`，并全部复用共享 async transport
+- `stocks::DataFeed` 现在增加 `delayed_sip` 官方 latest feed 取值，避免 latest/snapshot feed 词汇继续欠建模
+- latest batch 响应现在保留官方顶层 `bars` / `quotes` / `trades` 与可选 `currency`，single latest 响应现在保留官方顶层 `symbol`、`bar|quote|trade` 与可选 `currency`
+- snapshot 响应现在忠实对齐官方 body：batch `snapshots` 使用 `#[serde(flatten)]` 解析顶层 symbol-keyed object，single `snapshot` 使用 `symbol`、可选 `currency` 和扁平化 snapshot 字段；`Snapshot` 模型保留官方 camelCase 字段名 `latestTrade`、`latestQuote`、`minuteBar`、`dailyBar`、`prevDailyBar`
+- `tests/public_api.rs` 现在覆盖全部 stocks latest + snapshot 请求/响应类型与 `latest_bar` / `latest_trade` 方法名
+- 将 crate 版本提升到 `0.1.4`，对齐 `Phase 2 / Task 4` 的版本提交要求
+
+### Tests
+
+- `cargo test --test public_api -- --nocapture`
+- `cargo test stocks::request::tests --lib -- --nocapture`
+- `cargo test stocks::response::tests --lib -- --nocapture`
+- `set -a && source .env && set +a && ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_latest_snapshot -- --nocapture`
+
 ## v0.1.3
 
 ### Added
