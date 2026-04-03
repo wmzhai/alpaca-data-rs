@@ -2,6 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Error {
+    InvalidConfiguration(String),
     MissingCredentials,
     Transport(String),
     Timeout(String),
@@ -16,6 +17,9 @@ pub enum Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
+            Self::InvalidConfiguration(message) => {
+                write!(f, "invalid configuration: {message}")
+            }
             Self::MissingCredentials => write!(f, "missing credentials"),
             Self::Transport(message) => write!(f, "transport error: {message}"),
             Self::Timeout(message) => write!(f, "timeout error: {message}"),

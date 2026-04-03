@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::time::Duration;
 
 use crate::{
     auth::Auth, corporate_actions::CorporateActionsClient, crypto::CryptoClient, error::Error,
@@ -14,14 +15,20 @@ pub struct Client {
 #[derive(Debug)]
 pub(crate) struct Inner {
     pub(crate) auth: Auth,
-    pub(crate) base_url: Option<String>,
+    pub(crate) base_url: String,
+    pub(crate) timeout: Duration,
+    pub(crate) max_retries: u32,
+    pub(crate) max_in_flight: Option<usize>,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct ClientBuilder {
     api_key: Option<String>,
     secret_key: Option<String>,
     base_url: Option<String>,
+    timeout: Duration,
+    max_retries: u32,
+    max_in_flight: Option<usize>,
 }
 
 impl Client {
@@ -54,6 +61,37 @@ impl Client {
     pub fn corporate_actions(&self) -> CorporateActionsClient {
         CorporateActionsClient::new(self.inner.clone())
     }
+
+    pub(crate) fn from_parts(
+        auth: Auth,
+        base_url: String,
+        timeout: Duration,
+        max_retries: u32,
+        max_in_flight: Option<usize>,
+    ) -> Self {
+        Self {
+            inner: Arc::new(Inner {
+                auth,
+                base_url,
+                timeout,
+                max_retries,
+                max_in_flight,
+            }),
+        }
+    }
+}
+
+impl Default for ClientBuilder {
+    fn default() -> Self {
+        Self {
+            api_key: None,
+            secret_key: None,
+            base_url: None,
+            timeout: Duration::from_secs(10),
+            max_retries: 3,
+            max_in_flight: None,
+        }
+    }
 }
 
 impl ClientBuilder {
@@ -72,15 +110,33 @@ impl ClientBuilder {
         self
     }
 
+    pub fn timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = timeout;
+        self
+    }
+
+    pub fn max_retries(mut self, max_retries: u32) -> Self {
+        self.max_retries = max_retries;
+        self
+    }
+
+    pub fn max_in_flight(mut self, max_in_flight: usize) -> Self {
+        self.max_in_flight = Some(max_in_flight);
+        self
+    }
+
     pub fn build(self) -> Result<Client, Error> {
-        Ok(Client {
-            inner: Arc::new(Inner {
-                auth: Auth {
-                    api_key: self.api_key,
-                    secret_key: self.secret_key,
-                },
-                base_url: self.base_url,
-            }),
-        })
+        let auth = Auth::new(self.api_key, self.secret_key)?;
+        let base_url = self
+            .base_url
+            .unwrap_or_else(|| "https://data.alpaca.markets".to_string());
+
+        Ok(Client::from_parts(
+            auth,
+            base_url,
+            self.timeout,
+            self.max_retries,
+            self.max_in_flight,
+        ))
     }
 }

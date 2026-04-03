@@ -8,6 +8,27 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.0.2
+
+### Added
+
+- 建立 `tests/client_builder.rs`，覆盖 public crypto client、partial credentials 校验和显式 runtime config 构建
+- 为 `ClientBuilder` 增加 `timeout`、`max_retries`、`max_in_flight` 三个最小共享运行时配置入口
+- 为 `Error` 增加 `InvalidConfiguration`，用于配置层错误建模
+
+### Changed
+
+- `ClientBuilder::build()` 现在默认使用 `https://data.alpaca.markets`
+- `Auth` 现在强制 `api_key` 和 `secret_key` 成对出现，不允许半配置状态通过构建
+- 项目文档与 memory 已更新到“共享基础层 Task 1 已落地”的当前事实
+- 提交流程规则已明确：提交前必须全面检查代码、测试和文档是否彼此对齐，发现问题先修正再提交
+
+### Docs
+
+- 更新 `AGENTS.md` 的任务提交、分支使用和提交流程校验规则
+- 更新 `memory/README.md`、`memory/core/system-map.md`、`memory/core/workflows.md`、`memory/core/invariants.md`
+- 更新 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 和 `docs/superpowers/plans/2026-04-03-phase-1-shared-core.md` 以反映当前进度
+
 ## v0.0.1
 
 ### Added

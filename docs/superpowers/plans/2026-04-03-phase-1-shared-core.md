@@ -87,7 +87,7 @@
 - Modify: `src/error.rs`
 - Test: `tests/client_builder.rs`
 
-- [ ] **Step 1: Write the failing builder/auth tests**
+- [x] **Step 1: Write the failing builder/auth tests**
 
 ```rust
 use alpaca_data::{Client, Error};
@@ -128,12 +128,12 @@ fn builder_accepts_explicit_shared_runtime_settings() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cargo test --test client_builder -v`
 Expected: FAIL because `timeout`, `max_retries`, `max_in_flight`, and `InvalidConfiguration` do not exist yet.
 
-- [ ] **Step 3: Write the minimal builder/auth implementation**
+- [x] **Step 3: Write the minimal builder/auth implementation**
 
 ```rust
 #[derive(Clone, Debug)]
@@ -204,12 +204,12 @@ impl Auth {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cargo test --test client_builder -v`
 Expected: PASS with 3 passed tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml src/client.rs src/auth.rs src/error.rs tests/client_builder.rs

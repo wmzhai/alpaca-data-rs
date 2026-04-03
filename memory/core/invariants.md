@@ -36,6 +36,9 @@
 - commit 标题必须使用 Conventional Commits 风格：`<type>: <summary>`。
 - 当前允许并优先使用的 `type`：`feat`、`fix`、`chore`、`refactor`、`docs`。
 - 如需补充说明，优先在 commit body 中追加一小段英文说明本次提交包含什么。
+- 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先修正，再提交。
+- 每完成一个明确 task，默认做一次带版本号更新的提交，不长时间堆积多个已完成 task。
+- task 级版本提交标题使用：`<type>: <summary> (vX.Y.Z)`。
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 必须记录各种新变化，不只记录结构变化；至少覆盖对外接口、文档、测试、工程配置和内部实现上的重要变化。
 - 最终那个带 `CHANGELOG` 的发版提交，标题格式固定为 `chore: bump version and changelog (vX.Y.Z)`。

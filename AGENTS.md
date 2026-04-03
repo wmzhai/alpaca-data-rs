@@ -11,10 +11,11 @@
 
 ## 项目当前状态
 
-- 这是一个新的 Rust crate 设计仓库，当前以设计文档为主，尚未开始正式代码落地。
+- 这是一个新的 Rust crate 仓库，当前仍以设计约束为主，但已经开始落地共享基础层代码。
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
+- 当前已完成 `Phase 1 / Task 1` 的最小落地：`ClientBuilder` 运行时配置、认证配对校验、`InvalidConfiguration` 错误，以及 `tests/client_builder.rs`。
 
 ## 最高优先级规则
 
@@ -30,6 +31,10 @@
 - commit message 必须使用 Conventional Commits 风格：`<type>: <summary>`。
 - 当前允许并优先使用的 `type`：`feat`、`fix`、`chore`、`refactor`、`docs`。
 - 如果需要补充说明，优先在 commit body 里用一小段英文说明本次提交包含什么。
+- 每完成一个明确的开发 task，都要做一次带版本号更新的提交，不能把多个已完成 task 长时间堆在工作区里不提交。
+- 每个 task 完成后的提交前，都必须先同步版本号、`CHANGELOG.md` 和所有受影响文档，再进行提交。
+- 每个 task 完成后的版本提交标题统一使用英文格式：`<type>: <summary> (vX.Y.Z)`。
+- 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先直接修正，再提交。
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 不只记录结构变化，也要记录各种新变化，包括对外接口、文档、测试、工程配置和内部实现上的重要变化。
 - 如果是最终那个带 `CHANGELOG` 的发版提交，标题格式使用 `chore: bump version and changelog (vX.Y.Z)`。
@@ -41,6 +46,10 @@
 - 修改设计约束时，先同步 `README.md`，再同步 `AGENTS.md` 和 `memory/`。
 - 新增代码骨架后，优先补 `memory/core/system-map.md` 和对应领域文档。
 - 结构变化后，要及时更新记忆文档，不保留过期路线。
+- 不要使用 `.worktrees/` 或其他 git worktree 工作目录；新任务直接创建并切换到普通 git 分支即可。
+- 每个 task 完成后，默认同步检查并更新：`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档、`CHANGELOG.md`。
+- 每个 task 完成后，默认先做版本号递增，再做带版本号的提交；除非用户明确要求暂不提交。
+- 提交前的对齐检查不是走形式；如果文档和代码不一致，要先把事实修正到一致，再执行验证和提交。
 
 ## 关键目录边界
 
@@ -54,4 +63,3 @@
 - 不要把 Trading API 或 Broker API 混入本库。
 - 不要为了 SDK 自己的“优雅”而偏离官方 HTTP API 词汇和结构。
 - 不要在正常成功路径测试里使用 mock。
-- 未经明确要求，不要做 commit。

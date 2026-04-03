@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 `alpaca-data` 从当前 `v0.0.1` 的最小公开骨架，逐步推进到可发布到 crates.io 的高性能 Alpaca Market Data API Rust 客户端。
+**Goal:** 将 `alpaca-data` 从当前 `v0.0.2` 的 bootstrap + shared-core 起点，逐步推进到可发布到 crates.io 的高性能 Alpaca Market Data API Rust 客户端。
 
 **Architecture:** 开发主线按共享基础层和资源域拆成独立 phase，先做 transport、错误模型、分页、真实 API 测试基线，再按 `stocks -> options -> crypto -> news/corporate_actions -> release hardening` 推进。benchmark、真实 API 测试和文档/CHANGELOG 作为横向轨道持续贯穿所有 phase，而不是只在最后补。
 
@@ -13,7 +13,7 @@
 ## Phase Summary
 
 - **Phase 0: Bootstrap**，已完成
-- **Phase 1: Shared Core**
+- **Phase 1: Shared Core**，进行中
 - **Phase 2: Stocks**
 - **Phase 3: Options**
 - **Phase 4: Crypto**
@@ -50,7 +50,16 @@
 
 ## Phase 1: Shared Core
 
+**Status:** In progress, Task 1 completed in `v0.0.2`
+
 **Goal:** 把所有资源域都会依赖的基础能力做扎实，避免后续重复返工。
+
+**Delivered So Far:**
+
+- `ClientBuilder` 已具备 `base_url`、`timeout`、`max_retries`、`max_in_flight` 最小运行时配置
+- `Auth::new(...)` 已强制 `api_key` / `secret_key` 成对校验
+- 顶层 `Error` 已补 `InvalidConfiguration`
+- `tests/client_builder.rs` 已覆盖 builder/runtime config 与认证校验
 
 **Primary Scope:**
 
