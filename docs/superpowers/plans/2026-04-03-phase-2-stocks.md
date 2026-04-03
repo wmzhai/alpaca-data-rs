@@ -721,6 +721,8 @@ git commit -m "feat: add stocks single historical pagination (v0.1.3)"
 ### Task 4: Latest and Snapshot Endpoints for Batch and Single
 
 **Files:**
+- Modify: `src/stocks/mod.rs`
+- Modify: `src/stocks/enums.rs`
 - Modify: `src/stocks/request.rs`
 - Modify: `src/stocks/response.rs`
 - Modify: `src/stocks/model.rs`
@@ -729,8 +731,11 @@ git commit -m "feat: add stocks single historical pagination (v0.1.3)"
 - Create: `tests/live_stocks_latest_snapshot.rs`
 - Modify: `tests/public_api.rs`
 - Modify: `CHANGELOG.md`
+- Modify: `Cargo.toml`
 
-- [ ] **Step 1: Write failing live tests for latest and snapshot endpoints**
+**Implementation note:** 虽然下面的草案片段只展示了 `latest_quotes` / `latest_quote` / `snapshots` / `snapshot`，但当前 task 的实际落地范围按已批准 spec 与用户要求扩展为完整 latest + snapshot family：`latest_bars`、`latest_bar`、`latest_quotes`、`latest_quote`、`latest_trades`、`latest_trade`、`snapshots`、`snapshot`，并同步补齐公开 request/response 类型、`DataFeed` 的 latest feed 覆盖，以及 `tests/public_api.rs` 的编译期覆盖。
+
+- [x] **Step 1: Write failing live tests for latest and snapshot endpoints**
 
 ```rust
 use alpaca_data::{Client, stocks};
@@ -794,12 +799,12 @@ async fn stocks_latest_and_snapshot_endpoints_use_real_api() {
 }
 ```
 
-- [ ] **Step 2: Run the live tests to verify they fail**
+- [x] **Step 2: Run the live tests to verify they fail**
 
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_latest_snapshot -- --nocapture`
 Expected: FAIL because latest/snapshot endpoints are not implemented yet.
 
-- [ ] **Step 3: Implement latest/snapshot batch and single fetchers**
+- [x] **Step 3: Implement latest/snapshot batch and single fetchers**
 
 ```rust
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
@@ -855,12 +860,12 @@ pub async fn latest_quote(
 }
 ```
 
-- [ ] **Step 4: Re-run the live tests**
+- [x] **Step 4: Re-run the live tests**
 
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_latest_snapshot -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/stocks/request.rs src/stocks/response.rs src/stocks/model.rs src/stocks/client.rs src/transport/endpoint.rs tests/live_stocks_latest_snapshot.rs tests/public_api.rs CHANGELOG.md
