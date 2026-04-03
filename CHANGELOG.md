@@ -20,7 +20,7 @@
 - `StocksClient` 现在已接通 `GET /v2/stocks/bars|quotes|trades/latest`、`GET /v2/stocks/{symbol}/bars|quotes|trades/latest`、`GET /v2/stocks/snapshots` 与 `GET /v2/stocks/{symbol}/snapshot`，并全部复用共享 async transport
 - `stocks::DataFeed` 现在增加 `delayed_sip` 官方 latest feed 取值，避免 latest/snapshot feed 词汇继续欠建模
 - latest batch 响应现在保留官方顶层 `bars` / `quotes` / `trades` 与可选 `currency`，single latest 响应现在保留官方顶层 `symbol`、`bar|quote|trade` 与可选 `currency`
-- snapshot 响应现在忠实对齐官方 body：batch `snapshots` 使用 `#[serde(flatten)]` 解析顶层 symbol-keyed object，single `snapshot` 使用 `symbol`、可选 `currency` 和扁平化 snapshot 字段；`Snapshot` 模型保留官方 camelCase 字段名 `latestTrade`、`latestQuote`、`minuteBar`、`dailyBar`、`prevDailyBar`
+- snapshot 响应现在忠实对齐官方 body：batch `SnapshotsResponse` 直接公开顶层 symbol-keyed object，不再发明 `snapshots` wrapper；single `SnapshotResponse` 直接公开 `symbol`、可选 `currency` 与官方 camelCase snapshot 字段 `latestTrade`、`latestQuote`、`minuteBar`、`dailyBar`、`prevDailyBar`
 - `tests/public_api.rs` 现在覆盖全部 stocks latest + snapshot 请求/响应类型与 `latest_bar` / `latest_trade` 方法名
 - 将 crate 版本提升到 `0.1.4`，对齐 `Phase 2 / Task 4` 的版本提交要求
 

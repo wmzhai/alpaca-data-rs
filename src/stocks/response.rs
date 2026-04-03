@@ -88,18 +88,18 @@ pub struct LatestTradeResponse {
     pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
-pub struct SnapshotsResponse {
-    #[serde(flatten)]
-    pub snapshots: HashMap<String, Snapshot>,
-}
+pub type SnapshotsResponse = HashMap<String, Snapshot>;
 
+#[allow(non_snake_case)]
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct SnapshotResponse {
     pub symbol: String,
     pub currency: Option<Currency>,
-    #[serde(flatten)]
-    pub snapshot: Snapshot,
+    pub latestTrade: Option<Trade>,
+    pub latestQuote: Option<Quote>,
+    pub minuteBar: Option<Bar>,
+    pub dailyBar: Option<Bar>,
+    pub prevDailyBar: Option<Bar>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -382,7 +382,6 @@ mod tests {
         )
         .expect("batch snapshots response should deserialize");
         let aapl = batch
-            .snapshots
             .get("AAPL")
             .expect("batch snapshots response should keep the symbol as the top-level key");
         assert!(aapl.latestTrade.is_some());
@@ -408,10 +407,10 @@ mod tests {
             single.currency.as_ref().map(|value| value.as_str()),
             Some("USD")
         );
-        assert!(single.snapshot.latestTrade.is_some());
-        assert!(single.snapshot.latestQuote.is_some());
-        assert!(single.snapshot.minuteBar.is_some());
-        assert!(single.snapshot.dailyBar.is_some());
-        assert!(single.snapshot.prevDailyBar.is_some());
+        assert!(single.latestTrade.is_some());
+        assert!(single.latestQuote.is_some());
+        assert!(single.minuteBar.is_some());
+        assert!(single.dailyBar.is_some());
+        assert!(single.prevDailyBar.is_some());
     }
 }

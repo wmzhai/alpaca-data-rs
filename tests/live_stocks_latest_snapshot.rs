@@ -130,11 +130,11 @@ async fn stocks_latest_and_snapshot_endpoints_use_real_api() {
         .await
         .expect("real Alpaca stocks snapshots request should succeed");
     assert!(
-        snapshots.snapshots.contains_key("AAPL"),
+        snapshots.contains_key("AAPL"),
         "snapshots response should include AAPL"
     );
     assert!(
-        snapshots.snapshots.contains_key("MSFT"),
+        snapshots.contains_key("MSFT"),
         "snapshots response should include MSFT"
     );
 
@@ -149,11 +149,11 @@ async fn stocks_latest_and_snapshot_endpoints_use_real_api() {
         .expect("real Alpaca stocks snapshot request should succeed");
     assert_eq!(snapshot.symbol, "AAPL");
     assert!(
-        snapshot.snapshot.latestTrade.is_some()
-            || snapshot.snapshot.latestQuote.is_some()
-            || snapshot.snapshot.minuteBar.is_some()
-            || snapshot.snapshot.dailyBar.is_some()
-            || snapshot.snapshot.prevDailyBar.is_some(),
+        snapshot.latestTrade.is_some()
+            || snapshot.latestQuote.is_some()
+            || snapshot.minuteBar.is_some()
+            || snapshot.dailyBar.is_some()
+            || snapshot.prevDailyBar.is_some(),
         "snapshot response should decode at least one official snapshot field"
     );
 }
