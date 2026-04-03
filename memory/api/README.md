@@ -60,6 +60,7 @@
 - 不使用 `StockBarsRequest` 这类重复命名
 - single-symbol endpoint 在需要和 batch 区分时，使用最小后缀，例如 `bars_single`
 - latest / snapshot 的 single endpoint 优先使用单数语义，例如 `latest_quote`、`snapshot`
+- `stocks` 已经作为第一份完整模板验证了 batch + single + convenience 三层命名模式；后续资源域默认沿用这套命名边界
 
 ## 字段约束
 

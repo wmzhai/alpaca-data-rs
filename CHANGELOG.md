@@ -8,6 +8,30 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.2.0
+
+### Added
+
+- 新建 `benches/stocks.rs`，为 `stocks.latest_quote` 建立本地 `criterion` micro-benchmark baseline
+- `Cargo.toml` 现在新增 `stocks` bench target，可直接用 `cargo bench --bench stocks --no-run` 验证 benchmark 编译链路
+
+### Changed
+
+- `Phase 2: Stocks` 现在正式标记为完成；`stocks` 已成为第一个完整资源模板，覆盖官方 mirror endpoint、batch + single convenience layer、真实 API happy-path、异常路径 mock 与本地 benchmark baseline
+- `tests/live_stocks_batch_historical.rs` 的 batch baseline 现在使用更稳的真实 API 参数组合，避免在 10 秒 client timeout 下拉取过重响应体
+- `README.md`、`memory/README.md`、`memory/core/system-map.md`、`memory/core/workflows.md`、`docs/superpowers/plans/2026-04-03-phase-2-stocks.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 2` 完成后的真实状态，并把下一步推进到 `Phase 3: Options`
+- 将 crate 版本提升到 `0.2.0`，作为 `Phase 2: Stocks` 的 MINOR 收尾版本
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `set -a && source .env && set +a && cargo test --test live_stocks_batch_historical -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_stocks_single_historical -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_stocks_latest_snapshot -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_stocks_metadata -- --nocapture`
+- `cargo bench --bench stocks --no-run`
+
 ## v0.1.6
 
 ### Added

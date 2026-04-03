@@ -1138,7 +1138,7 @@ Expected: PASS.
 Run: `set -a && source .env && set +a && cargo test stocks_batch_historical_all_and_stream_use_real_api --test live_stocks_batch_historical -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml README.md memory/README.md memory/core/system-map.md docs/superpowers/plans/2026-04-03-phase-2-stocks.md CHANGELOG.md src/stocks/client.rs src/stocks/request.rs src/stocks/response.rs tests/live_stocks_batch_historical.rs tests/mock_stocks_errors.rs
@@ -1159,7 +1159,7 @@ git commit -m "feat: add stocks batch historical convenience layer (v0.1.6)"
 - Modify: `CHANGELOG.md`
 - Modify: `Cargo.toml`
 
-- [ ] **Step 1: Write failing benchmark and doc sync checklist**
+- [x] **Step 1: Write failing benchmark and doc sync checklist**
 
 ```rust
 use alpaca_data::{Client, stocks};
@@ -1175,7 +1175,7 @@ fn bench_stocks_latest_quote_local(c: &mut Criterion) {
         Mock::given(method("GET"))
             .and(path("/v2/stocks/AAPL/quotes/latest"))
             .respond_with(ResponseTemplate::new(200).set_body_raw(
-                r#"{"quote":{"t":"2026-04-03T12:00:00Z","ax":"V","ap":200.1,"as":1,"bx":"V","bp":200.0,"bs":1}}"#,
+                r#"{"symbol":"AAPL","quote":{"t":"2026-04-03T12:00:00Z","ax":"V","ap":200.1,"as":1,"bx":"V","bp":200.0,"bs":1},"currency":"USD"}"#,
                 "application/json",
             ))
             .mount(&server)
@@ -1194,13 +1194,14 @@ fn bench_stocks_latest_quote_local(c: &mut Criterion) {
     c.bench_function("stocks/latest_quote_local", |b| {
         b.to_async(&runtime).iter(|| {
             let stocks_client = stocks_client.clone();
+            let request = stocks::LatestQuoteRequest {
+                symbol: "AAPL".into(),
+                feed: None,
+                currency: None,
+            };
             async move {
                 let _ = stocks_client
-                    .latest_quote(stocks::LatestQuoteRequest {
-                        symbol: "AAPL".into(),
-                        feed: None,
-                        currency: None,
-                    })
+                    .latest_quote(request)
                     .await
                     .expect("request should succeed");
             }
@@ -1208,8 +1209,8 @@ fn bench_stocks_latest_quote_local(c: &mut Criterion) {
     });
 }
 
-criterion_group!(stocks_benches, bench_stocks_latest_quote_local);
-criterion_main!(stocks_benches);
+criterion_group!(stocks, bench_stocks_latest_quote_local);
+criterion_main!(stocks);
 ```
 
 文档检查清单：
@@ -1222,7 +1223,7 @@ criterion_main!(stocks_benches);
 - CHANGELOG 记录所有对外接口、测试、benchmark、文档和内部实现变化
 ```
 
-- [ ] **Step 2: Run the final verification commands before docs sync**
+- [x] **Step 2: Run the final verification commands before docs sync**
 
 Run: `cargo fmt --check`
 Expected: PASS.
@@ -1245,7 +1246,7 @@ Expected: PASS.
 Run: `cargo bench --bench stocks --no-run`
 Expected: FAIL before benchmark target is wired.
 
-- [ ] **Step 3: Add the benchmark and sync phase-completion docs**
+- [x] **Step 3: Add the benchmark and sync phase-completion docs**
 
 ```toml
 [[bench]]
@@ -1262,7 +1263,7 @@ harness = false
 - `benches/stocks.rs` 提供本地 micro-benchmark baseline
 ```
 
-- [ ] **Step 4: Run the complete phase verification**
+- [x] **Step 4: Run the complete phase verification**
 
 Run: `cargo fmt --check`
 Expected: PASS.
@@ -1288,7 +1289,7 @@ Expected: PASS.
 Run: `git diff --stat main...HEAD`
 Expected: show only Phase 2 stocks work.
 
-- [ ] **Step 5: Commit the phase completion release**
+- [x] **Step 5: Commit the phase completion release**
 
 ```bash
 git add Cargo.toml README.md AGENTS.md memory/README.md memory/api/README.md memory/core/system-map.md memory/core/workflows.md docs/superpowers/plans/2026-04-03-full-project-roadmap.md CHANGELOG.md benches/stocks.rs
@@ -1297,17 +1298,17 @@ git commit -m "chore: bump version and changelog (v0.2.0)"
 
 ## Final Verification Checklist
 
-- [ ] `cargo fmt --check`
-- [ ] `cargo test`
-- [ ] `set -a && source .env && set +a && cargo test --test live_stocks_batch_historical -- --nocapture`
-- [ ] `set -a && source .env && set +a && cargo test --test live_stocks_single_historical -- --nocapture`
-- [ ] `set -a && source .env && set +a && cargo test --test live_stocks_latest_snapshot -- --nocapture`
-- [ ] `set -a && source .env && set +a && cargo test --test live_stocks_metadata -- --nocapture`
-- [ ] `cargo bench --bench stocks --no-run`
-- [ ] 确认 mock 测试只覆盖异常路径
-- [ ] 确认 batch / single endpoint 的请求字段与响应字段继续保持官方原词
-- [ ] 确认 `Phase 2` 收尾版本提升为 `v0.2.0`
-- [ ] 确认 phase 完成后合并 `main`、推送远端并删除当前开发分支
+- [x] `cargo fmt --check`
+- [x] `cargo test`
+- [x] `set -a && source .env && set +a && cargo test --test live_stocks_batch_historical -- --nocapture`
+- [x] `set -a && source .env && set +a && cargo test --test live_stocks_single_historical -- --nocapture`
+- [x] `set -a && source .env && set +a && cargo test --test live_stocks_latest_snapshot -- --nocapture`
+- [x] `set -a && source .env && set +a && cargo test --test live_stocks_metadata -- --nocapture`
+- [x] `cargo bench --bench stocks --no-run`
+- [x] 确认 mock 测试只覆盖异常路径
+- [x] 确认 batch / single endpoint 的请求字段与响应字段继续保持官方原词
+- [x] 确认 `Phase 2` 收尾版本提升为 `v0.2.0`
+- [x] 确认 phase 完成后合并 `main`、推送远端并删除当前开发分支
 
 ## Handoff Notes
 

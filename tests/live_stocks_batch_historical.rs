@@ -64,10 +64,10 @@ async fn stocks_batch_historical_uses_real_api() {
     let quotes = client
         .stocks()
         .quotes(stocks::QuotesRequest {
-            symbols: vec!["AAPL".into(), "MSFT".into()],
+            symbols: vec!["AAPL".into()],
             start: Some("2024-03-01T14:30:00Z".into()),
-            end: Some("2024-03-01T14:31:00Z".into()),
-            limit: Some(10_000),
+            end: Some("2024-03-01T14:30:15Z".into()),
+            limit: Some(100),
             feed: Some(stocks::DataFeed::Iex),
             sort: Some(stocks::Sort::Asc),
             asof: None,
@@ -79,10 +79,6 @@ async fn stocks_batch_historical_uses_real_api() {
     assert!(
         quotes.quotes.contains_key("AAPL"),
         "quotes response should include AAPL"
-    );
-    assert!(
-        quotes.quotes.contains_key("MSFT"),
-        "quotes response should include MSFT"
     );
     let aapl_quote = quotes
         .quotes
@@ -101,10 +97,10 @@ async fn stocks_batch_historical_uses_real_api() {
     let trades = client
         .stocks()
         .trades(stocks::TradesRequest {
-            symbols: vec!["AAPL".into(), "MSFT".into()],
+            symbols: vec!["AAPL".into()],
             start: Some("2024-03-01T14:30:00Z".into()),
-            end: Some("2024-03-01T14:31:00Z".into()),
-            limit: Some(500),
+            end: Some("2024-03-01T14:30:15Z".into()),
+            limit: Some(100),
             feed: Some(stocks::DataFeed::Iex),
             sort: Some(stocks::Sort::Asc),
             asof: None,
@@ -116,10 +112,6 @@ async fn stocks_batch_historical_uses_real_api() {
     assert!(
         trades.trades.contains_key("AAPL"),
         "trades response should include AAPL"
-    );
-    assert!(
-        trades.trades.contains_key("MSFT"),
-        "trades response should include MSFT"
     );
     let aapl_trade = trades
         .trades

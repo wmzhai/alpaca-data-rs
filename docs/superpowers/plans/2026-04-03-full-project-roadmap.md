@@ -14,7 +14,7 @@
 
 - **Phase 0: Bootstrap**，已完成
 - **Phase 1: Shared Core**，已完成（`v0.1.0`）
-- **Phase 2: Stocks**
+- **Phase 2: Stocks**，已完成（`v0.2.0`）
 - **Phase 3: Options**
 - **Phase 4: Crypto**
 - **Phase 5: News + Corporate Actions**
@@ -113,6 +113,8 @@
 
 ## Phase 2: Stocks
 
+**Status:** Done in `v0.2.0`
+
 **Goal:** 把 `stocks` 做成第一个完整模板模块，作为后续资源域的实现标准。
 
 **Primary Scope:**
@@ -143,6 +145,8 @@
 - 第一个真实可用资源模块
 - 多 symbol 分页行为验证
 - latest / snapshot / metadata 端点形状定型
+- 历史 batch + single `*_all` / `*_stream` 便利层完成
+- `benches/stocks.rs` 本地 benchmark baseline 建立完成
 
 **Exit Criteria:**
 
@@ -327,7 +331,7 @@
 ## Recommended Execution Order From Now
 
 - [x] Execute **Phase 1: Shared Core** first
-- [ ] Then execute **Phase 2: Stocks** as the first real resource implementation
+- [x] Then execute **Phase 2: Stocks** as the first real resource implementation
 - [ ] Then execute **Phase 3: Options**
 - [ ] Then execute **Phase 4: Crypto**
 - [ ] Then execute **Phase 5: News + Corporate Actions**
@@ -337,4 +341,4 @@
 
 This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The recommended next detailed plan is:
 
-- `Phase 2: Stocks`
+- `Phase 3: Options`

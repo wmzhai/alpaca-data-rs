@@ -22,6 +22,7 @@
 3. 只有真实 API 难以稳定制造异常时，才补 mock 故障注入测试。
 4. benchmark 先看真实 API 端到端，再看本地 micro-benchmark。
 5. 每个 phase 收尾时，必须至少跑完整的格式检查、默认测试、该 phase 的 live tests，以及对应 benchmark 验证。
+6. 新资源的 benchmark baseline 落地后，先用 `cargo bench --bench <name> --no-run` 做编译验证，再决定是否跑完整采样。
 
 ## 文档更新要求
 

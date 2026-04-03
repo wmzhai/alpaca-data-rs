@@ -1,6 +1,6 @@
 [package]
 name = "alpaca-data"
-version = "0.1.6"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
 description = "High-performance Rust client for Alpaca Market Data API"
@@ -20,4 +20,8 @@ wiremock = "0.6"
 
 [[bench]]
 name = "shared_core"
+harness = false
+
+[[bench]]
+name = "stocks"
 harness = false
