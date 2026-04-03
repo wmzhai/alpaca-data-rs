@@ -9,11 +9,12 @@ pub use enums::{Adjustment, Currency, DataFeed, Sort, TimeFrame};
 pub use model::{Bar, ConditionCode, ExchangeCode, Quote, Snapshot, Trade};
 pub use request::{
     BarsRequest, BarsSingleRequest, ConditionCodesRequest, LatestBarsRequest, LatestQuoteRequest,
-    LatestQuotesRequest, LatestTradesRequest, QuotesRequest, SnapshotRequest, SnapshotsRequest,
-    TickType, TradesRequest,
+    LatestQuotesRequest, LatestTradesRequest, QuotesRequest, QuotesSingleRequest, SnapshotRequest,
+    SnapshotsRequest, TickType, TradesRequest, TradesSingleRequest,
 };
 pub use response::{
     BarsResponse, BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse,
     LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse, LatestTradesResponse,
-    QuotesResponse, SnapshotResponse, SnapshotsResponse, TradesResponse,
+    QuotesResponse, QuotesSingleResponse, SnapshotResponse, SnapshotsResponse, TradesResponse,
+    TradesSingleResponse,
 };

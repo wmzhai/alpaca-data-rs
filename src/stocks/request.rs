@@ -1,4 +1,5 @@
 use crate::common::query::QueryWriter;
+use crate::transport::pagination::PaginatedRequest;
 
 use super::{Adjustment, Currency, DataFeed, Sort, TimeFrame};
 
@@ -46,8 +47,34 @@ pub struct QuotesRequest {
 }
 
 #[derive(Clone, Debug, Default)]
+pub struct QuotesSingleRequest {
+    pub symbol: String,
+    pub start: Option<String>,
+    pub end: Option<String>,
+    pub limit: Option<u32>,
+    pub feed: Option<DataFeed>,
+    pub sort: Option<Sort>,
+    pub asof: Option<String>,
+    pub currency: Option<Currency>,
+    pub page_token: Option<String>,
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct TradesRequest {
     pub symbols: Vec<String>,
+    pub start: Option<String>,
+    pub end: Option<String>,
+    pub limit: Option<u32>,
+    pub feed: Option<DataFeed>,
+    pub sort: Option<Sort>,
+    pub asof: Option<String>,
+    pub currency: Option<Currency>,
+    pub page_token: Option<String>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct TradesSingleRequest {
+    pub symbol: String,
     pub start: Option<String>,
     pub end: Option<String>,
     pub limit: Option<u32>,
@@ -130,10 +157,42 @@ impl BarsRequest {
     }
 }
 
+impl BarsSingleRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        let mut query = QueryWriter::default();
+        query.push_opt("timeframe", Some(self.timeframe));
+        query.push_opt("start", self.start);
+        query.push_opt("end", self.end);
+        query.push_opt("limit", self.limit);
+        query.push_opt("adjustment", self.adjustment);
+        query.push_opt("feed", self.feed);
+        query.push_opt("currency", self.currency);
+        query.push_opt("page_token", self.page_token);
+        query.push_opt("sort", self.sort);
+        query.push_opt("asof", self.asof);
+        query.finish()
+    }
+}
+
 impl QuotesRequest {
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
+        query.push_opt("start", self.start);
+        query.push_opt("end", self.end);
+        query.push_opt("limit", self.limit);
+        query.push_opt("feed", self.feed);
+        query.push_opt("currency", self.currency);
+        query.push_opt("page_token", self.page_token);
+        query.push_opt("sort", self.sort);
+        query.push_opt("asof", self.asof);
+        query.finish()
+    }
+}
+
+impl QuotesSingleRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        let mut query = QueryWriter::default();
         query.push_opt("start", self.start);
         query.push_opt("end", self.end);
         query.push_opt("limit", self.limit);
@@ -159,6 +218,45 @@ impl TradesRequest {
         query.push_opt("sort", self.sort);
         query.push_opt("asof", self.asof);
         query.finish()
+    }
+}
+
+impl TradesSingleRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        let mut query = QueryWriter::default();
+        query.push_opt("start", self.start);
+        query.push_opt("end", self.end);
+        query.push_opt("limit", self.limit);
+        query.push_opt("feed", self.feed);
+        query.push_opt("currency", self.currency);
+        query.push_opt("page_token", self.page_token);
+        query.push_opt("sort", self.sort);
+        query.push_opt("asof", self.asof);
+        query.finish()
+    }
+}
+
+impl PaginatedRequest for BarsSingleRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
+impl PaginatedRequest for QuotesSingleRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
+impl PaginatedRequest for TradesSingleRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
     }
 }
 
@@ -232,6 +330,39 @@ mod tests {
     }
 
     #[test]
+    fn bars_single_request_serializes_official_query_words() {
+        let request = BarsSingleRequest {
+            symbol: "AAPL".into(),
+            timeframe: TimeFrame::from("1Day"),
+            start: Some("2024-03-01T00:00:00Z".into()),
+            end: Some("2024-03-05T00:00:00Z".into()),
+            limit: Some(50),
+            adjustment: Some(Adjustment::from("split,dividend")),
+            feed: Some(DataFeed::Boats),
+            sort: Some(Sort::Desc),
+            asof: Some("2024-03-04".into()),
+            currency: Some(Currency::from("USD")),
+            page_token: Some("page-123".into()),
+        };
+
+        assert_eq!(
+            request.to_query(),
+            vec![
+                ("timeframe".to_string(), "1Day".to_string()),
+                ("start".to_string(), "2024-03-01T00:00:00Z".to_string()),
+                ("end".to_string(), "2024-03-05T00:00:00Z".to_string()),
+                ("limit".to_string(), "50".to_string()),
+                ("adjustment".to_string(), "split,dividend".to_string()),
+                ("feed".to_string(), "boats".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+                ("page_token".to_string(), "page-123".to_string()),
+                ("sort".to_string(), "desc".to_string()),
+                ("asof".to_string(), "2024-03-04".to_string()),
+            ]
+        );
+    }
+
+    #[test]
     fn quotes_request_serializes_official_query_words() {
         let request = QuotesRequest {
             symbols: vec!["AAPL".into(), "MSFT".into()],
@@ -262,6 +393,35 @@ mod tests {
     }
 
     #[test]
+    fn quotes_single_request_serializes_official_query_words() {
+        let request = QuotesSingleRequest {
+            symbol: "AAPL".into(),
+            start: Some("2024-03-01T00:00:00Z".into()),
+            end: Some("2024-03-05T00:00:00Z".into()),
+            limit: Some(25),
+            feed: Some(DataFeed::Iex),
+            sort: Some(Sort::Asc),
+            asof: Some("2024-03-04".into()),
+            currency: Some(Currency::from("USD")),
+            page_token: Some("page-456".into()),
+        };
+
+        assert_eq!(
+            request.to_query(),
+            vec![
+                ("start".to_string(), "2024-03-01T00:00:00Z".to_string()),
+                ("end".to_string(), "2024-03-05T00:00:00Z".to_string()),
+                ("limit".to_string(), "25".to_string()),
+                ("feed".to_string(), "iex".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+                ("page_token".to_string(), "page-456".to_string()),
+                ("sort".to_string(), "asc".to_string()),
+                ("asof".to_string(), "2024-03-04".to_string()),
+            ]
+        );
+    }
+
+    #[test]
     fn trades_request_serializes_official_query_words() {
         let request = TradesRequest {
             symbols: vec!["AAPL".into(), "MSFT".into()],
@@ -279,6 +439,35 @@ mod tests {
             request.to_query(),
             vec![
                 ("symbols".to_string(), "AAPL,MSFT".to_string()),
+                ("start".to_string(), "2024-03-01T00:00:00Z".to_string()),
+                ("end".to_string(), "2024-03-05T00:00:00Z".to_string()),
+                ("limit".to_string(), "10".to_string()),
+                ("feed".to_string(), "sip".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+                ("page_token".to_string(), "page-789".to_string()),
+                ("sort".to_string(), "desc".to_string()),
+                ("asof".to_string(), "2024-03-04".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn trades_single_request_serializes_official_query_words() {
+        let request = TradesSingleRequest {
+            symbol: "AAPL".into(),
+            start: Some("2024-03-01T00:00:00Z".into()),
+            end: Some("2024-03-05T00:00:00Z".into()),
+            limit: Some(10),
+            feed: Some(DataFeed::Sip),
+            sort: Some(Sort::Desc),
+            asof: Some("2024-03-04".into()),
+            currency: Some(Currency::from("USD")),
+            page_token: Some("page-789".into()),
+        };
+
+        assert_eq!(
+            request.to_query(),
+            vec![
                 ("start".to_string(), "2024-03-01T00:00:00Z".to_string()),
                 ("end".to_string(), "2024-03-05T00:00:00Z".to_string()),
                 ("limit".to_string(), "10".to_string()),

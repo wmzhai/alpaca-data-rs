@@ -5,14 +5,16 @@ use crate::{
     client::Inner,
     common::response::{ResponseStream, empty_stream},
     transport::endpoint::Endpoint,
+    transport::pagination::{collect_all, stream_pages},
 };
 
 use super::{
     BarsRequest, BarsResponse, BarsSingleRequest, BarsSingleResponse, ConditionCodesRequest,
     ConditionCodesResponse, ExchangeCodesResponse, LatestBarsRequest, LatestBarsResponse,
     LatestQuoteRequest, LatestQuoteResponse, LatestQuotesRequest, LatestQuotesResponse,
-    LatestTradesRequest, LatestTradesResponse, QuotesRequest, QuotesResponse, SnapshotRequest,
-    SnapshotResponse, SnapshotsRequest, SnapshotsResponse, TradesRequest, TradesResponse,
+    LatestTradesRequest, LatestTradesResponse, QuotesRequest, QuotesResponse, QuotesSingleRequest,
+    QuotesSingleResponse, SnapshotRequest, SnapshotResponse, SnapshotsRequest, SnapshotsResponse,
+    TradesRequest, TradesResponse, TradesSingleRequest, TradesSingleResponse,
 };
 
 #[derive(Clone, Debug)]
@@ -47,12 +49,35 @@ impl StocksClient {
 
     pub async fn bars_single(
         &self,
-        _request: BarsSingleRequest,
+        request: BarsSingleRequest,
     ) -> Result<BarsSingleResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.bars_single",
+        let endpoint = Endpoint::StocksBarsSingle {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn bars_single_all(
+        &self,
+        request: BarsSingleRequest,
+    ) -> Result<BarsSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.bars_single(request).await }
         })
+        .await
     }
 
     pub fn bars_stream(
@@ -60,6 +85,21 @@ impl StocksClient {
         _request: BarsRequest,
     ) -> ResponseStream<Result<BarsResponse, Error>> {
         empty_stream()
+    }
+
+    pub fn bars_single_stream(
+        &self,
+        request: BarsSingleRequest,
+    ) -> ResponseStream<Result<BarsSingleResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.bars_single(request).await }
+        })
     }
 
     pub async fn quotes(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
@@ -82,11 +122,59 @@ impl StocksClient {
         })
     }
 
+    pub async fn quotes_single(
+        &self,
+        request: QuotesSingleRequest,
+    ) -> Result<QuotesSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let endpoint = Endpoint::StocksQuotesSingle {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn quotes_single_all(
+        &self,
+        request: QuotesSingleRequest,
+    ) -> Result<QuotesSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.quotes_single(request).await }
+        })
+        .await
+    }
+
     pub fn quotes_stream(
         &self,
         _request: QuotesRequest,
     ) -> ResponseStream<Result<QuotesResponse, Error>> {
         empty_stream()
+    }
+
+    pub fn quotes_single_stream(
+        &self,
+        request: QuotesSingleRequest,
+    ) -> ResponseStream<Result<QuotesSingleResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.quotes_single(request).await }
+        })
     }
 
     pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
@@ -109,11 +197,59 @@ impl StocksClient {
         })
     }
 
+    pub async fn trades_single(
+        &self,
+        request: TradesSingleRequest,
+    ) -> Result<TradesSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let endpoint = Endpoint::StocksTradesSingle {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn trades_single_all(
+        &self,
+        request: TradesSingleRequest,
+    ) -> Result<TradesSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.trades_single(request).await }
+        })
+        .await
+    }
+
     pub fn trades_stream(
         &self,
         _request: TradesRequest,
     ) -> ResponseStream<Result<TradesResponse, Error>> {
         empty_stream()
+    }
+
+    pub fn trades_single_stream(
+        &self,
+        request: TradesSingleRequest,
+    ) -> ResponseStream<Result<TradesSingleResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.trades_single(request).await }
+        })
     }
 
     pub async fn latest_bars(
@@ -193,5 +329,12 @@ impl StocksClient {
         } else {
             Err(Error::MissingCredentials)
         }
+    }
+
+    fn error_stream<Response>(error: Error) -> ResponseStream<Result<Response, Error>>
+    where
+        Response: Send + 'static,
+    {
+        Box::pin(futures_util::stream::once(async move { Err(error) }))
     }
 }

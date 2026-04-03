@@ -8,6 +8,32 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.3
+
+### Added
+
+- 为 `stocks` single historical family 新增 `QuotesSingleRequest`、`TradesSingleRequest`、`QuotesSingleResponse`、`TradesSingleResponse` 公开类型，并将 `BarsSingleResponse` 对齐为官方 single wrapper：包含顶层 `symbol`、分页 `next_page_token` 与可选 `currency`
+- 新建 `tests/live_stocks_single_historical.rs`，在 `ALPACA_LIVE_TESTS=1` 时用真实 Alpaca API 覆盖 `bars_single` / `quotes_single` / `trades_single` 及其 `*_all`、`*_stream` 便利层
+- 新建 `tests/mock_stocks_errors.rs`，覆盖 single historical 损坏 JSON -> `Error::Deserialize`，以及跨页 `symbol` / `currency` 不一致时返回 `Error::Pagination`
+
+### Changed
+
+- `StocksClient` 现在已接通 `GET /v2/stocks/{symbol}/bars|quotes|trades` 三个 single historical endpoint，并新增 `bars_single_all` / `bars_single_stream`、`quotes_single_all` / `quotes_single_stream`、`trades_single_all` / `trades_single_stream`
+- `stocks` single historical 请求现在按官方 query 单词序列化：`timeframe`、`start`、`end`、`limit`、`adjustment`、`asof`、`feed`、`currency`、`page_token`、`sort`
+- single historical 分页聚合现在复用共享 `collect_all` / `stream_pages`，并在跨页 `symbol` 或 `currency` 不一致时立即返回 `Error::Pagination`，避免静默拼接错误数据
+- `tests/public_api.rs` 现在覆盖全部 single historical request/response 类型与新方法名称
+- 将 crate 版本提升到 `0.1.3`，对齐 `Phase 2 / Task 3` 的版本提交要求
+
+### Tests
+
+- `cargo test --test public_api -- --nocapture`
+- `cargo test stocks::request::tests --lib -- --nocapture`
+- `cargo test single_historical --lib -- --nocapture`
+- `cargo test --test mock_stocks_errors malformed_single_historical_json_maps_to_deserialize_error -- --nocapture`
+- `cargo test --test mock_stocks_errors bars_single_all_rejects_mismatched_symbol_across_pages -- --nocapture`
+- `cargo test --test mock_stocks_errors bars_single_all_rejects_mismatched_currency_across_pages -- --nocapture`
+- `set -a && source .env && set +a && ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_single_historical -- --nocapture`
+
 ## v0.1.2
 
 ### Added

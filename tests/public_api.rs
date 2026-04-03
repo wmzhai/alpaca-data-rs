@@ -26,6 +26,10 @@ fn client_builder_builds_client() {
 fn resource_modules_expose_short_type_names() {
     let _ = stocks::BarsRequest::default();
     let _ = stocks::BarsResponse::default();
+    let _ = stocks::QuotesSingleRequest::default();
+    let _ = stocks::QuotesSingleResponse::default();
+    let _ = stocks::TradesSingleRequest::default();
+    let _ = stocks::TradesSingleResponse::default();
     let _ = options::ChainRequest::default();
     let _ = options::ChainResponse::default();
     let _ = crypto::LatestOrderbooksRequest::default();
@@ -40,10 +44,14 @@ fn resource_modules_expose_short_type_names() {
 fn stocks_module_exposes_batch_and_single_type_names() {
     let _ = stocks::BarsRequest::default();
     let _ = stocks::BarsSingleRequest::default();
+    let _ = stocks::QuotesSingleRequest::default();
+    let _ = stocks::TradesSingleRequest::default();
     let _ = stocks::LatestQuoteRequest::default();
     let _ = stocks::SnapshotRequest::default();
     let _ = stocks::ConditionCodesRequest::default();
     let _ = stocks::BarsSingleResponse::default();
+    let _ = stocks::QuotesSingleResponse::default();
+    let _ = stocks::TradesSingleResponse::default();
     let _ = stocks::LatestQuoteResponse::default();
     let _ = stocks::SnapshotResponse::default();
 }
@@ -60,8 +68,32 @@ fn stocks_client_exposes_batch_and_single_method_names() {
     let _ = client
         .stocks()
         .bars_single(stocks::BarsSingleRequest::default());
+    let _ = client
+        .stocks()
+        .bars_single_all(stocks::BarsSingleRequest::default());
+    let _ = client
+        .stocks()
+        .bars_single_stream(stocks::BarsSingleRequest::default());
     let _ = client.stocks().bars_all(stocks::BarsRequest::default());
     let _ = client.stocks().bars_stream(stocks::BarsRequest::default());
+    let _ = client
+        .stocks()
+        .quotes_single(stocks::QuotesSingleRequest::default());
+    let _ = client
+        .stocks()
+        .quotes_single_all(stocks::QuotesSingleRequest::default());
+    let _ = client
+        .stocks()
+        .quotes_single_stream(stocks::QuotesSingleRequest::default());
+    let _ = client
+        .stocks()
+        .trades_single(stocks::TradesSingleRequest::default());
+    let _ = client
+        .stocks()
+        .trades_single_all(stocks::TradesSingleRequest::default());
+    let _ = client
+        .stocks()
+        .trades_single_stream(stocks::TradesSingleRequest::default());
     let _ = client
         .stocks()
         .latest_quotes(stocks::LatestQuotesRequest::default());
