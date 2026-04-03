@@ -18,7 +18,7 @@
 ### Changed
 
 - `StocksClient` 现在已接通 `bars`、`quotes`、`trades` 三个历史 batch GET `/v2/stocks/*` 端点，并复用共享 async transport/query 基础设施
-- `stocks::TimeFrame`、`stocks::Adjustment` 和 `stocks::Currency` 现在改为官方字符串封装，`stocks::DataFeed` 与 `stocks::Sort` 现在按官方值序列化，避免继续编码过窄或错误的历史参数取值
+- `stocks::TimeFrame`、`stocks::Adjustment` 和 `stocks::Currency` 现在改为官方字符串封装，`stocks::DataFeed` 与 `stocks::Sort` 现在按官方值序列化，并保留 `overnight` feed 兼容覆盖，避免继续编码过窄或错误的参数取值
 - `stocks` 历史 batch 响应现在使用带 serde 解码的 typed model/response 结构，覆盖官方 `bars` / `quotes` / `trades` 包装字段、`next_page_token` 与可选 `currency`
 - 将 crate 版本提升到 `0.1.2`，对齐 `Phase 2 / Task 2` 的版本提交要求
 

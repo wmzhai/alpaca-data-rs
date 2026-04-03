@@ -103,6 +103,7 @@ pub enum DataFeed {
     #[default]
     Sip,
     Boats,
+    Overnight,
 }
 
 impl Display for DataFeed {
@@ -112,6 +113,7 @@ impl Display for DataFeed {
             Self::Otc => "otc",
             Self::Sip => "sip",
             Self::Boats => "boats",
+            Self::Overnight => "overnight",
         })
     }
 }

@@ -172,6 +172,7 @@ mod tests {
         assert_eq!(DataFeed::Otc.to_string(), "otc");
         assert_eq!(DataFeed::Sip.to_string(), "sip");
         assert_eq!(DataFeed::Boats.to_string(), "boats");
+        assert_eq!(DataFeed::Overnight.to_string(), "overnight");
     }
 
     #[test]
