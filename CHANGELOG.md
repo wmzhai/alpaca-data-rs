@@ -13,7 +13,7 @@
 ### Added
 
 - 为 `stocks` 新增 Task 1 公开骨架类型：`BarsSingleRequest`、`LatestQuoteRequest`、`SnapshotRequest`、`ConditionCodesRequest`
-- 为 `stocks` 新增 Task 1 响应骨架类型：`BarsSingleResponse`、`LatestBarResponse`、`LatestQuoteResponse`、`SnapshotResponse`
+- 为 `stocks` 新增 Task 1 响应骨架类型：`BarsSingleResponse`、`LatestQuoteResponse`、`SnapshotResponse`
 - 为 `Endpoint` 新增 stocks batch / single skeleton 路由变体和基础 path 覆盖
 
 ### Changed

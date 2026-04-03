@@ -14,6 +14,6 @@ pub use request::{
 };
 pub use response::{
     BarsResponse, BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse,
-    LatestBarResponse, LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse,
-    LatestTradesResponse, QuotesResponse, SnapshotResponse, SnapshotsResponse, TradesResponse,
+    LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse, LatestTradesResponse,
+    QuotesResponse, SnapshotResponse, SnapshotsResponse, TradesResponse,
 };

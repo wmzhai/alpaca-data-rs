@@ -44,7 +44,7 @@ fn stocks_module_exposes_batch_and_single_type_names() {
     let _ = stocks::SnapshotRequest::default();
     let _ = stocks::ConditionCodesRequest::default();
     let _ = stocks::BarsSingleResponse::default();
-    let _ = stocks::LatestBarResponse::default();
+    let _ = stocks::LatestQuoteResponse::default();
     let _ = stocks::SnapshotResponse::default();
 }
 

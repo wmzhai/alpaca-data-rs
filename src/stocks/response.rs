@@ -32,11 +32,6 @@ pub struct LatestBarsResponse {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
-pub struct LatestBarResponse {
-    pub bar: Bar,
-}
-
-#[derive(Clone, Debug, Default, PartialEq)]
 pub struct LatestQuotesResponse {
     pub quotes: HashMap<String, Quote>,
 }
