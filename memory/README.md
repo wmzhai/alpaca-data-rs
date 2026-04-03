@@ -18,8 +18,8 @@
 
 ## 当前状态说明
 
-- 这是一个新项目，当前已经完成 `Phase 1: Shared Core`，共享基础层进入可运行状态。
+- 这是一个新项目，当前已经完成 `Phase 1: Shared Core`，并已进入 `Phase 2: Stocks` 的真实接口落地阶段。
 - 当前已经落下最小 Rust crate 骨架：`Cargo.toml`、`src/`、`tests/`、`.gitignore`。
-- 已完成的最小真实代码落地包括：`ClientBuilder` 运行时配置、认证配对校验、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、共享分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及 `benches/shared_core.rs` benchmark baseline。
-- 当前下一步默认进入 `Phase 2: Stocks`，继续把第一个完整资源域做成正式模板。
+- 已完成的真实代码落地包括：共享 `ClientBuilder` 运行时配置、认证配对校验、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、共享分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及 `stocks.bars` / `stocks.quotes` / `stocks.trades` 历史 batch endpoint 与对应 live test。
+- 当前下一步默认进入 `Phase 2 / Task 3`，继续补齐 `stocks` single historical endpoint 和分页便利层。
 - `memory/` 现在既记录设计约束，也要记录已经落地的真实代码入口，后续随着 transport、分页和资源实现补齐继续同步更新。

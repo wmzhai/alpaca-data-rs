@@ -136,7 +136,7 @@
 - Modify: `Cargo.toml`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Write the failing public API and routing tests**
+- [x] **Step 1: Write the failing public API and routing tests**
 
 ```rust
 use alpaca_data::{Client, stocks};
@@ -198,7 +198,7 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted tests to verify they fail**
+- [x] **Step 2: Run the targeted tests to verify they fail**
 
 Run: `cargo test --test public_api stocks_module_exposes_batch_and_single_type_names -- --nocapture`
 Expected: FAIL because the new request/response types and methods do not exist yet.
@@ -206,7 +206,7 @@ Expected: FAIL because the new request/response types and methods do not exist y
 Run: `cargo test endpoint_routes_stocks_batch_and_single_paths --lib -- --nocapture`
 Expected: FAIL because the `Endpoint` variants do not exist yet.
 
-- [ ] **Step 3: Add the public surface and skeleton routing**
+- [x] **Step 3: Add the public surface and skeleton routing**
 
 ```rust
 #[derive(Clone, Debug, Default)]
@@ -317,7 +317,7 @@ pub(crate) enum Endpoint {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted tests**
+- [x] **Step 4: Re-run the targeted tests**
 
 Run: `cargo test --test public_api stocks_module_exposes_batch_and_single_type_names -- --nocapture`
 Expected: PASS.
@@ -325,7 +325,7 @@ Expected: PASS.
 Run: `cargo test endpoint_routes_stocks_batch_and_single_paths --lib -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml src/transport/endpoint.rs src/stocks/mod.rs src/stocks/client.rs src/stocks/request.rs src/stocks/response.rs tests/public_api.rs CHANGELOG.md
@@ -345,7 +345,9 @@ git commit -m "feat: add stocks endpoint surface and routing (v0.1.1)"
 - Create: `tests/live_stocks_batch_historical.rs`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Write failing live and unit tests for batch historical endpoints**
+**Implementation note:** 实际落地时按官方 OpenAPI 修正了这里的简化草案：`TimeFrame`、`Adjustment`、`Currency` 使用原始官方字符串封装，`DataFeed` 保留官方 stock feed 词汇覆盖（当前至少包括 `iex`、`otc`、`sip`、`boats`、`overnight`），live test 也按真实 API 返回规律调整了窗口和 `limit`，确保能稳定验证两个 symbol 与代表性解码字段。
+
+- [x] **Step 1: Write failing live and unit tests for batch historical endpoints**
 
 ```rust
 use alpaca_data::{Client, stocks};
@@ -417,7 +419,7 @@ fn stocks_data_feed_serializes_to_official_strings() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cargo test stocks_data_feed_serializes_to_official_strings --lib -- --nocapture`
 Expected: FAIL because the enum string mapping helper does not exist yet.
@@ -425,7 +427,7 @@ Expected: FAIL because the enum string mapping helper does not exist yet.
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_batch_historical -- --nocapture`
 Expected: FAIL because `bars`, `quotes`, and `trades` are not implemented yet.
 
-- [ ] **Step 3: Implement batch historical requests, wrappers, models, and fetchers**
+- [x] **Step 3: Implement batch historical requests, wrappers, models, and fetchers**
 
 ```rust
 pub trait ApiStr {
@@ -511,7 +513,7 @@ pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
 }
 ```
 
-- [ ] **Step 4: Re-run the batch historical tests**
+- [x] **Step 4: Re-run the batch historical tests**
 
 Run: `cargo test stocks_data_feed_serializes_to_official_strings --lib -- --nocapture`
 Expected: PASS.
@@ -519,7 +521,7 @@ Expected: PASS.
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_batch_historical -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/common/enums.rs src/stocks/enums.rs src/stocks/request.rs src/stocks/response.rs src/stocks/model.rs src/stocks/client.rs src/transport/endpoint.rs tests/live_stocks_batch_historical.rs CHANGELOG.md
