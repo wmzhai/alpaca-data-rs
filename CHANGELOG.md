@@ -8,6 +8,26 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.0.5
+
+### Added
+
+- 为分页框架新增 `PaginatedRequest`、`PaginatedResponse`、`collect_all` 和 `stream_pages`
+- 为分页 helper 新增单元测试，覆盖聚合和按页流
+
+### Changed
+
+- `common::response::ResponseStream` 现在升级为 boxed async stream 类型
+- `empty_stream()` 现在返回 boxed 空 stream，以兼容后续共享分页流接口
+- Phase 1 计划和 roadmap 已同步到 Task 4 完成后的当前状态
+
+### Docs
+
+- 更新 `AGENTS.md` 当前项目状态
+- 更新 `memory/README.md` 与 `memory/core/system-map.md`
+- 更新 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
+- 更新 `docs/superpowers/plans/2026-04-03-phase-1-shared-core.md`
+
 ## v0.0.4
 
 ### Added

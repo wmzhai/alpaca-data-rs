@@ -18,6 +18,7 @@
 - `src/transport/http.rs`：共享 async HTTP JSON transport，当前已具备 timeout、status/error mapping 和 retry-after 解析
 - `src/transport/retry.rs`：共享最小重试策略
 - `src/transport/rate_limit.rs`：共享最小并发限制器
+- `src/transport/pagination.rs`：共享分页 trait 与 helper，当前已提供 `collect_all` 和 `stream_pages`
 - `src/stocks/`、`src/options/`、`src/crypto/`、`src/news/`、`src/corporate_actions/`：五个资源域的最小模块骨架
 - `tests/public_api.rs`：公开 API 形状的编译期使用测试
 - `tests/client_builder.rs`：`ClientBuilder` 运行时配置与认证校验测试
@@ -46,6 +47,6 @@
 ## 当前事实边界
 
 - 现在已经存在的是“最小骨架 + 部分共享基础层”，还不是完整 API 实现。
-- 当前真正落地的共享层能力已覆盖 builder/runtime config、认证配对校验、配置错误建模、基础 query 序列化、最小 endpoint 路由，以及最小 async HTTP transport。
+- 当前真正落地的共享层能力已覆盖 builder/runtime config、认证配对校验、配置错误建模、基础 query 序列化、最小 endpoint 路由、最小 async HTTP transport，以及共享分页 helper。
 - 当前各资源 client 的 endpoint 方法大多仍是占位壳，不能当成真实 HTTP 逻辑已完成。
 - 后续代码真正补齐后，这份文档需要继续从“骨架图”更新为更细的真实目录图。

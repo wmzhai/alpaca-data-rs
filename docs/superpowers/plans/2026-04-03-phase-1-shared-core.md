@@ -505,7 +505,7 @@ git commit -m "feat: add shared async transport and error mapping"
 - Modify: `src/transport/pagination.rs`
 - Test: `src/transport/pagination.rs`
 
-- [ ] **Step 1: Write failing pagination helper tests**
+- [x] **Step 1: Write failing pagination helper tests**
 
 ```rust
 #[cfg(test)]
@@ -550,12 +550,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cargo test collect_all_merges_pages_and_clears_next_page_token --lib -- --nocapture`
 Expected: FAIL because pagination traits/helpers do not exist yet.
 
-- [ ] **Step 3: Implement generic pagination traits and stream alias**
+- [x] **Step 3: Implement generic pagination traits and stream alias**
 
 ```rust
 pub type ResponseStream<T> = std::pin::Pin<Box<dyn futures_util::Stream<Item = T> + Send>>;
@@ -594,12 +594,12 @@ where
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cargo test collect_all_merges_pages_and_clears_next_page_token --lib -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/common/response.rs src/transport/pagination.rs
