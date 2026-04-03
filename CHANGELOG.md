@@ -21,7 +21,9 @@
 - `StocksClient` 现在已接通 `GET /v2/stocks/{symbol}/bars|quotes|trades` 三个 single historical endpoint，并新增 `bars_single_all` / `bars_single_stream`、`quotes_single_all` / `quotes_single_stream`、`trades_single_all` / `trades_single_stream`
 - `stocks` single historical 请求现在按官方 query 单词序列化：`timeframe`、`start`、`end`、`limit`、`adjustment`、`asof`、`feed`、`currency`、`page_token`、`sort`
 - single historical 分页聚合现在复用共享 `collect_all` / `stream_pages`，并在跨页 `symbol` 或 `currency` 不一致时立即返回 `Error::Pagination`，避免静默拼接错误数据
+- `*_single_stream` 现在也会在跨页 `symbol` 或 `currency` 不一致时返回 `Error::Pagination`，与 `*_single_all` 保持相同的一致性约束
 - `tests/public_api.rs` 现在覆盖全部 single historical request/response 类型与新方法名称
+- single historical live quotes/trades 覆盖现在避开开盘首分钟的大流量窗口，并使用更克制的分页形状，降低真实 API 回归成本
 - 将 crate 版本提升到 `0.1.3`，对齐 `Phase 2 / Task 3` 的版本提交要求
 
 ### Tests

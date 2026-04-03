@@ -1,4 +1,5 @@
 use alpaca_data::{Client, Error, stocks};
+use futures_util::StreamExt;
 use wiremock::matchers::{method, path, query_param, query_param_is_missing};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -114,4 +115,90 @@ async fn bars_single_all_rejects_mismatched_currency_across_pages() {
         .expect_err("pagination should reject mismatched currency");
 
     assert!(matches!(error, Error::Pagination(_)));
+}
+
+#[tokio::test]
+async fn bars_single_stream_rejects_mismatched_symbol_across_pages() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/AAPL/bars"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "symbol": "AAPL",
+            "bars": [],
+            "next_page_token": "page-2",
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/AAPL/bars"))
+        .and(query_param("page_token", "page-2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "symbol": "MSFT",
+            "bars": [],
+            "next_page_token": null,
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    let pages = authed_client(server.uri())
+        .stocks()
+        .bars_single_stream(stocks::BarsSingleRequest {
+            symbol: "AAPL".into(),
+            timeframe: stocks::TimeFrame::from("1Day"),
+            ..Default::default()
+        })
+        .collect::<Vec<_>>()
+        .await;
+
+    assert_eq!(pages.len(), 2);
+    assert!(pages[0].as_ref().is_ok());
+    assert!(matches!(pages[1], Err(Error::Pagination(_))));
+}
+
+#[tokio::test]
+async fn bars_single_stream_rejects_mismatched_currency_across_pages() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/AAPL/bars"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "symbol": "AAPL",
+            "bars": [],
+            "next_page_token": "page-2",
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/AAPL/bars"))
+        .and(query_param("page_token", "page-2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "symbol": "AAPL",
+            "bars": [],
+            "next_page_token": null,
+            "currency": "CAD"
+        })))
+        .mount(&server)
+        .await;
+
+    let pages = authed_client(server.uri())
+        .stocks()
+        .bars_single_stream(stocks::BarsSingleRequest {
+            symbol: "AAPL".into(),
+            timeframe: stocks::TimeFrame::from("1Day"),
+            ..Default::default()
+        })
+        .collect::<Vec<_>>()
+        .await;
+
+    assert_eq!(pages.len(), 2);
+    assert!(pages[0].as_ref().is_ok());
+    assert!(matches!(pages[1], Err(Error::Pagination(_))));
 }

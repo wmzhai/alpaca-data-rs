@@ -87,9 +87,9 @@ async fn stocks_single_quotes_endpoints_use_real_api() {
     let client = live_test_client();
     let request = stocks::QuotesSingleRequest {
         symbol: "AAPL".into(),
-        start: Some("2024-03-01T14:30:00Z".into()),
-        end: Some("2024-03-01T14:31:00Z".into()),
-        limit: Some(50),
+        start: Some("2024-03-01T15:00:00Z".into()),
+        end: Some("2024-03-01T15:00:05Z".into()),
+        limit: Some(500),
         feed: Some(stocks::DataFeed::Iex),
         sort: Some(stocks::Sort::Asc),
         asof: None,
@@ -149,9 +149,9 @@ async fn stocks_single_trades_endpoints_use_real_api() {
     let client = live_test_client();
     let request = stocks::TradesSingleRequest {
         symbol: "AAPL".into(),
-        start: Some("2024-03-01T14:30:00Z".into()),
-        end: Some("2024-03-01T14:31:00Z".into()),
-        limit: Some(50),
+        start: Some("2024-03-01T15:00:00Z".into()),
+        end: Some("2024-03-01T15:00:05Z".into()),
+        limit: Some(500),
         feed: Some(stocks::DataFeed::Iex),
         sort: Some(stocks::Sort::Asc),
         asof: None,
