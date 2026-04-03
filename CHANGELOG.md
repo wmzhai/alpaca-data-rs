@@ -8,6 +8,25 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.0.6
+
+### Added
+
+- 新建 `tests/live_crypto_latest_quotes_smoke.rs`，用真实 Alpaca API 验证 `crypto.latest_quotes`
+- 为 `tests/public_api.rs` 增加 `crypto.latest_quotes` 的公开 API 覆盖
+
+### Changed
+
+- `Phase 1 / Task 5` 的 canary endpoint 现在已通过真实 API smoke test 验证
+- live test 现在支持通过 `ALPACA_LIVE_TESTS=1` 开关启用，并支持 `APCA_API_DATA_URL` 覆盖 base URL
+
+### Docs
+
+- 更新 `AGENTS.md` 当前项目状态
+- 更新 `memory/README.md`、`memory/core/system-map.md`、`memory/core/workflows.md`
+- 更新 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
+- 更新 `docs/superpowers/plans/2026-04-03-phase-1-shared-core.md`
+
 ## v0.0.5
 
 ### Added

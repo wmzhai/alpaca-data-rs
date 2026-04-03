@@ -18,7 +18,7 @@
 ## 测试默认顺序
 
 1. 先确认该场景是否能用真实 Alpaca API 验证。
-2. 如果能，就直接写真实 API 集成测试。
+2. 如果能，就直接写真实 API 集成测试；默认用环境变量开关控制，例如 `ALPACA_LIVE_TESTS=1`。
 3. 只有真实 API 难以稳定制造异常时，才补 mock 故障注入测试。
 4. benchmark 先看真实 API 端到端，再看本地 micro-benchmark。
 

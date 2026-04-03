@@ -616,7 +616,9 @@ git commit -m "feat: add shared pagination helpers"
 - Modify: `tests/public_api.rs`
 - Create: `tests/live_crypto_latest_quotes_smoke.rs`
 
-- [ ] **Step 1: Write the failing public/live tests**
+Note: `crypto.latest_quotes` 的 transport wiring 已在 Task 3 为 mock 异常测试提前打通；本 task 的重点是补真实 API smoke test、公开覆盖和最终 canary 验证。
+
+- [x] **Step 1: Write the failing public/live tests**
 
 ```rust
 use alpaca_data::{Client, crypto};
@@ -649,7 +651,7 @@ fn crypto_client_exposes_latest_quotes_method() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cargo test crypto_client_exposes_latest_quotes_method --test public_api -v`
 Expected: FAIL if the public API test is added before implementation is wired.
@@ -657,7 +659,7 @@ Expected: FAIL if the public API test is added before implementation is wired.
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
 Expected: FAIL because `latest_quotes` still returns `NotImplemented`.
 
-- [ ] **Step 3: Implement the minimal happy-path endpoint on top of shared transport**
+- [x] **Step 3: Implement the minimal happy-path endpoint on top of shared transport**
 
 ```rust
 impl CryptoClient {
@@ -699,7 +701,7 @@ pub struct Quote {
 
 在这个实现步骤里，使用 raw identifier `r#as` 保持和官方字段 `as` 一一对应。
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cargo test crypto_client_exposes_latest_quotes_method --test public_api -v`
 Expected: PASS.
@@ -707,7 +709,7 @@ Expected: PASS.
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
 Expected: PASS and the response contains `BTC/USD`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/crypto/client.rs src/crypto/request.rs src/crypto/response.rs src/crypto/model.rs tests/public_api.rs tests/live_crypto_latest_quotes_smoke.rs

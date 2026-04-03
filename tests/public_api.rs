@@ -53,6 +53,9 @@ fn resource_clients_expose_core_method_names() {
     let _ = client
         .crypto()
         .latest_orderbooks(crypto::LatestOrderbooksRequest::default());
+    let _ = client
+        .crypto()
+        .latest_quotes(crypto::LatestQuotesRequest::default());
     let _ = client.news().list(news::ListRequest::default());
     let _ = client
         .corporate_actions()

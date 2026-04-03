@@ -23,6 +23,7 @@
 - `tests/public_api.rs`：公开 API 形状的编译期使用测试
 - `tests/client_builder.rs`：`ClientBuilder` 运行时配置与认证校验测试
 - `tests/mock_transport_errors.rs`：共享 transport 的异常路径测试
+- `tests/live_crypto_latest_quotes_smoke.rs`：真实 Alpaca API 下的 crypto latest quotes smoke test
 - `memory/`：项目导航、约束和后续扩展落点
 
 ## 当前还没有的结构
@@ -47,6 +48,6 @@
 ## 当前事实边界
 
 - 现在已经存在的是“最小骨架 + 部分共享基础层”，还不是完整 API 实现。
-- 当前真正落地的共享层能力已覆盖 builder/runtime config、认证配对校验、配置错误建模、基础 query 序列化、最小 endpoint 路由、最小 async HTTP transport，以及共享分页 helper。
+- 当前真正落地的共享层能力已覆盖 builder/runtime config、认证配对校验、配置错误建模、基础 query 序列化、最小 endpoint 路由、最小 async HTTP transport、共享分页 helper，以及真实 API 下的 `crypto.latest_quotes` canary 验证。
 - 当前各资源 client 的 endpoint 方法大多仍是占位壳，不能当成真实 HTTP 逻辑已完成。
 - 后续代码真正补齐后，这份文档需要继续从“骨架图”更新为更细的真实目录图。

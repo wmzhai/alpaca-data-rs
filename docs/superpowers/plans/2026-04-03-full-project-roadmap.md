@@ -65,6 +65,7 @@
 - `src/transport/http.rs`、`src/transport/retry.rs`、`src/transport/rate_limit.rs` 已具备最小实际行为
 - `tests/mock_transport_errors.rs` 已覆盖共享 transport 的异常路径
 - `src/transport/pagination.rs` 已提供最小分页聚合与按页 stream helper
+- `tests/live_crypto_latest_quotes_smoke.rs` 已验证 `crypto.latest_quotes` 的真实 API happy path
 
 **Primary Scope:**
 
