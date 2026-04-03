@@ -19,12 +19,13 @@
 ### Changed
 
 - `StocksClient` 现在公开 `bars_single`、`latest_quote`、`snapshot` 和接收 request 的 `condition_codes` skeleton 方法，当前仍返回 `Error::NotImplemented`
+- `Endpoint::path()` 现在对静态路由返回 borrowed path，仅在 symbol / ticktype 动态路由上构造 owned path，避免 Task 1 新增 stocks 路由在共享 hot path 上引入不必要分配
 - 将 crate 版本提升到 `0.1.1`，对齐 `Phase 2 / Task 1` 的版本提交要求
 
 ### Tests
 
 - 更新 `tests/public_api.rs`，覆盖 stocks batch / single public type 与 method 名称
-- 为 `src/transport/endpoint.rs` 增加 stocks batch / single path 路由单元测试
+- 为 `src/transport/endpoint.rs` 增加 stocks batch / single path 路由和 `requires_auth` 覆盖，并校验静态 path 保持 borrowed
 
 ## v0.1.0
 

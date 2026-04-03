@@ -40,7 +40,8 @@ impl HttpClient {
         T: serde::de::DeserializeOwned,
     {
         let _permit = self.rate_limiter.acquire().await?;
-        let url = format!("{}{}", base_url.trim_end_matches('/'), endpoint.path());
+        let path = endpoint.path();
+        let url = format!("{}{}", base_url.trim_end_matches('/'), path.as_ref());
         let mut attempt = 0;
 
         loop {
