@@ -21,11 +21,12 @@
 
 ## 当前实现状态
 
-- 当前已完成 `Phase 1: Shared Core`，并已进入 `Phase 2: Stocks`；当前已落地到 `v0.1.4`
+- 当前已完成 `Phase 1: Shared Core`，并已进入 `Phase 2: Stocks`；当前已落地到 `v0.1.5`
 - 已落地共享 `ClientBuilder` 运行时配置、认证配对校验与 header 注入、query 构造、endpoint 路由、async HTTP transport、错误映射和分页 helper
-- 当前真实打通的 endpoint 包括 `crypto.latest_quotes`，以及 `stocks` 的历史 batch / single `bars`、`quotes`、`trades`，还有 latest / snapshot 的 batch / single 端点
+- 当前真实打通的 endpoint 包括 `crypto.latest_quotes`，以及 `stocks` 的历史 batch / single `bars`、`quotes`、`trades`、latest / snapshot 的 batch / single 端点，以及 metadata `condition_codes` / `exchange_codes`
 - `stocks` 的 `bars_single_all` / `bars_single_stream`、`quotes_single_all` / `quotes_single_stream`、`trades_single_all` / `trades_single_stream` 也已接到共享分页便利层
-- 真实 happy-path 测试已覆盖 `crypto.latest_quotes`、`stocks` 历史 batch endpoint 和 `stocks` 历史 single endpoint
+- 真实 happy-path 测试已覆盖 `crypto.latest_quotes`、`stocks` 历史 batch / single、latest / snapshot，以及 metadata 端点
+- 当前 `stocks` batch historical 的 `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream` 和 `benches/stocks.rs` 仍在收尾中，随后再完成 `Phase 2`
 - 当前本地 micro-benchmark baseline 位于 `benches/shared_core.rs`，资源级 benchmark 会在后续 phase task 继续补齐
 
 ## 设计原则
@@ -285,6 +286,8 @@ alpaca_data::corporate_actions
 - `stocks::SnapshotsRequest`
 - `stocks::SnapshotRequest`
 - `stocks::ConditionCodesRequest`
+- `stocks::TickType`
+- `stocks::Tape`
 
 - `options::BarsRequest`
 - `options::TradesRequest`
@@ -311,6 +314,7 @@ alpaca_data::corporate_actions
 - 可选参数使用 `Option<T>`
 - 枚举型参数使用 Rust enum
 - 枚举序列化值严格等于官方字符串
+- metadata 请求继续直接使用官方参数词：`ConditionCodesRequest` 保留 `ticktype` 和 `tape`，其中 `stocks::TickType` 序列化为 `trade|quote`，`stocks::Tape` 序列化为 `A|B|C`
 - 不添加官方 HTTP API 中不存在的自定义字段
 
 ### 响应对象
@@ -333,6 +337,8 @@ alpaca_data::corporate_actions
 - `stocks::LatestTradeResponse`
 - `stocks::SnapshotsResponse`
 - `stocks::SnapshotResponse`
+- `stocks::ConditionCodesResponse`
+- `stocks::ExchangeCodesResponse`
 
 - `options::BarsResponse`
 - `options::TradesResponse`
@@ -358,6 +364,7 @@ alpaca_data::corporate_actions
 - 字段名严格使用官方响应原词
 - 保留官方包裹层级
 - 底层方法直接返回官方响应形态对应的 Rust struct
+- 如果官方 body 本身就是顶层动态 key JSON object，就直接保留 map 形状，不额外发明 wrapper 字段；例如 `stocks::SnapshotsResponse`、`stocks::ConditionCodesResponse` 和 `stocks::ExchangeCodesResponse` 都保持为 `HashMap` 形状
 - 不在底层响应对象里增加额外推导字段
 
 例如：

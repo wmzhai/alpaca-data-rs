@@ -4,7 +4,7 @@
 
 **Goal:** 将 `stocks` 资源域完整落地为官方 Alpaca Market Data API HTTP `stocks` 模块，覆盖 batch / single 官方 endpoint、分页便利层、真实 API 测试、异常路径测试和 benchmark 基线。
 
-**Architecture:** 这一 phase 在现有 shared core 基础上，把 `stocks` 做成第一个完整资源模板。公开 API 同时保留 batch 与 single 官方 endpoint，内部共享 endpoint routing、query serialization、typed decode 和 pagination helper。实现顺序按 public surface -> historical batch -> historical single -> latest/snapshot -> metadata/model completion -> benchmark/docs/phase completion 推进。
+**Architecture:** 这一 phase 在现有 shared core 基础上，把 `stocks` 做成第一个完整资源模板。公开 API 同时保留 batch 与 single 官方 endpoint，内部共享 endpoint routing、query serialization、typed decode 和 pagination helper。实现顺序按 public surface -> historical batch -> historical single -> latest/snapshot -> metadata -> batch convenience -> benchmark/docs/phase completion 推进。
 
 **Tech Stack:** Rust 2024 edition, `reqwest` async client with `rustls`, `tokio`, `serde`/`serde_json`, shared pagination helpers, real Alpaca Market Data API integration tests, limited `wiremock` for exceptional-path tests only, `criterion` for local benchmark baselines
 
@@ -123,6 +123,7 @@
 - `Sort`
 - `Currency`
 - `TickType` (for `ConditionCodesRequest`)
+- `Tape` (for `ConditionCodesRequest`)
 
 ### Task 1: Public Surface, Routing, and Request/Response Skeletons
 
@@ -874,18 +875,23 @@ git commit -m "feat: add stocks latest and snapshot endpoints (v0.1.4)"
 
 ### Task 5: Metadata Endpoints and Model Completion
 
+> Implementation note (verified against the official OpenAPI spec and live API on 2026-04-03):
+> - `ticktype` path values are singular: `trade` and `quote`
+> - `condition_codes` requires both `ticktype` and query param `tape`
+> - `condition_codes` and `exchange_codes` responses are top-level JSON objects/maps, not wrapper arrays
+> - request fields still follow the official words exactly: `ticktype`, `tape`
+
 **Files:**
 - Modify: `src/stocks/enums.rs`
 - Modify: `src/stocks/request.rs`
 - Modify: `src/stocks/response.rs`
 - Modify: `src/stocks/model.rs`
 - Modify: `src/stocks/client.rs`
-- Modify: `src/transport/endpoint.rs`
 - Create: `tests/live_stocks_metadata.rs`
 - Modify: `tests/mock_stocks_errors.rs`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Write failing tests for metadata endpoints and model completeness**
+- [x] **Step 1: Write failing tests for metadata endpoints and model completeness**
 
 ```rust
 use alpaca_data::{Client, stocks};
@@ -907,37 +913,38 @@ async fn stocks_metadata_endpoints_use_real_api() {
         .stocks()
         .condition_codes(stocks::ConditionCodesRequest {
             ticktype: stocks::TickType::Trade,
+            tape: stocks::Tape::A,
         })
         .await
         .expect("condition codes should succeed");
-    assert!(!condition_codes.condition_codes.is_empty());
+    assert!(!condition_codes.is_empty());
 
     let exchange_codes = client
         .stocks()
         .exchange_codes()
         .await
         .expect("exchange codes should succeed");
-    assert!(!exchange_codes.exchange_codes.is_empty());
+    assert!(exchange_codes.contains_key("V"));
 }
 ```
 
 ```rust
-#[test]
-fn tick_type_serializes_to_official_strings() {
-    assert_eq!(stocks::TickType::Trade.as_str(), "trades");
-    assert_eq!(stocks::TickType::Quote.as_str(), "quotes");
+fn stocks_ticktype_and_tape_serialize_to_official_strings() {
+    assert_eq!(stocks::TickType::Trade.as_str(), "trade");
+    assert_eq!(stocks::TickType::Quote.as_str(), "quote");
+    assert_eq!(stocks::Tape::A.as_str(), "A");
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
-Run: `cargo test tick_type_serializes_to_official_strings --lib -- --nocapture`
-Expected: FAIL because `TickType` does not exist yet.
+Run: `cargo test stocks_ticktype_and_tape_serialize_to_official_strings --lib -- --nocapture`
+Expected: FAIL because `TickType::as_str()`, `Tape`, `ConditionCodesRequest::tape`, `ConditionCodesRequest::to_query()` and metadata map response shape do not exist yet.
 
-Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_metadata -- --nocapture`
-Expected: FAIL because metadata endpoints are not implemented yet.
+Run: `cargo test --test live_stocks_metadata -- --nocapture`
+Expected: FAIL because the metadata request/response public surface is incomplete and the client methods are not implemented yet.
 
-- [ ] **Step 3: Implement metadata requests/models and finish official field coverage**
+- [x] **Step 3: Implement metadata requests/models and finish official field coverage**
 
 ```rust
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -950,64 +957,103 @@ pub enum TickType {
 impl crate::common::enums::ApiStr for TickType {
     fn as_str(&self) -> &'static str {
         match self {
-            Self::Trade => "trades",
-            Self::Quote => "quotes",
+            Self::Trade => "trade",
+            Self::Quote => "quote",
         }
     }
 }
 ```
 
 ```rust
-#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
-pub struct ConditionCode {
-    pub code: String,
-    pub name: Option<String>,
-    pub description: Option<String>,
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum Tape {
+    #[default]
+    A,
+    B,
+    C,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
-pub struct ExchangeCode {
-    pub id: Option<u64>,
-    pub code: String,
-    pub name: String,
-    pub tape: Option<String>,
+#[derive(Clone, Debug, Default)]
+pub struct ConditionCodesRequest {
+    pub ticktype: TickType,
+    pub tape: Tape,
 }
 ```
 
 ```rust
+pub type ConditionCodesResponse = HashMap<String, String>;
+
+pub type ExchangeCodesResponse = HashMap<String, String>;
+
 pub async fn condition_codes(
     &self,
     request: ConditionCodesRequest,
 ) -> Result<ConditionCodesResponse, Error> {
     self.ensure_credentials()?;
+    let ticktype = request.ticktype.as_str();
+    let query = request.to_query();
+
     self.inner
         .http
         .get_json(
             &self.inner.base_url,
-            Endpoint::stocks_condition_codes(request.ticktype.as_str()),
+            Endpoint::StocksConditionCodes { ticktype },
             &self.inner.auth,
-            Vec::new(),
+            query,
         )
         .await
 }
 ```
 
-- [ ] **Step 4: Re-run the metadata tests**
+- [x] **Step 4: Re-run the metadata tests**
 
-Run: `cargo test tick_type_serializes_to_official_strings --lib -- --nocapture`
+Run: `cargo test stocks_ticktype_and_tape_serialize_to_official_strings --lib -- --nocapture`
 Expected: PASS.
 
-Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_metadata -- --nocapture`
+Run: `cargo test metadata_request_serializes_official_query_words --lib -- --nocapture`
+Expected: PASS.
+
+Run: `cargo test metadata_responses_deserialize_official_map_shapes --lib -- --nocapture`
+Expected: PASS.
+
+Run: `cargo test malformed_metadata_json_maps_to_deserialize_error --test mock_stocks_errors -- --nocapture`
+Expected: PASS.
+
+Run: `set -a && source .env && set +a && cargo test --test live_stocks_metadata -- --nocapture`
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/stocks/enums.rs src/stocks/request.rs src/stocks/response.rs src/stocks/model.rs src/stocks/client.rs src/transport/endpoint.rs tests/live_stocks_metadata.rs tests/mock_stocks_errors.rs CHANGELOG.md
-git commit -m "feat: add stocks metadata and complete models (v0.1.5)"
+git add Cargo.toml README.md memory/README.md memory/api/README.md memory/core/system-map.md docs/superpowers/plans/2026-04-03-phase-2-stocks.md CHANGELOG.md src/stocks/enums.rs src/stocks/request.rs src/stocks/response.rs src/stocks/model.rs src/stocks/client.rs tests/live_stocks_metadata.rs tests/mock_stocks_errors.rs tests/public_api.rs
+git commit -m "feat: add stocks metadata endpoints (v0.1.5)"
 ```
 
-### Task 6: Benchmark, Docs, Verification, and Phase Completion
+### Task 6: Historical Batch Convenience Layer
+
+**Files:**
+- Modify: `src/stocks/request.rs`
+- Modify: `src/stocks/response.rs`
+- Modify: `src/stocks/client.rs`
+- Modify: `tests/live_stocks_batch_historical.rs`
+- Modify: `tests/mock_stocks_errors.rs`
+- Modify: `CHANGELOG.md`
+
+- [ ] **Step 1: Write failing tests for batch `*_all` / `*_stream` convenience methods**
+
+- [ ] **Step 2: Run the targeted tests to verify they fail**
+
+- [ ] **Step 3: Implement `PaginatedRequest` / `PaginatedResponse` for batch historical requests and responses, then wire `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`**
+
+- [ ] **Step 4: Re-run the targeted tests and the existing live batch historical test**
+
+- [ ] **Step 5: Commit**
+
+```bash
+git commit -m "feat: add stocks batch historical convenience layer (v0.1.6)"
+```
+
+### Task 7: Benchmark, Docs, Verification, and Phase Completion
 
 **Files:**
 - Create: `benches/stocks.rs`

@@ -8,6 +8,33 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.5
+
+### Added
+
+- 新建 `tests/live_stocks_metadata.rs`，在 `ALPACA_LIVE_TESTS=1` 时使用真实 Alpaca API 覆盖 `stocks.condition_codes` 与 `stocks.exchange_codes`
+- 为 stocks metadata 新增 request/response 单元测试与异常路径 mock 测试，覆盖 `ticktype` / `tape` 官方取值、metadata map 形状，以及损坏 JSON -> `Error::Deserialize`
+- `stocks` 公开模块现在新增 `stocks::Tape`，用于忠实表达 `condition_codes` 的官方 `tape` query 参数
+
+### Changed
+
+- `StocksClient` 现在已接通 `GET /v2/stocks/meta/conditions/{ticktype}?tape=...` 与 `GET /v2/stocks/meta/exchanges` 两个 metadata endpoint，并继续复用共享 async transport
+- `stocks::ConditionCodesRequest` 现在保留官方字段 `ticktype` 和 `tape`；`stocks::TickType` 现在序列化为官方 singular path 值 `trade|quote`
+- `stocks::ConditionCodesResponse` 与 `stocks::ExchangeCodesResponse` 现在忠实对齐官方返回体，直接保持顶层 map 形状，不再发明 `condition_codes` / `exchange_codes` wrapper 字段
+- `stocks` 模块移除了先前不符合官方 payload 的 metadata object 占位模型，避免继续暴露伪造结构
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md` 与 `docs/superpowers/plans/2026-04-03-phase-2-stocks.md` 现在已同步到 Task 5 完成后的真实状态，并把下一步收敛到历史 batch 便利层
+- 将 crate 版本提升到 `0.1.5`，对齐 `Phase 2 / Task 5` 的版本提交要求
+
+### Tests
+
+- `cargo test stocks_ticktype_and_tape_serialize_to_official_strings --lib -- --nocapture`
+- `cargo test metadata_request_serializes_official_query_words --lib -- --nocapture`
+- `cargo test metadata_responses_deserialize_official_map_shapes --lib -- --nocapture`
+- `cargo test malformed_metadata_json_maps_to_deserialize_error --test mock_stocks_errors -- --nocapture`
+- `cargo test --test public_api stocks_module_exposes_batch_and_single_type_names -- --nocapture`
+- `cargo test endpoint_routes_all_stocks_dynamic_paths_and_marks_them_authenticated --lib -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_stocks_metadata -- --nocapture`
+
 ## v0.1.4
 
 ### Added

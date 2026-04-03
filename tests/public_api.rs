@@ -44,6 +44,7 @@ fn resource_modules_expose_short_type_names() {
 fn stocks_module_exposes_batch_and_single_type_names() {
     let _ = stocks::BarsRequest::default();
     let _ = stocks::BarsSingleRequest::default();
+    let _ = stocks::Tape::A;
     let _ = stocks::LatestBarRequest::default();
     let _ = stocks::LatestBarsRequest::default();
     let _ = stocks::LatestQuoteRequest::default();
@@ -63,6 +64,8 @@ fn stocks_module_exposes_batch_and_single_type_names() {
     let _ = stocks::LatestTradesResponse::default();
     let _ = stocks::BarsSingleResponse::default();
     let _ = stocks::QuotesSingleResponse::default();
+    let _ = stocks::ConditionCodesResponse::default();
+    let _ = stocks::ExchangeCodesResponse::default();
     let _ = stocks::SnapshotResponse::default();
     let _ = stocks::SnapshotsResponse::default();
     let _ = stocks::TradesSingleResponse::default();

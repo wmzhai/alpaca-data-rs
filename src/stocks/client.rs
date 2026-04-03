@@ -386,19 +386,29 @@ impl StocksClient {
 
     pub async fn condition_codes(
         &self,
-        _request: ConditionCodesRequest,
+        request: ConditionCodesRequest,
     ) -> Result<ConditionCodesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.condition_codes",
-        })
+        let ticktype = request.ticktype.as_str();
+        let query = request.to_query();
+        let endpoint = Endpoint::StocksConditionCodes { ticktype };
+        self.inner
+            .http
+            .get_json(&self.inner.base_url, endpoint, &self.inner.auth, query)
+            .await
     }
 
     pub async fn exchange_codes(&self) -> Result<ExchangeCodesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.exchange_codes",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksExchangeCodes,
+                &self.inner.auth,
+                Vec::new(),
+            )
+            .await
     }
 
     fn ensure_credentials(&self) -> Result<(), Error> {

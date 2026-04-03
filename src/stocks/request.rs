@@ -1,7 +1,7 @@
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
 
-use super::{Adjustment, Currency, DataFeed, Sort, TimeFrame};
+use super::{Adjustment, Currency, DataFeed, Sort, Tape, TickType, TimeFrame};
 
 #[derive(Clone, Debug, Default)]
 pub struct BarsRequest {
@@ -144,13 +144,7 @@ pub struct SnapshotRequest {
 #[derive(Clone, Debug, Default)]
 pub struct ConditionCodesRequest {
     pub ticktype: TickType,
-}
-
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
-pub enum TickType {
-    #[default]
-    Trade,
-    Quote,
+    pub tape: Tape,
 }
 
 impl BarsRequest {
@@ -295,6 +289,14 @@ impl SnapshotsRequest {
 impl SnapshotRequest {
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_single_query(self.feed, self.currency)
+    }
+}
+
+impl ConditionCodesRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        let mut query = QueryWriter::default();
+        query.push_opt("tape", Some(self.tape));
+        query.finish()
     }
 }
 
@@ -658,6 +660,28 @@ mod tests {
                 ("feed".to_string(), "otc".to_string()),
                 ("currency".to_string(), "USD".to_string()),
             ]
+        );
+    }
+
+    #[test]
+    fn stocks_ticktype_and_tape_serialize_to_official_strings() {
+        assert_eq!(TickType::Trade.as_str(), "trade");
+        assert_eq!(TickType::Quote.as_str(), "quote");
+        assert_eq!(Tape::A.as_str(), "A");
+        assert_eq!(Tape::B.as_str(), "B");
+        assert_eq!(Tape::C.as_str(), "C");
+    }
+
+    #[test]
+    fn metadata_request_serializes_official_query_words() {
+        let request = ConditionCodesRequest {
+            ticktype: TickType::Trade,
+            tape: Tape::A,
+        };
+
+        assert_eq!(
+            request.to_query(),
+            vec![("tape".to_string(), "A".to_string()),]
         );
     }
 }

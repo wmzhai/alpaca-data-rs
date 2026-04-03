@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{Error, transport::pagination::PaginatedResponse};
 
-use super::{Bar, ConditionCode, Currency, ExchangeCode, Quote, Snapshot, Trade};
+use super::{Bar, Currency, Quote, Snapshot, Trade};
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct BarsResponse {
@@ -102,15 +102,9 @@ pub struct SnapshotResponse {
     pub prevDailyBar: Option<Bar>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct ConditionCodesResponse {
-    pub condition_codes: Vec<ConditionCode>,
-}
+pub type ConditionCodesResponse = HashMap<String, String>;
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct ExchangeCodesResponse {
-    pub exchange_codes: Vec<ExchangeCode>,
-}
+pub type ExchangeCodesResponse = HashMap<String, String>;
 
 fn merge_single_metadata(
     operation: &'static str,
@@ -216,9 +210,10 @@ impl PaginatedResponse for TradesSingleResponse {
 #[cfg(test)]
 mod tests {
     use super::{
-        BarsSingleResponse, LatestBarResponse, LatestBarsResponse, LatestQuoteResponse,
-        LatestQuotesResponse, LatestTradeResponse, LatestTradesResponse, QuotesSingleResponse,
-        SnapshotResponse, SnapshotsResponse, TradesSingleResponse,
+        BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse, LatestBarResponse,
+        LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse, LatestTradeResponse,
+        LatestTradesResponse, QuotesSingleResponse, SnapshotResponse, SnapshotsResponse,
+        TradesSingleResponse,
     };
     use crate::{Error, transport::pagination::PaginatedResponse};
 
@@ -412,5 +407,29 @@ mod tests {
         assert!(single.minuteBar.is_some());
         assert!(single.dailyBar.is_some());
         assert!(single.prevDailyBar.is_some());
+    }
+
+    #[test]
+    fn metadata_responses_deserialize_official_map_shapes() {
+        let condition_codes: ConditionCodesResponse =
+            serde_json::from_str(r#"{" ":"Regular Sale","4":"Derivatively Priced"}"#)
+                .expect("condition codes should deserialize as a top-level map");
+        assert_eq!(
+            condition_codes.get(" ").map(String::as_str),
+            Some("Regular Sale")
+        );
+        assert_eq!(
+            condition_codes.get("4").map(String::as_str),
+            Some("Derivatively Priced")
+        );
+
+        let exchange_codes: ExchangeCodesResponse =
+            serde_json::from_str(r#"{"V":"IEX","N":"New York Stock Exchange"}"#)
+                .expect("exchange codes should deserialize as a top-level map");
+        assert_eq!(exchange_codes.get("V").map(String::as_str), Some("IEX"));
+        assert_eq!(
+            exchange_codes.get("N").map(String::as_str),
+            Some("New York Stock Exchange")
+        );
     }
 }

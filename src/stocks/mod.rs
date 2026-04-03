@@ -5,12 +5,12 @@ mod request;
 mod response;
 
 pub use client::StocksClient;
-pub use enums::{Adjustment, Currency, DataFeed, Sort, TimeFrame};
-pub use model::{Bar, ConditionCode, ExchangeCode, Quote, Snapshot, Trade};
+pub use enums::{Adjustment, Currency, DataFeed, Sort, Tape, TickType, TimeFrame};
+pub use model::{Bar, Quote, Snapshot, Trade};
 pub use request::{
     BarsRequest, BarsSingleRequest, ConditionCodesRequest, LatestBarRequest, LatestBarsRequest,
     LatestQuoteRequest, LatestQuotesRequest, LatestTradeRequest, LatestTradesRequest,
-    QuotesRequest, QuotesSingleRequest, SnapshotRequest, SnapshotsRequest, TickType, TradesRequest,
+    QuotesRequest, QuotesSingleRequest, SnapshotRequest, SnapshotsRequest, TradesRequest,
     TradesSingleRequest,
 };
 pub use response::{

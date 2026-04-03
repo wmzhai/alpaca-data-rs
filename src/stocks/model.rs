@@ -47,14 +47,3 @@ pub struct Snapshot {
     pub dailyBar: Option<Bar>,
     pub prevDailyBar: Option<Bar>,
 }
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct ConditionCode {
-    pub code: String,
-}
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct ExchangeCode {
-    pub code: String,
-    pub name: String,
-}

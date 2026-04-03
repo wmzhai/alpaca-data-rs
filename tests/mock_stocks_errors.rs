@@ -202,3 +202,26 @@ async fn bars_single_stream_rejects_mismatched_currency_across_pages() {
     assert!(pages[0].as_ref().is_ok());
     assert!(matches!(pages[1], Err(Error::Pagination(_))));
 }
+
+#[tokio::test]
+async fn malformed_metadata_json_maps_to_deserialize_error() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/meta/conditions/trade"))
+        .and(query_param("tape", "A"))
+        .respond_with(ResponseTemplate::new(200).set_body_raw("not-json", "application/json"))
+        .mount(&server)
+        .await;
+
+    let error = authed_client(server.uri())
+        .stocks()
+        .condition_codes(stocks::ConditionCodesRequest {
+            ticktype: stocks::TickType::Trade,
+            tape: stocks::Tape::A,
+        })
+        .await
+        .expect_err("request should fail");
+
+    assert!(matches!(error, Error::Deserialize(_)));
+}
