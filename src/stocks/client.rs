@@ -4,6 +4,7 @@ use crate::{
     Error,
     client::Inner,
     common::response::{ResponseStream, empty_stream},
+    transport::endpoint::Endpoint,
 };
 
 use super::{
@@ -24,11 +25,17 @@ impl StocksClient {
         Self { inner }
     }
 
-    pub async fn bars(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
+    pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.bars",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksBars,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn bars_all(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
@@ -55,11 +62,17 @@ impl StocksClient {
         empty_stream()
     }
 
-    pub async fn quotes(&self, _request: QuotesRequest) -> Result<QuotesResponse, Error> {
+    pub async fn quotes(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.quotes",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksQuotes,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn quotes_all(&self, _request: QuotesRequest) -> Result<QuotesResponse, Error> {
@@ -76,11 +89,17 @@ impl StocksClient {
         empty_stream()
     }
 
-    pub async fn trades(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {
+    pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.trades",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksTrades,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn trades_all(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {

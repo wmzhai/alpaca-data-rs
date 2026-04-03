@@ -8,6 +8,26 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.2
+
+### Added
+
+- 为 `stocks` 历史 batch endpoint 新增真实 API baseline：`tests/live_stocks_batch_historical.rs` 会在 `ALPACA_LIVE_TESTS=1` 时用真实 Alpaca API 覆盖 `bars`、`quotes` 和 `trades`
+- 为 `stocks` 历史请求新增 query 序列化单元测试，覆盖官方 `symbols`、`timeframe`、`start`、`end`、`limit`、`adjustment`、`asof`、`feed`、`currency`、`page_token`、`sort` 单词
+
+### Changed
+
+- `StocksClient` 现在已接通 `bars`、`quotes`、`trades` 三个历史 batch GET `/v2/stocks/*` 端点，并复用共享 async transport/query 基础设施
+- `stocks::TimeFrame`、`stocks::Adjustment` 和 `stocks::Currency` 现在改为官方字符串封装，`stocks::DataFeed` 与 `stocks::Sort` 现在按官方值序列化，避免继续编码过窄或错误的历史参数取值
+- `stocks` 历史 batch 响应现在使用带 serde 解码的 typed model/response 结构，覆盖官方 `bars` / `quotes` / `trades` 包装字段、`next_page_token` 与可选 `currency`
+- 将 crate 版本提升到 `0.1.2`，对齐 `Phase 2 / Task 2` 的版本提交要求
+
+### Tests
+
+- `cargo test stocks::request::tests --lib -- --nocapture`
+- `cargo test stocks_data_feed_serializes_to_official_strings --lib -- --nocapture`
+- `set -a && source .env && set +a && ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_batch_historical -- --nocapture`
+
 ## v0.1.1
 
 ### Added

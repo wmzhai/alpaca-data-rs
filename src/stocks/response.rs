@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use super::{Bar, ConditionCode, ExchangeCode, Quote, Snapshot, Trade};
+use super::{Bar, ConditionCode, Currency, ExchangeCode, Quote, Snapshot, Trade};
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct BarsResponse {
     pub bars: HashMap<String, Vec<Bar>>,
     pub next_page_token: Option<String>,
+    pub currency: Option<Currency>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -14,16 +15,18 @@ pub struct BarsSingleResponse {
     pub next_page_token: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct QuotesResponse {
     pub quotes: HashMap<String, Vec<Quote>>,
     pub next_page_token: Option<String>,
+    pub currency: Option<Currency>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct TradesResponse {
     pub trades: HashMap<String, Vec<Trade>>,
     pub next_page_token: Option<String>,
+    pub currency: Option<Currency>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
