@@ -531,16 +531,21 @@ git commit -m "feat: add stocks batch historical endpoints (v0.1.2)"
 ### Task 3: Historical Single Endpoints and Pagination Convenience
 
 **Files:**
+- Modify: `src/stocks/mod.rs`
 - Modify: `src/stocks/request.rs`
 - Modify: `src/stocks/response.rs`
 - Modify: `src/stocks/client.rs`
 - Modify: `src/transport/endpoint.rs`
 - Modify: `src/transport/pagination.rs`
+- Modify: `tests/public_api.rs`
 - Create: `tests/live_stocks_single_historical.rs`
 - Create: `tests/mock_stocks_errors.rs`
 - Modify: `CHANGELOG.md`
+- Modify: `Cargo.toml`
 
-- [ ] **Step 1: Write failing tests for single historical endpoints and convenience helpers**
+**Implementation note:** 虽然下面的草案片段以 `bars_single` 为主，但当前 task 的实际落地范围按已批准 spec 与用户要求扩展为完整 historical single family：`bars_single`、`quotes_single`、`trades_single` 以及对应的 `*_single_all` / `*_single_stream`，并同步补齐公开 request/response 类型导出与 `tests/public_api.rs` 的编译期覆盖。
+
+- [x] **Step 1: Write failing tests for single historical endpoints and convenience helpers**
 
 ```rust
 use alpaca_data::{Client, stocks};
@@ -637,7 +642,7 @@ async fn malformed_single_historical_json_maps_to_deserialize_error() {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cargo test --test mock_stocks_errors malformed_single_historical_json_maps_to_deserialize_error -- --nocapture`
 Expected: FAIL because `bars_single` is not implemented yet.
@@ -645,7 +650,7 @@ Expected: FAIL because `bars_single` is not implemented yet.
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_single_historical -- --nocapture`
 Expected: FAIL because single historical methods and `*_single_all` / `*_single_stream` do not exist yet.
 
-- [ ] **Step 3: Implement single historical endpoints and pagination helpers**
+- [x] **Step 3: Implement single historical endpoints and pagination helpers**
 
 ```rust
 impl crate::transport::pagination::PaginatedRequest for BarsSingleRequest {
@@ -698,7 +703,7 @@ pub fn bars_single_stream(
 }
 ```
 
-- [ ] **Step 4: Re-run the single historical tests**
+- [x] **Step 4: Re-run the single historical tests**
 
 Run: `cargo test --test mock_stocks_errors malformed_single_historical_json_maps_to_deserialize_error -- --nocapture`
 Expected: PASS.
@@ -706,7 +711,7 @@ Expected: PASS.
 Run: `ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_single_historical -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/stocks/request.rs src/stocks/response.rs src/stocks/client.rs src/transport/endpoint.rs src/transport/pagination.rs tests/live_stocks_single_historical.rs tests/mock_stocks_errors.rs CHANGELOG.md
