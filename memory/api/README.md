@@ -21,12 +21,19 @@
 底层方法直接对应官方资源和 endpoint 语义，例如：
 
 - `bars`
+- `bars_single`
 - `quotes`
+- `quotes_single`
 - `trades`
+- `trades_single`
 - `latest_bars`
+- `latest_bar`
 - `latest_quotes`
+- `latest_quote`
 - `latest_trades`
+- `latest_trade`
 - `snapshots`
+- `snapshot`
 - `chain`
 - `list`
 
@@ -41,6 +48,7 @@
 
 - `*_all` 自动取完所有分页，返回同名 `Response`
 - `*_stream` 按页返回同名 `Response`
+- 对存在官方 single-symbol historical endpoint 的资源域，也允许补 `*_single_all` 和 `*_single_stream`
 
 ## 命名约束
 
@@ -48,6 +56,8 @@
 - 类型名尽量短，不重复资源前缀
 - 例如：`stocks::BarsRequest`、`options::ChainResponse`
 - 不使用 `StockBarsRequest` 这类重复命名
+- single-symbol endpoint 在需要和 batch 区分时，使用最小后缀，例如 `bars_single`
+- latest / snapshot 的 single endpoint 优先使用单数语义，例如 `latest_quote`、`snapshot`
 
 ## 字段约束
 

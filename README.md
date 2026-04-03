@@ -66,7 +66,7 @@ pub struct ChainRequest {
 - 根 client：`alpaca_data::Client`
 - 模块名：`stocks`、`options`、`crypto`
 - 类型名：`BarsRequest`、`BarsResponse`、`Trade`
-- 方法名：`bars`、`latest_quotes`、`snapshots`
+- 方法名：`bars`、`bars_single`、`latest_quotes`、`latest_quote`、`snapshots`、`snapshot`
 - 字段名：`snake_case`
 
 不使用冗长的类型名去重复模块语义，例如：
@@ -163,12 +163,19 @@ alpaca_data::corporate_actions
 底层镜像层：
 
 - `bars`
+- `bars_single`
 - `quotes`
+- `quotes_single`
 - `trades`
+- `trades_single`
 - `latest_bars`
+- `latest_bar`
 - `latest_quotes`
+- `latest_quote`
 - `latest_trades`
+- `latest_trade`
 - `snapshots`
+- `snapshot`
 - `condition_codes`
 - `exchange_codes`
 
@@ -176,10 +183,16 @@ alpaca_data::corporate_actions
 
 - `bars_all`
 - `bars_stream`
+- `bars_single_all`
+- `bars_single_stream`
 - `quotes_all`
 - `quotes_stream`
+- `quotes_single_all`
+- `quotes_single_stream`
 - `trades_all`
 - `trades_stream`
+- `trades_single_all`
+- `trades_single_stream`
 
 ### Options
 
@@ -257,12 +270,20 @@ alpaca_data::corporate_actions
 示例：
 
 - `stocks::BarsRequest`
+- `stocks::BarsSingleRequest`
 - `stocks::QuotesRequest`
+- `stocks::QuotesSingleRequest`
 - `stocks::TradesRequest`
+- `stocks::TradesSingleRequest`
 - `stocks::LatestBarsRequest`
+- `stocks::LatestBarRequest`
 - `stocks::LatestQuotesRequest`
+- `stocks::LatestQuoteRequest`
 - `stocks::LatestTradesRequest`
+- `stocks::LatestTradeRequest`
 - `stocks::SnapshotsRequest`
+- `stocks::SnapshotRequest`
+- `stocks::ConditionCodesRequest`
 
 - `options::BarsRequest`
 - `options::TradesRequest`
@@ -298,12 +319,19 @@ alpaca_data::corporate_actions
 示例：
 
 - `stocks::BarsResponse`
+- `stocks::BarsSingleResponse`
 - `stocks::QuotesResponse`
+- `stocks::QuotesSingleResponse`
 - `stocks::TradesResponse`
+- `stocks::TradesSingleResponse`
 - `stocks::LatestBarsResponse`
+- `stocks::LatestBarResponse`
 - `stocks::LatestQuotesResponse`
+- `stocks::LatestQuoteResponse`
 - `stocks::LatestTradesResponse`
+- `stocks::LatestTradeResponse`
 - `stocks::SnapshotsResponse`
+- `stocks::SnapshotResponse`
 
 - `options::BarsResponse`
 - `options::TradesResponse`
