@@ -11,11 +11,12 @@
 
 ## 项目当前状态
 
-- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core`，开始从“设计约束 + 最小骨架”进入“共享基础层已可运行”的阶段。
+- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`。
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已完成 `Phase 1` 的最小落地：`ClientBuilder` 运行时配置、认证配对校验、`QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及 `benches/shared_core.rs` 本地 benchmark baseline。
+- 当前已经落地共享基础层、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层，并补齐 `benches/shared_core.rs` 与 `benches/stocks.rs` 本地 benchmark baseline。
+- 当前下一步默认进入 `Phase 3: Options`。
 
 ## 最高优先级规则
 
@@ -30,6 +31,7 @@
 - 自动生成的 commit message 必须全英文，不能使用中文。
 - commit message 必须使用 Conventional Commits 风格：`<type>: <summary>`。
 - 当前允许并优先使用的 `type`：`feat`、`fix`、`chore`、`refactor`、`docs`。
+- 如果需要使用子代理，模型固定只允许使用 `gpt-5.4`，不要使用其他模型。
 - 如果需要补充说明，优先在 commit body 里用一小段英文说明本次提交包含什么。
 - 每完成一个明确的开发 task，都要做一次带版本号更新的提交，不能把多个已完成 task 长时间堆在工作区里不提交。
 - 每个 task 完成后的提交前，都必须先同步版本号、`CHANGELOG.md` 和所有受影响文档，再进行提交。

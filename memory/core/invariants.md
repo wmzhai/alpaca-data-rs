@@ -35,6 +35,7 @@
 - 自动生成的 commit message 必须全英文，不能使用中文。
 - commit 标题必须使用 Conventional Commits 风格：`<type>: <summary>`。
 - 当前允许并优先使用的 `type`：`feat`、`fix`、`chore`、`refactor`、`docs`。
+- 如果需要使用子代理，模型固定只允许使用 `gpt-5.4`，不要使用其他模型。
 - 如需补充说明，优先在 commit body 中追加一小段英文说明本次提交包含什么。
 - 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先修正，再提交。
 - 每完成一个明确 task，默认做一次带版本号更新的提交，不长时间堆积多个已完成 task。

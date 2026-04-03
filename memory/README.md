@@ -18,7 +18,7 @@
 
 ## 当前状态说明
 
-- 这是一个新项目，当前已经完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`，当前工作版本是 `v0.2.0`。
+- 这是一个新项目，当前已经完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`，当前工作版本是 `v0.2.1`。
 - 当前已经落下最小 Rust crate 骨架：`Cargo.toml`、`src/`、`tests/`、`.gitignore`。
 - 已完成的真实代码落地包括：共享 `ClientBuilder` 运行时配置、认证配对校验、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、共享分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 端点、batch + single 的 `*_all` / `*_stream` 便利层，以及 `benches/stocks.rs` 本地 benchmark baseline。
 - 当前下一步默认进入 `Phase 3: Options`，沿用 `stocks` 已经定型的 request/response、pagination、live test 和 benchmark 结构继续展开。

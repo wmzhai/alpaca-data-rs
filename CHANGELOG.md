@@ -8,6 +8,20 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.2.1
+
+### Changed
+
+- `AGENTS.md` 与 `memory/core/invariants.md` 现在明确记录：如需使用子代理，模型固定只允许使用 `gpt-5.4`
+- `AGENTS.md` 的“项目当前状态”现在已同步到真实仓库状态，明确 `Phase 2: Stocks` 已完成，`stocks` 已成为首个完整资源模板，下一步默认进入 `Phase 3: Options`
+- `README.md` 与 `memory/README.md` 的当前工作版本已同步更新到 `v0.2.1`
+- 将 crate 版本提升到 `0.2.1`，用于提交本次文档与规则对齐修正
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+
 ## v0.2.0
 
 ### Added

@@ -1,6 +1,6 @@
 [package]
 name = "alpaca-data"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 rust-version = "1.85"
 description = "High-performance Rust client for Alpaca Market Data API"
