@@ -227,7 +227,7 @@ git commit -m "feat: add shared client builder runtime config"
 - Test: `src/common/query.rs`
 - Test: `src/transport/endpoint.rs`
 
-- [ ] **Step 1: Write failing unit tests for query writing and path routing**
+- [x] **Step 1: Write failing unit tests for query writing and path routing**
 
 ```rust
 #[cfg(test)]
@@ -259,12 +259,12 @@ mod tests {
 }
 ```
 
-- [ ] **Step 2: Run unit tests to verify they fail**
+- [x] **Step 2: Run unit tests to verify they fail**
 
 Run: `cargo test --lib -- --nocapture`
 Expected: FAIL because `QueryWriter` and `Endpoint` are not implemented yet.
 
-- [ ] **Step 3: Write the minimal query/endpoint implementation**
+- [x] **Step 3: Write the minimal query/endpoint implementation**
 
 ```rust
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -328,12 +328,12 @@ impl Endpoint {
 }
 ```
 
-- [ ] **Step 4: Run unit tests to verify they pass**
+- [x] **Step 4: Run unit tests to verify they pass**
 
 Run: `cargo test --lib -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/common/mod.rs src/common/enums.rs src/common/query.rs src/transport/mod.rs src/transport/endpoint.rs

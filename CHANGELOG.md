@@ -8,6 +8,26 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.0.3
+
+### Added
+
+- 新建 `src/common/query.rs`，提供 `QueryWriter` 以统一构造 query 参数
+- 新建 `src/transport/endpoint.rs`，提供 `Endpoint` 以统一官方 Market Data 路径路由
+- 为 query 序列化和 endpoint 路由新增对应的单元测试
+
+### Changed
+
+- `src/common/mod.rs` 现在导出 `query` 模块
+- `src/transport/mod.rs` 现在导出 `endpoint` 模块
+- Phase 1 计划和 roadmap 已同步到 Task 2 完成后的当前状态
+
+### Docs
+
+- 更新 `memory/core/system-map.md` 记录新的共享基础层文件
+- 更新 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
+- 更新 `docs/superpowers/plans/2026-04-03-phase-1-shared-core.md`
+
 ## v0.0.2
 
 ### Added

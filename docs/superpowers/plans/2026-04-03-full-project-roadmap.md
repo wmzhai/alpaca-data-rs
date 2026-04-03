@@ -60,6 +60,8 @@
 - `Auth::new(...)` 已强制 `api_key` / `secret_key` 成对校验
 - 顶层 `Error` 已补 `InvalidConfiguration`
 - `tests/client_builder.rs` 已覆盖 builder/runtime config 与认证校验
+- `src/common/query.rs` 已提供最小 query 参数构造能力
+- `src/transport/endpoint.rs` 已提供 crypto latest quotes 的官方路径路由
 
 **Primary Scope:**
 

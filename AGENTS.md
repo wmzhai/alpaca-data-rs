@@ -15,7 +15,7 @@
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已完成 `Phase 1 / Task 1` 的最小落地：`ClientBuilder` 运行时配置、认证配对校验、`InvalidConfiguration` 错误，以及 `tests/client_builder.rs`。
+- 当前已完成 `Phase 1 / Task 1-2` 的最小落地：`ClientBuilder` 运行时配置、认证配对校验、`InvalidConfiguration` 错误、`tests/client_builder.rs`，以及共享 `QueryWriter` / `Endpoint` 基础设施。
 
 ## 最高优先级规则
 
