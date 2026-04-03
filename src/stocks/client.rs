@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     Error,
     client::Inner,
-    common::response::{ResponseStream, empty_stream},
+    common::response::ResponseStream,
     transport::endpoint::Endpoint,
     transport::pagination::{collect_all, stream_pages},
 };
@@ -41,11 +41,15 @@ impl StocksClient {
             .await
     }
 
-    pub async fn bars_all(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
+    pub async fn bars_all(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.bars_all",
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.bars(request).await }
         })
+        .await
     }
 
     pub async fn bars_single(
@@ -81,11 +85,16 @@ impl StocksClient {
         .await
     }
 
-    pub fn bars_stream(
-        &self,
-        _request: BarsRequest,
-    ) -> ResponseStream<Result<BarsResponse, Error>> {
-        empty_stream()
+    pub fn bars_stream(&self, request: BarsRequest) -> ResponseStream<Result<BarsResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.bars(request).await }
+        })
     }
 
     pub fn bars_single_stream(
@@ -116,11 +125,15 @@ impl StocksClient {
             .await
     }
 
-    pub async fn quotes_all(&self, _request: QuotesRequest) -> Result<QuotesResponse, Error> {
+    pub async fn quotes_all(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.quotes_all",
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.quotes(request).await }
         })
+        .await
     }
 
     pub async fn quotes_single(
@@ -158,9 +171,17 @@ impl StocksClient {
 
     pub fn quotes_stream(
         &self,
-        _request: QuotesRequest,
+        request: QuotesRequest,
     ) -> ResponseStream<Result<QuotesResponse, Error>> {
-        empty_stream()
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.quotes(request).await }
+        })
     }
 
     pub fn quotes_single_stream(
@@ -191,11 +212,15 @@ impl StocksClient {
             .await
     }
 
-    pub async fn trades_all(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {
+    pub async fn trades_all(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "stocks.trades_all",
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.trades(request).await }
         })
+        .await
     }
 
     pub async fn trades_single(
@@ -233,9 +258,17 @@ impl StocksClient {
 
     pub fn trades_stream(
         &self,
-        _request: TradesRequest,
+        request: TradesRequest,
     ) -> ResponseStream<Result<TradesResponse, Error>> {
-        empty_stream()
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.trades(request).await }
+        })
     }
 
     pub fn trades_single_stream(

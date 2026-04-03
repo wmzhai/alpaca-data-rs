@@ -225,3 +225,101 @@ async fn malformed_metadata_json_maps_to_deserialize_error() {
 
     assert!(matches!(error, Error::Deserialize(_)));
 }
+
+#[tokio::test]
+async fn bars_all_rejects_mismatched_batch_currency_across_pages() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/bars"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "bars": {
+                "AAPL": [
+                    { "t": "2024-03-01T20:00:00Z", "c": 179.66 }
+                ]
+            },
+            "next_page_token": "page-2",
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/bars"))
+        .and(query_param("page_token", "page-2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "bars": {
+                "AAPL": [
+                    { "t": "2024-03-04T20:00:00Z", "c": 175.10 }
+                ]
+            },
+            "next_page_token": null,
+            "currency": "CAD"
+        })))
+        .mount(&server)
+        .await;
+
+    let error = authed_client(server.uri())
+        .stocks()
+        .bars_all(stocks::BarsRequest {
+            symbols: vec!["AAPL".into()],
+            timeframe: stocks::TimeFrame::from("1Day"),
+            limit: Some(1),
+            ..Default::default()
+        })
+        .await
+        .expect_err("pagination should reject mismatched currency");
+
+    assert!(matches!(error, Error::Pagination(_)));
+}
+
+#[tokio::test]
+async fn bars_stream_rejects_mismatched_batch_currency_across_pages() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/bars"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "bars": {
+                "AAPL": [
+                    { "t": "2024-03-01T20:00:00Z", "c": 179.66 }
+                ]
+            },
+            "next_page_token": "page-2",
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/bars"))
+        .and(query_param("page_token", "page-2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "bars": {
+                "AAPL": [
+                    { "t": "2024-03-04T20:00:00Z", "c": 175.10 }
+                ]
+            },
+            "next_page_token": null,
+            "currency": "CAD"
+        })))
+        .mount(&server)
+        .await;
+
+    let pages = authed_client(server.uri())
+        .stocks()
+        .bars_stream(stocks::BarsRequest {
+            symbols: vec!["AAPL".into()],
+            timeframe: stocks::TimeFrame::from("1Day"),
+            limit: Some(1),
+            ..Default::default()
+        })
+        .collect::<Vec<_>>()
+        .await;
+
+    assert_eq!(pages.len(), 2);
+    assert!(pages[0].as_ref().is_ok());
+    assert!(matches!(pages[1], Err(Error::Pagination(_))));
+}

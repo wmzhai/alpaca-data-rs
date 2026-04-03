@@ -346,6 +346,30 @@ impl PaginatedRequest for TradesSingleRequest {
     }
 }
 
+impl PaginatedRequest for BarsRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
+impl PaginatedRequest for QuotesRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
+impl PaginatedRequest for TradesRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

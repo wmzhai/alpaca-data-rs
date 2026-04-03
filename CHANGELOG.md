@@ -8,6 +8,29 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.6
+
+### Added
+
+- 为 `stocks` 历史 batch convenience layer 新增 live happy-path 验证：`tests/live_stocks_batch_historical.rs` 现在额外覆盖 `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`
+- 为 batch historical 分页聚合新增 response 单元测试与 mock 异常路径覆盖，验证跨页 symbol bucket 合并、`next_page_token` 清理，以及跨页 `currency` 不一致时返回 `Error::Pagination`
+
+### Changed
+
+- `StocksClient` 现在已接通 `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`，并统一复用共享 `collect_all` / `stream_pages`
+- `BarsRequest`、`QuotesRequest`、`TradesRequest` 现在实现共享 `PaginatedRequest`，历史 batch response 现在实现 `PaginatedResponse`，支持跨页聚合同 symbol 的数组并保留官方 `bars` / `quotes` / `trades` map 形状
+- 新增 live test 参数调优：batch convenience 的真实 API 测试现在使用“仍会分页但页数可控”的 limit 组合，避免把 happy-path 回归放大成不必要的长时间抓取
+- `README.md`、`memory/README.md`、`memory/core/system-map.md` 与 `docs/superpowers/plans/2026-04-03-phase-2-stocks.md` 现在已同步到 Task 6 完成后的真实状态，并把下一步收敛到 phase 收尾
+- 将 crate 版本提升到 `0.1.6`，对齐 `Phase 2 / Task 6` 的版本提交要求
+
+### Tests
+
+- `cargo test batch_historical_merge_combines_symbol_buckets_and_clears_next_page_token --lib -- --nocapture`
+- `cargo test batch_historical_merge_rejects_mismatched_currency --lib -- --nocapture`
+- `cargo test bars_all_rejects_mismatched_batch_currency_across_pages --test mock_stocks_errors -- --nocapture`
+- `cargo test bars_stream_rejects_mismatched_batch_currency_across_pages --test mock_stocks_errors -- --nocapture`
+- `set -a && source .env && set +a && cargo test stocks_batch_historical_all_and_stream_use_real_api --test live_stocks_batch_historical -- --nocapture`
+
 ## v0.1.5
 
 ### Added

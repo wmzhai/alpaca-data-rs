@@ -1022,7 +1022,7 @@ Expected: PASS.
 Run: `set -a && source .env && set +a && cargo test --test live_stocks_metadata -- --nocapture`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml README.md memory/README.md memory/api/README.md memory/core/system-map.md docs/superpowers/plans/2026-04-03-phase-2-stocks.md CHANGELOG.md src/stocks/enums.rs src/stocks/request.rs src/stocks/response.rs src/stocks/model.rs src/stocks/client.rs tests/live_stocks_metadata.rs tests/mock_stocks_errors.rs tests/public_api.rs
@@ -1039,17 +1039,109 @@ git commit -m "feat: add stocks metadata endpoints (v0.1.5)"
 - Modify: `tests/mock_stocks_errors.rs`
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Write failing tests for batch `*_all` / `*_stream` convenience methods**
+- [x] **Step 1: Write failing tests for batch `*_all` / `*_stream` convenience methods**
 
-- [ ] **Step 2: Run the targeted tests to verify they fail**
+```rust
+#[tokio::test]
+async fn stocks_batch_historical_all_and_stream_use_real_api() {
+    let bars_all = client.stocks().bars_all(bars_request.clone()).await?;
+    let bars_pages = client.stocks().bars_stream(bars_request).collect::<Vec<_>>().await;
+    let quotes_all = client.stocks().quotes_all(quotes_request.clone()).await?;
+    let quotes_pages = client.stocks().quotes_stream(quotes_request).collect::<Vec<_>>().await;
+    let trades_all = client.stocks().trades_all(trades_request.clone()).await?;
+    let trades_pages = client.stocks().trades_stream(trades_request).collect::<Vec<_>>().await;
+}
+```
 
-- [ ] **Step 3: Implement `PaginatedRequest` / `PaginatedResponse` for batch historical requests and responses, then wire `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`**
+```rust
+#[test]
+fn batch_historical_merge_combines_symbol_buckets_and_clears_next_page_token() {
+    // verify batch pages merge symbol-keyed vectors and clear next_page_token
+}
+```
 
-- [ ] **Step 4: Re-run the targeted tests and the existing live batch historical test**
+```rust
+#[tokio::test]
+async fn bars_all_rejects_mismatched_batch_currency_across_pages() {
+    // verify mismatched currency still returns Error::Pagination
+}
+```
+
+- [x] **Step 2: Run the targeted tests to verify they fail**
+
+Run: `cargo test batch_historical_merge_combines_symbol_buckets_and_clears_next_page_token --lib -- --nocapture`
+Expected: FAIL because `BarsResponse` does not implement `PaginatedResponse` yet.
+
+Run: `cargo test bars_all_rejects_mismatched_batch_currency_across_pages --test mock_stocks_errors -- --nocapture`
+Expected: FAIL because `bars_all` is still `Error::NotImplemented`.
+
+Run: `cargo test stocks_batch_historical_all_and_stream_use_real_api --test live_stocks_batch_historical -- --nocapture`
+Expected: compile succeeds, but the live test still cannot validate the missing batch convenience layer.
+
+- [x] **Step 3: Implement `PaginatedRequest` / `PaginatedResponse` for batch historical requests and responses, then wire `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`**
+
+```rust
+impl PaginatedRequest for BarsRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+```
+
+```rust
+impl PaginatedResponse for BarsResponse {
+    fn next_page_token(&self) -> Option<&str> {
+        self.next_page_token.as_deref()
+    }
+
+    fn merge_page(&mut self, next: Self) -> Result<(), Error> {
+        merge_batch_currency("stocks.bars_all", &mut self.currency, next.currency)?;
+        merge_batch_page(&mut self.bars, next.bars);
+        self.next_page_token = next.next_page_token;
+        Ok(())
+    }
+}
+```
+
+```rust
+pub async fn bars_all(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
+    self.ensure_credentials()?;
+    let client = self.clone();
+    collect_all(request, move |request| {
+        let client = client.clone();
+        async move { client.bars(request).await }
+    })
+    .await
+}
+```
+
+- [x] **Step 4: Re-run the targeted tests and the existing live batch historical test**
+
+Implementation note:
+
+- 初版 live test 把 `quotes_all` / `trades_all` 的 `limit` 设得过小，真实 API 会产生过多分页；已先确认根因，再把 limit 调整到“仍会分页但页数可控”的区间，避免把 happy-path 测试拖成超长抓取
+
+Run: `cargo test batch_historical_merge_combines_symbol_buckets_and_clears_next_page_token --lib -- --nocapture`
+Expected: PASS.
+
+Run: `cargo test batch_historical_merge_rejects_mismatched_currency --lib -- --nocapture`
+Expected: PASS.
+
+Run: `cargo test bars_all_rejects_mismatched_batch_currency_across_pages --test mock_stocks_errors -- --nocapture`
+Expected: PASS.
+
+Run: `cargo test bars_stream_rejects_mismatched_batch_currency_across_pages --test mock_stocks_errors -- --nocapture`
+Expected: PASS.
+
+Run: `set -a && source .env && set +a && cargo test stocks_batch_historical_all_and_stream_use_real_api --test live_stocks_batch_historical -- --nocapture`
+Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
+git add Cargo.toml README.md memory/README.md memory/core/system-map.md docs/superpowers/plans/2026-04-03-phase-2-stocks.md CHANGELOG.md src/stocks/client.rs src/stocks/request.rs src/stocks/response.rs tests/live_stocks_batch_historical.rs tests/mock_stocks_errors.rs
 git commit -m "feat: add stocks batch historical convenience layer (v0.1.6)"
 ```
 

@@ -106,6 +106,34 @@ pub type ConditionCodesResponse = HashMap<String, String>;
 
 pub type ExchangeCodesResponse = HashMap<String, String>;
 
+fn merge_batch_currency(
+    operation: &'static str,
+    currency: &mut Option<Currency>,
+    next_currency: Option<Currency>,
+) -> Result<(), Error> {
+    match (currency.as_ref(), next_currency) {
+        (Some(current), Some(next)) if current != &next => Err(Error::Pagination(format!(
+            "{operation} received mismatched currency across pages: expected {}, got {}",
+            current.as_str(),
+            next.as_str()
+        ))),
+        (None, Some(next)) => {
+            *currency = Some(next);
+            Ok(())
+        }
+        _ => Ok(()),
+    }
+}
+
+fn merge_batch_page<Item>(
+    current: &mut HashMap<String, Vec<Item>>,
+    next: HashMap<String, Vec<Item>>,
+) {
+    for (symbol, mut items) in next {
+        current.entry(symbol).or_default().append(&mut items);
+    }
+}
+
 fn merge_single_metadata(
     operation: &'static str,
     symbol: &mut String,
@@ -161,6 +189,23 @@ impl PaginatedResponse for BarsSingleResponse {
     }
 }
 
+impl PaginatedResponse for BarsResponse {
+    fn next_page_token(&self) -> Option<&str> {
+        self.next_page_token.as_deref()
+    }
+
+    fn merge_page(&mut self, next: Self) -> Result<(), Error> {
+        merge_batch_currency("stocks.bars_all", &mut self.currency, next.currency)?;
+        merge_batch_page(&mut self.bars, next.bars);
+        self.next_page_token = next.next_page_token;
+        Ok(())
+    }
+
+    fn clear_next_page_token(&mut self) {
+        self.next_page_token = None;
+    }
+}
+
 impl PaginatedResponse for QuotesSingleResponse {
     fn next_page_token(&self) -> Option<&str> {
         self.next_page_token.as_deref()
@@ -175,6 +220,23 @@ impl PaginatedResponse for QuotesSingleResponse {
             next.currency,
         )?;
         self.quotes.extend(next.quotes);
+        self.next_page_token = next.next_page_token;
+        Ok(())
+    }
+
+    fn clear_next_page_token(&mut self) {
+        self.next_page_token = None;
+    }
+}
+
+impl PaginatedResponse for QuotesResponse {
+    fn next_page_token(&self) -> Option<&str> {
+        self.next_page_token.as_deref()
+    }
+
+    fn merge_page(&mut self, next: Self) -> Result<(), Error> {
+        merge_batch_currency("stocks.quotes_all", &mut self.currency, next.currency)?;
+        merge_batch_page(&mut self.quotes, next.quotes);
         self.next_page_token = next.next_page_token;
         Ok(())
     }
@@ -207,13 +269,32 @@ impl PaginatedResponse for TradesSingleResponse {
     }
 }
 
+impl PaginatedResponse for TradesResponse {
+    fn next_page_token(&self) -> Option<&str> {
+        self.next_page_token.as_deref()
+    }
+
+    fn merge_page(&mut self, next: Self) -> Result<(), Error> {
+        merge_batch_currency("stocks.trades_all", &mut self.currency, next.currency)?;
+        merge_batch_page(&mut self.trades, next.trades);
+        self.next_page_token = next.next_page_token;
+        Ok(())
+    }
+
+    fn clear_next_page_token(&mut self) {
+        self.next_page_token = None;
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::{
-        BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse, LatestBarResponse,
-        LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse, LatestTradeResponse,
-        LatestTradesResponse, QuotesSingleResponse, SnapshotResponse, SnapshotsResponse,
-        TradesSingleResponse,
+        BarsResponse, BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse,
+        LatestBarResponse, LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse,
+        LatestTradeResponse, LatestTradesResponse, QuotesSingleResponse, SnapshotResponse,
+        SnapshotsResponse, TradesSingleResponse,
     };
     use crate::{Error, transport::pagination::PaginatedResponse};
 
@@ -431,5 +512,76 @@ mod tests {
             exchange_codes.get("N").map(String::as_str),
             Some("New York Stock Exchange")
         );
+    }
+
+    #[test]
+    fn batch_historical_merge_combines_symbol_buckets_and_clears_next_page_token() {
+        let mut first = BarsResponse {
+            bars: HashMap::from([
+                (
+                    "AAPL".into(),
+                    vec![
+                        serde_json::from_str(r#"{"t":"2024-03-01T20:00:00Z","c":179.66}"#)
+                            .expect("bar should deserialize"),
+                    ],
+                ),
+                (
+                    "MSFT".into(),
+                    vec![
+                        serde_json::from_str(r#"{"t":"2024-03-01T20:00:00Z","c":415.32}"#)
+                            .expect("bar should deserialize"),
+                    ],
+                ),
+            ]),
+            next_page_token: Some("page-2".into()),
+            currency: Some("USD".into()),
+        };
+
+        first
+            .merge_page(BarsResponse {
+                bars: HashMap::from([
+                    (
+                        "AAPL".into(),
+                        vec![
+                            serde_json::from_str(r#"{"t":"2024-03-04T20:00:00Z","c":175.10}"#)
+                                .expect("bar should deserialize"),
+                        ],
+                    ),
+                    (
+                        "NVDA".into(),
+                        vec![
+                            serde_json::from_str(r#"{"t":"2024-03-04T20:00:00Z","c":852.37}"#)
+                                .expect("bar should deserialize"),
+                        ],
+                    ),
+                ]),
+                next_page_token: None,
+                currency: Some("USD".into()),
+            })
+            .expect("matching currencies should merge");
+
+        assert_eq!(first.bars.get("AAPL").map(Vec::len), Some(2));
+        assert_eq!(first.bars.get("MSFT").map(Vec::len), Some(1));
+        assert_eq!(first.bars.get("NVDA").map(Vec::len), Some(1));
+        assert_eq!(first.next_page_token, None);
+    }
+
+    #[test]
+    fn batch_historical_merge_rejects_mismatched_currency() {
+        let mut first = BarsResponse {
+            bars: HashMap::new(),
+            next_page_token: Some("page-2".into()),
+            currency: Some("USD".into()),
+        };
+
+        let error = first
+            .merge_page(BarsResponse {
+                bars: HashMap::new(),
+                next_page_token: None,
+                currency: Some("CAD".into()),
+            })
+            .expect_err("mismatched currencies should fail");
+
+        assert!(matches!(error, Error::Pagination(_)));
     }
 }

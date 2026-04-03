@@ -18,8 +18,8 @@
 
 ## 当前状态说明
 
-- 这是一个新项目，当前已经完成 `Phase 1: Shared Core`，并已进入 `Phase 2: Stocks` 的真实接口落地阶段，当前工作版本是 `v0.1.5`。
+- 这是一个新项目，当前已经完成 `Phase 1: Shared Core`，并已进入 `Phase 2: Stocks` 的真实接口落地阶段，当前工作版本是 `v0.1.6`。
 - 当前已经落下最小 Rust crate 骨架：`Cargo.toml`、`src/`、`tests/`、`.gitignore`。
-- 已完成的真实代码落地包括：共享 `ClientBuilder` 运行时配置、认证配对校验、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、共享分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及 `stocks` 历史 batch / single、latest、snapshot、metadata 端点与对应 live / mock 覆盖。
-- 当前下一步默认进入 `Phase 2 / Task 6`，补齐 `stocks` 历史 batch `*_all` / `*_stream` 便利层，再进入 phase 收尾。
+- 已完成的真实代码落地包括：共享 `ClientBuilder` 运行时配置、认证配对校验、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、共享分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及 `stocks` 历史 batch / single、latest、snapshot、metadata 端点与 batch + single 的 `*_all` / `*_stream` 便利层。
+- 当前下一步默认进入 `Phase 2 / Task 7`，补齐 `benches/stocks.rs`、同步 phase 完成态文档，并完成 `v0.2.0` 收尾。
 - `memory/` 现在既记录设计约束，也要记录已经落地的真实代码入口，后续随着 transport、分页和资源实现补齐继续同步更新。

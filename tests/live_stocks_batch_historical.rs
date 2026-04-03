@@ -1,4 +1,5 @@
 use alpaca_data::{Client, stocks};
+use futures_util::StreamExt;
 
 fn live_test_client() -> Client {
     let mut builder = Client::builder()
@@ -133,4 +134,122 @@ async fn stocks_batch_historical_uses_real_api() {
         aapl_trade.p.is_some(),
         "decoded trade price should be populated"
     );
+}
+
+#[tokio::test]
+async fn stocks_batch_historical_all_and_stream_use_real_api() {
+    if std::env::var("ALPACA_LIVE_TESTS").as_deref() != Ok("1") {
+        eprintln!("skipping live test; set ALPACA_LIVE_TESTS=1 to enable");
+        return;
+    }
+
+    let client = live_test_client();
+
+    let bars_request = stocks::BarsRequest {
+        symbols: vec!["AAPL".into()],
+        timeframe: stocks::TimeFrame::from("1Day"),
+        start: Some("2024-03-01T00:00:00Z".into()),
+        end: Some("2024-03-08T00:00:00Z".into()),
+        limit: Some(3),
+        adjustment: Some(stocks::Adjustment::raw()),
+        feed: Some(stocks::DataFeed::Iex),
+        sort: Some(stocks::Sort::Asc),
+        asof: None,
+        currency: Some(stocks::Currency::from("USD")),
+        page_token: None,
+    };
+    let bars_all = client
+        .stocks()
+        .bars_all(bars_request.clone())
+        .await
+        .expect("real Alpaca stocks bars_all request should succeed");
+    assert_eq!(bars_all.next_page_token, None);
+    assert!(
+        bars_all.bars.get("AAPL").map(Vec::len).unwrap_or_default() > 1,
+        "bars_all should merge more than one page for AAPL"
+    );
+    let bars_pages = client
+        .stocks()
+        .bars_stream(bars_request)
+        .collect::<Vec<_>>()
+        .await;
+    assert!(
+        bars_pages.len() > 1,
+        "bars_stream should yield more than one page for AAPL"
+    );
+    assert!(bars_pages.iter().all(|page| page.is_ok()));
+
+    let quotes_request = stocks::QuotesRequest {
+        symbols: vec!["AAPL".into()],
+        start: Some("2024-03-01T14:30:00Z".into()),
+        end: Some("2024-03-01T14:31:00Z".into()),
+        limit: Some(2_000),
+        feed: Some(stocks::DataFeed::Iex),
+        sort: Some(stocks::Sort::Asc),
+        asof: None,
+        currency: Some(stocks::Currency::from("USD")),
+        page_token: None,
+    };
+    let quotes_all = client
+        .stocks()
+        .quotes_all(quotes_request.clone())
+        .await
+        .expect("real Alpaca stocks quotes_all request should succeed");
+    assert_eq!(quotes_all.next_page_token, None);
+    assert!(
+        quotes_all
+            .quotes
+            .get("AAPL")
+            .map(Vec::len)
+            .unwrap_or_default()
+            > 2,
+        "quotes_all should merge more than one page for AAPL"
+    );
+    let quotes_pages = client
+        .stocks()
+        .quotes_stream(quotes_request)
+        .collect::<Vec<_>>()
+        .await;
+    assert!(
+        quotes_pages.len() > 1,
+        "quotes_stream should yield more than one page for AAPL"
+    );
+    assert!(quotes_pages.iter().all(|page| page.is_ok()));
+
+    let trades_request = stocks::TradesRequest {
+        symbols: vec!["AAPL".into()],
+        start: Some("2024-03-01T14:30:00Z".into()),
+        end: Some("2024-03-01T14:31:00Z".into()),
+        limit: Some(100),
+        feed: Some(stocks::DataFeed::Iex),
+        sort: Some(stocks::Sort::Asc),
+        asof: None,
+        currency: Some(stocks::Currency::from("USD")),
+        page_token: None,
+    };
+    let trades_all = client
+        .stocks()
+        .trades_all(trades_request.clone())
+        .await
+        .expect("real Alpaca stocks trades_all request should succeed");
+    assert_eq!(trades_all.next_page_token, None);
+    assert!(
+        trades_all
+            .trades
+            .get("AAPL")
+            .map(Vec::len)
+            .unwrap_or_default()
+            > 2,
+        "trades_all should merge more than one page for AAPL"
+    );
+    let trades_pages = client
+        .stocks()
+        .trades_stream(trades_request)
+        .collect::<Vec<_>>()
+        .await;
+    assert!(
+        trades_pages.len() > 1,
+        "trades_stream should yield more than one page for AAPL"
+    );
+    assert!(trades_pages.iter().all(|page| page.is_ok()));
 }
