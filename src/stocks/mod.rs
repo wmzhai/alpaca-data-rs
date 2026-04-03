@@ -8,10 +8,12 @@ pub use client::StocksClient;
 pub use enums::{Adjustment, Currency, DataFeed, Sort, TimeFrame};
 pub use model::{Bar, ConditionCode, ExchangeCode, Quote, Snapshot, Trade};
 pub use request::{
-    BarsRequest, LatestBarsRequest, LatestQuotesRequest, LatestTradesRequest, QuotesRequest,
-    SnapshotsRequest, TradesRequest,
+    BarsRequest, BarsSingleRequest, ConditionCodesRequest, LatestBarsRequest, LatestQuoteRequest,
+    LatestQuotesRequest, LatestTradesRequest, QuotesRequest, SnapshotRequest, SnapshotsRequest,
+    TickType, TradesRequest,
 };
 pub use response::{
-    BarsResponse, ConditionCodesResponse, ExchangeCodesResponse, LatestBarsResponse,
-    LatestQuotesResponse, LatestTradesResponse, QuotesResponse, SnapshotsResponse, TradesResponse,
+    BarsResponse, BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse,
+    LatestBarResponse, LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse,
+    LatestTradesResponse, QuotesResponse, SnapshotResponse, SnapshotsResponse, TradesResponse,
 };

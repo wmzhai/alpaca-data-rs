@@ -9,6 +9,12 @@ pub struct BarsResponse {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+pub struct BarsSingleResponse {
+    pub bars: Vec<Bar>,
+    pub next_page_token: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct QuotesResponse {
     pub quotes: HashMap<String, Vec<Quote>>,
     pub next_page_token: Option<String>,
@@ -26,8 +32,18 @@ pub struct LatestBarsResponse {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+pub struct LatestBarResponse {
+    pub bar: Bar,
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct LatestQuotesResponse {
     pub quotes: HashMap<String, Quote>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct LatestQuoteResponse {
+    pub quote: Quote,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -38,6 +54,11 @@ pub struct LatestTradesResponse {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct SnapshotsResponse {
     pub snapshots: HashMap<String, Snapshot>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct SnapshotResponse {
+    pub snapshot: Snapshot,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]

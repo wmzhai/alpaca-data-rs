@@ -8,6 +8,24 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.1
+
+### Added
+
+- 为 `stocks` 新增 Task 1 公开骨架类型：`BarsSingleRequest`、`LatestQuoteRequest`、`SnapshotRequest`、`ConditionCodesRequest`
+- 为 `stocks` 新增 Task 1 响应骨架类型：`BarsSingleResponse`、`LatestBarResponse`、`LatestQuoteResponse`、`SnapshotResponse`
+- 为 `Endpoint` 新增 stocks batch / single skeleton 路由变体和基础 path 覆盖
+
+### Changed
+
+- `StocksClient` 现在公开 `bars_single`、`latest_quote`、`snapshot` 和接收 request 的 `condition_codes` skeleton 方法，当前仍返回 `Error::NotImplemented`
+- 将 crate 版本提升到 `0.1.1`，对齐 `Phase 2 / Task 1` 的版本提交要求
+
+### Tests
+
+- 更新 `tests/public_api.rs`，覆盖 stocks batch / single public type 与 method 名称
+- 为 `src/transport/endpoint.rs` 增加 stocks batch / single path 路由单元测试
+
 ## v0.1.0
 
 ### Added

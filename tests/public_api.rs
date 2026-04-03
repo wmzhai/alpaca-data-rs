@@ -37,12 +37,50 @@ fn resource_modules_expose_short_type_names() {
 }
 
 #[test]
-fn resource_clients_expose_core_method_names() {
-    let client = Client::new();
+fn stocks_module_exposes_batch_and_single_type_names() {
+    let _ = stocks::BarsRequest::default();
+    let _ = stocks::BarsSingleRequest::default();
+    let _ = stocks::LatestQuoteRequest::default();
+    let _ = stocks::SnapshotRequest::default();
+    let _ = stocks::ConditionCodesRequest::default();
+    let _ = stocks::BarsSingleResponse::default();
+    let _ = stocks::LatestBarResponse::default();
+    let _ = stocks::SnapshotResponse::default();
+}
+
+#[test]
+fn stocks_client_exposes_batch_and_single_method_names() {
+    let client = Client::builder()
+        .api_key("key")
+        .secret_key("secret")
+        .build()
+        .expect("client should build");
 
     let _ = client.stocks().bars(stocks::BarsRequest::default());
+    let _ = client
+        .stocks()
+        .bars_single(stocks::BarsSingleRequest::default());
     let _ = client.stocks().bars_all(stocks::BarsRequest::default());
     let _ = client.stocks().bars_stream(stocks::BarsRequest::default());
+    let _ = client
+        .stocks()
+        .latest_quotes(stocks::LatestQuotesRequest::default());
+    let _ = client
+        .stocks()
+        .latest_quote(stocks::LatestQuoteRequest::default());
+    let _ = client
+        .stocks()
+        .snapshots(stocks::SnapshotsRequest::default());
+    let _ = client.stocks().snapshot(stocks::SnapshotRequest::default());
+    let _ = client
+        .stocks()
+        .condition_codes(stocks::ConditionCodesRequest::default());
+    let _ = client.stocks().exchange_codes();
+}
+
+#[test]
+fn resource_clients_expose_core_method_names() {
+    let client = Client::new();
 
     let _ = client.options().chain(options::ChainRequest::default());
     let _ = client.options().chain_all(options::ChainRequest::default());

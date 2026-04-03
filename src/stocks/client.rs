@@ -7,10 +7,11 @@ use crate::{
 };
 
 use super::{
-    BarsRequest, BarsResponse, ConditionCodesResponse, ExchangeCodesResponse, LatestBarsRequest,
-    LatestBarsResponse, LatestQuotesRequest, LatestQuotesResponse, LatestTradesRequest,
-    LatestTradesResponse, QuotesRequest, QuotesResponse, SnapshotsRequest, SnapshotsResponse,
-    TradesRequest, TradesResponse,
+    BarsRequest, BarsResponse, BarsSingleRequest, BarsSingleResponse, ConditionCodesRequest,
+    ConditionCodesResponse, ExchangeCodesResponse, LatestBarsRequest, LatestBarsResponse,
+    LatestQuoteRequest, LatestQuoteResponse, LatestQuotesRequest, LatestQuotesResponse,
+    LatestTradesRequest, LatestTradesResponse, QuotesRequest, QuotesResponse, SnapshotRequest,
+    SnapshotResponse, SnapshotsRequest, SnapshotsResponse, TradesRequest, TradesResponse,
 };
 
 #[derive(Clone, Debug)]
@@ -34,6 +35,16 @@ impl StocksClient {
         self.ensure_credentials()?;
         Err(Error::NotImplemented {
             operation: "stocks.bars_all",
+        })
+    }
+
+    pub async fn bars_single(
+        &self,
+        _request: BarsSingleRequest,
+    ) -> Result<BarsSingleResponse, Error> {
+        self.ensure_credentials()?;
+        Err(Error::NotImplemented {
+            operation: "stocks.bars_single",
         })
     }
 
@@ -106,6 +117,16 @@ impl StocksClient {
         })
     }
 
+    pub async fn latest_quote(
+        &self,
+        _request: LatestQuoteRequest,
+    ) -> Result<LatestQuoteResponse, Error> {
+        self.ensure_credentials()?;
+        Err(Error::NotImplemented {
+            operation: "stocks.latest_quote",
+        })
+    }
+
     pub async fn latest_trades(
         &self,
         _request: LatestTradesRequest,
@@ -123,7 +144,17 @@ impl StocksClient {
         })
     }
 
-    pub async fn condition_codes(&self) -> Result<ConditionCodesResponse, Error> {
+    pub async fn snapshot(&self, _request: SnapshotRequest) -> Result<SnapshotResponse, Error> {
+        self.ensure_credentials()?;
+        Err(Error::NotImplemented {
+            operation: "stocks.snapshot",
+        })
+    }
+
+    pub async fn condition_codes(
+        &self,
+        _request: ConditionCodesRequest,
+    ) -> Result<ConditionCodesResponse, Error> {
         self.ensure_credentials()?;
         Err(Error::NotImplemented {
             operation: "stocks.condition_codes",
