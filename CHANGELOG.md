@@ -8,6 +8,33 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.1.0
+
+### Added
+
+- 新建 `benches/shared_core.rs`，建立 `crypto.latest_quotes` 共享通路的本地 benchmark baseline
+- 为仓库规则补充 phase 级收尾约束：phase 完成后必须跑完整验证、同步所有文档、自动做 MINOR 版本升级，并在完成后合并 `main` / push / 删除开发分支
+
+### Changed
+
+- 将 crate 版本提升到 `0.1.0`，标记 `Phase 1: Shared Core` 完成
+- benchmark 现在复用同一个 `Client`，更聚焦共享请求路径本身，而不把 builder 初始化成本混入每次采样
+- `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已将 `Phase 1` 标记为完成，并把下一步收敛到 `Phase 2: Stocks`
+- `docs/superpowers/plans/2026-04-03-phase-1-shared-core.md` 的 Task 6 与最终校验清单现在已全部对齐为完成状态
+
+### Docs
+
+- 更新 `README.md`，补充当前实现状态以及已落地的 live test / benchmark 命令
+- 更新 `AGENTS.md`、`memory/README.md`、`memory/core/system-map.md`、`memory/core/workflows.md`、`memory/core/invariants.md`
+- 同步 Phase 1 完成后的项目状态、工作流和版本规则
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
+- `cargo bench --bench shared_core --no-run`
+
 ## v0.0.6
 
 ### Added

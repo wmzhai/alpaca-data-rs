@@ -8,6 +8,8 @@
 
 **Tech Stack:** Rust 2024 edition, `reqwest` async client with `rustls`, `tokio`, `serde`/`serde_json`, `futures-util`, `wiremock` for exceptional-path tests only, `criterion` for local benchmark baselines
 
+**Status:** Done in `v0.1.0`
+
 ---
 
 ## File Structure
@@ -725,7 +727,7 @@ git commit -m "feat: add crypto latest quotes canary endpoint"
 - Modify: `memory/core/system-map.md`
 - Modify: `memory/core/workflows.md`
 
-- [ ] **Step 1: Write the failing benchmark and doc TODO checklist**
+- [x] **Step 1: Write the failing benchmark and doc TODO checklist**
 
 ```rust
 use alpaca_data::{Client, crypto};
@@ -749,21 +751,27 @@ fn bench_crypto_latest_quotes_local(c: &mut Criterion) {
         server
     });
 
-    c.bench_function("shared_core/crypto_latest_quotes_local", |b| {
-        b.to_async(&runtime).iter(|| async {
-            let client = Client::builder()
-                .base_url(server.uri())
-                .build()
-                .expect("client should build");
+    let client = Client::builder()
+        .base_url(server.uri())
+        .build()
+        .expect("client should build");
+    let crypto_client = client.crypto();
+    let request = crypto::LatestQuotesRequest {
+        symbols: vec!["BTC/USD".into()],
+        loc: Some(crypto::Loc::Us),
+    };
 
-            let _ = client
-                .crypto()
-                .latest_quotes(crypto::LatestQuotesRequest {
-                    symbols: vec!["BTC/USD".into()],
-                    loc: Some(crypto::Loc::Us),
-                })
-                .await
-                .expect("request should succeed");
+    c.bench_function("shared_core/crypto_latest_quotes_local", |b| {
+        b.to_async(&runtime).iter(|| {
+            let crypto_client = crypto_client.clone();
+            let request = request.clone();
+
+            async move {
+                let _ = crypto_client
+                    .latest_quotes(request)
+                    .await
+                    .expect("request should succeed");
+            }
         })
     });
 }
@@ -780,12 +788,12 @@ criterion_main!(shared_core);
 - memory/core/workflows.md 补 live test 与 mock test 的使用边界
 ```
 
-- [ ] **Step 2: Run benchmark/doc commands to verify missing pieces**
+- [x] **Step 2: Run benchmark/doc commands to verify missing pieces**
 
 Run: `cargo bench --bench shared_core --no-run`
 Expected: FAIL before `criterion` target and benchmark file are wired.
 
-- [ ] **Step 3: Implement the benchmark target and sync docs**
+- [x] **Step 3: Implement the benchmark target and sync docs**
 
 ```toml
 [dev-dependencies]
@@ -807,7 +815,7 @@ harness = false
 - Mock tests are reserved for exceptional transport failures only
 ```
 
-- [ ] **Step 4: Run full verification**
+- [x] **Step 4: Run full verification**
 
 Run: `cargo fmt --check`
 Expected: PASS.
@@ -818,7 +826,7 @@ Expected: PASS, with live tests skipped unless `ALPACA_LIVE_TESTS=1`.
 Run: `cargo bench --bench shared_core --no-run`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml benches/shared_core.rs README.md memory/core/system-map.md memory/core/workflows.md
@@ -827,16 +835,17 @@ git commit -m "docs: record shared core workflow and benchmarks"
 
 ## Final Verification Checklist
 
-- [ ] `cargo fmt --check`
-- [ ] `cargo test`
-- [ ] `ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
-- [ ] `cargo bench --bench shared_core --no-run`
-- [ ] 确认 mock 测试只覆盖异常路径
-- [ ] 确认公开字段名继续保持官方原始单词
-- [ ] 确认 `bars_all` / `bars_stream` 共用 helper 已可被后续资源模块复用
+- [x] `cargo fmt --check`
+- [x] `cargo test`
+- [x] `ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
+- [x] `cargo bench --bench shared_core --no-run`
+- [x] 确认 mock 测试只覆盖异常路径
+- [x] 确认公开字段名继续保持官方原始单词
+- [x] 确认 `bars_all` / `bars_stream` 共用 helper 已可被后续资源模块复用
 
 ## Handoff Notes
 
+- 本 phase 已在 `v0.1.0` 完成。
 - 本 phase 只把 `crypto.latest_quotes` 作为共享层 canary endpoint，避免过早把整块 `crypto` 域做完。
 - `stocks` / `options` / `news` / `corporate_actions` 的实际 endpoint 批量实现放到后续 phase。
 - 如果 `crypto.latest_quotes` 的官方返回结构与当前最小 `Quote` 模型不一致，优先扩字段，不要引入自定义字段名。

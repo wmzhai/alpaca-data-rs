@@ -42,6 +42,7 @@
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 必须记录各种新变化，不只记录结构变化；至少覆盖对外接口、文档、测试、工程配置和内部实现上的重要变化。
 - 最终那个带 `CHANGELOG` 的发版提交，标题格式固定为 `chore: bump version and changelog (vX.Y.Z)`。
+- 每个 phase 完成后，必须跑完整验证、同步所有受影响文档、自动执行一次 MINOR 版本升级，然后合并到 `main`、推送远端并删除当前开发分支。
 - 版本号格式固定为三段：`MAJOR.MINOR.PATCH`。
 
 ## 测试红线

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 `alpaca-data` 从当前 `v0.0.2` 的 bootstrap + shared-core 起点，逐步推进到可发布到 crates.io 的高性能 Alpaca Market Data API Rust 客户端。
+**Goal:** 将 `alpaca-data` 从当前 `v0.1.0` 的 shared-core 基线起点，逐步推进到可发布到 crates.io 的高性能 Alpaca Market Data API Rust 客户端。
 
 **Architecture:** 开发主线按共享基础层和资源域拆成独立 phase，先做 transport、错误模型、分页、真实 API 测试基线，再按 `stocks -> options -> crypto -> news/corporate_actions -> release hardening` 推进。benchmark、真实 API 测试和文档/CHANGELOG 作为横向轨道持续贯穿所有 phase，而不是只在最后补。
 
@@ -13,7 +13,7 @@
 ## Phase Summary
 
 - **Phase 0: Bootstrap**，已完成
-- **Phase 1: Shared Core**，进行中
+- **Phase 1: Shared Core**，已完成（`v0.1.0`）
 - **Phase 2: Stocks**
 - **Phase 3: Options**
 - **Phase 4: Crypto**
@@ -50,15 +50,15 @@
 
 ## Phase 1: Shared Core
 
-**Status:** In progress, Task 1 completed in `v0.0.2`
+**Status:** Done in `v0.1.0`
 
 **Goal:** 把所有资源域都会依赖的基础能力做扎实，避免后续重复返工。
 
-**Delivered So Far:**
+**Delivered:**
 
 - `ClientBuilder` 已具备 `base_url`、`timeout`、`max_retries`、`max_in_flight` 最小运行时配置
 - `Auth::new(...)` 已强制 `api_key` / `secret_key` 成对校验
-- 顶层 `Error` 已补 `InvalidConfiguration`
+- 顶层 `Error` 已具备 `InvalidConfiguration`、`RateLimited`、`HttpStatus`、`Deserialize` 等共享错误变体
 - `tests/client_builder.rs` 已覆盖 builder/runtime config 与认证校验
 - `src/common/query.rs` 已提供最小 query 参数构造能力
 - `src/transport/endpoint.rs` 已提供 crypto latest quotes 的官方路径路由
@@ -66,6 +66,7 @@
 - `tests/mock_transport_errors.rs` 已覆盖共享 transport 的异常路径
 - `src/transport/pagination.rs` 已提供最小分页聚合与按页 stream helper
 - `tests/live_crypto_latest_quotes_smoke.rs` 已验证 `crypto.latest_quotes` 的真实 API happy path
+- `benches/shared_core.rs` 已建立本地 benchmark baseline
 
 **Primary Scope:**
 
@@ -321,10 +322,11 @@
 - 每个 phase 结束后更新 `README.md`、`CHANGELOG.md`、`memory/`
 - 新版本提交前必须更新 `CHANGELOG.md`
 - `CHANGELOG.md` 记录各种新变化，不只记录结构变化
+- phase 收尾时要完成完整验证、自动做一次 MINOR 版本升级，并在合并 `main` 推送后删除开发分支
 
 ## Recommended Execution Order From Now
 
-- [ ] Execute **Phase 1: Shared Core** first
+- [x] Execute **Phase 1: Shared Core** first
 - [ ] Then execute **Phase 2: Stocks** as the first real resource implementation
 - [ ] Then execute **Phase 3: Options**
 - [ ] Then execute **Phase 4: Crypto**
@@ -335,4 +337,4 @@
 
 This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The recommended next detailed plan is:
 
-- `Phase 1: Shared Core`
+- `Phase 2: Stocks`

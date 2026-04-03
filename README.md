@@ -19,6 +19,14 @@
 - 隐式缓存
 - 默认 Greeks / IV 补算
 
+## 当前实现状态
+
+- 当前已完成 `Phase 1: Shared Core`，共享基础层版本里程碑为 `v0.1.0`
+- 已落地共享 `ClientBuilder` 运行时配置、认证配对校验与 header 注入、query 构造、endpoint 路由、async HTTP transport、错误映射和分页 helper
+- 当前真实打通的 canary endpoint 是 `crypto.latest_quotes`
+- 真实 happy-path smoke test 通过 `ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture` 启用
+- 本地 micro-benchmark baseline 位于 `benches/shared_core.rs`
+
 ## 设计原则
 
 ### 1. 官方 HTTP API 是唯一标准
@@ -575,6 +583,12 @@ src/
 - 真实字段反序列化
 - 真实资源域行为
 
+当前已落地的 Phase 1 live smoke test 命令：
+
+```bash
+ALPACA_LIVE_TESTS=1 cargo test --test live_crypto_latest_quotes_smoke -- --nocapture
+```
+
 ### mock 的使用边界
 
 mock 只允许用于真实 API 难以稳定制造的异常和故障场景，例如：
@@ -602,6 +616,12 @@ benchmark 以真实 API 为主，用于验证：
 - 反序列化成本
 - 聚合成本
 - 分页拼接成本
+
+当前已落地的本地 benchmark baseline 命令：
+
+```bash
+cargo bench --bench shared_core
+```
 
 不使用 mock 得出主性能结论。
 

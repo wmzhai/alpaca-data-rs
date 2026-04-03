@@ -11,11 +11,11 @@
 
 ## 项目当前状态
 
-- 这是一个新的 Rust crate 仓库，当前仍以设计约束为主，但已经开始落地共享基础层代码。
+- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core`，开始从“设计约束 + 最小骨架”进入“共享基础层已可运行”的阶段。
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已完成 `Phase 1 / Task 1-5` 的最小落地：`ClientBuilder` 运行时配置、认证配对校验、`InvalidConfiguration` 错误、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、分页 helper，以及已通过真实 API smoke test 的 `crypto.latest_quotes`。
+- 当前已完成 `Phase 1` 的最小落地：`ClientBuilder` 运行时配置、认证配对校验、`QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、分页 helper、真实 API 的 `crypto.latest_quotes` smoke test，以及 `benches/shared_core.rs` 本地 benchmark baseline。
 
 ## 最高优先级规则
 
@@ -34,6 +34,8 @@
 - 每完成一个明确的开发 task，都要做一次带版本号更新的提交，不能把多个已完成 task 长时间堆在工作区里不提交。
 - 每个 task 完成后的提交前，都必须先同步版本号、`CHANGELOG.md` 和所有受影响文档，再进行提交。
 - 每个 task 完成后的版本提交标题统一使用英文格式：`<type>: <summary> (vX.Y.Z)`。
+- 每个 phase 完成后，必须先全面跑完该 phase 的格式检查、单元测试、集成测试、所需 live tests 和 benchmark 验证，并对齐 `README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md`。
+- 每个 phase 完成后的收尾版本必须自动执行一次 MINOR 递增（`X.Y.Z -> X.(Y+1).0`），然后合并到 `main`、推送远端，并删除当前开发分支。
 - 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先直接修正，再提交。
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 不只记录结构变化，也要记录各种新变化，包括对外接口、文档、测试、工程配置和内部实现上的重要变化。
@@ -49,6 +51,7 @@
 - 不要使用 `.worktrees/` 或其他 git worktree 工作目录；新任务直接创建并切换到普通 git 分支即可。
 - 每个 task 完成后，默认同步检查并更新：`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档、`CHANGELOG.md`。
 - 每个 task 完成后，默认先做版本号递增，再做带版本号的提交；除非用户明确要求暂不提交。
+- 每个 phase 完成后，默认执行完整验证、自动做一次 MINOR 版本升级、合并 `main`、推送远端并删除当前分支。
 - 提交前的对齐检查不是走形式；如果文档和代码不一致，要先把事实修正到一致，再执行验证和提交。
 
 ## 关键目录边界
