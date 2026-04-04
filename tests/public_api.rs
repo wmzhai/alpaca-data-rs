@@ -44,6 +44,8 @@ fn resource_modules_expose_short_type_names() {
     let _ = crypto::SnapshotsResponse::default();
     let _ = news::ListRequest::default();
     let _ = news::ListResponse::default();
+    let _ = news::NewsItem::default();
+    let _ = news::NewsImage::default();
     let _ = corporate_actions::ListRequest::default();
     let _ = corporate_actions::ListResponse::default();
 }
@@ -212,6 +214,8 @@ fn resource_clients_expose_core_method_names() {
         .crypto()
         .snapshots(crypto::SnapshotsRequest::default());
     let _ = client.news().list(news::ListRequest::default());
+    let _ = client.news().list_all(news::ListRequest::default());
+    let _ = client.news().list_stream(news::ListRequest::default());
     let _ = client
         .corporate_actions()
         .list(corporate_actions::ListRequest::default());

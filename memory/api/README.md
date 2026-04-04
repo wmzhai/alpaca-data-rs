@@ -71,4 +71,6 @@
 - metadata 请求也不例外：`stocks::ConditionCodesRequest` 继续使用 `ticktype` 和 `tape`，对应 Rust enum 为 `stocks::TickType` 和 `stocks::Tape`
 - 对于官方直接返回顶层动态 key JSON object 的 endpoint，不额外发明 wrapper；响应类型保持 map 形状，例如 `stocks::SnapshotsResponse`、`stocks::ConditionCodesResponse`、`stocks::ExchangeCodesResponse`、`options::ExchangeCodesResponse`
 - 对于官方同时返回 `next_page_token` 和动态 key map 的 endpoint，继续保留官方 wrapper 结构，例如 `options::SnapshotsResponse` 和 `options::ChainResponse` 继续公开顶层 `snapshots` + `next_page_token`
-- `stocks`、`options` 与 `crypto` 现已成为前三个完整资源模板；其中 `crypto` 明确 `loc` 只作为 path 路由而不进入 query、`snapshots` 不补 convenience；后续 `news`、`corporate_actions` 默认沿用这套 mirror + convenience + live/mock/benchmark 的公开边界
+- `stocks`、`options` 与 `crypto` 现已成为前三个完整资源模板；其中 `crypto` 明确 `loc` 只作为 path 路由而不进入 query、`snapshots` 不补 convenience
+- `news` 现已完成第四个资源模板的第一步：`list` / `list_all` / `list_stream` 都已落地，`symbols` 以 `Option<Vec<String>>` 承载官方 CSV query，response 保持官方 `news` + `next_page_token` wrapper
+- `corporate_actions` 仍在当前 phase 内继续推进，但公开边界已拍板为官方 `list` / `list_all` / `list_stream`，并保持 `corporate_actions` 顶层 bucketed wrapper

@@ -251,6 +251,15 @@
 
 ## Phase 5: News + Corporate Actions
 
+**Status:** In progress (`v0.4.1` delivered `news`)
+
+**Delivered so far:**
+
+- `news.list`、`news.list_all` 与 `news.list_stream` 已具备真实 HTTP 行为
+- `news::ListRequest` 现在按官方 query 单词序列化 `start` / `end` / `sort` / `symbols` / `limit` / `include_content` / `exclude_contentless` / `page_token`
+- `news::NewsItem` 与 `news::NewsImage` 现已补齐官方字段，并保持官方 `news` + `next_page_token` wrapper
+- `tests/live_news.rs` 已用真实 Alpaca API 验证 `news` happy path 与分页便利层
+
 **Goal:** 完成两个 list/filter/pagination 型资源域。
 
 **Primary Scope:**

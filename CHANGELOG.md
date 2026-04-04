@@ -8,6 +8,28 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.4.1
+
+### Added
+
+- 新建 `docs/superpowers/specs/2026-04-04-phase-5-news-corporate-actions-design.md` 与 `docs/superpowers/plans/2026-04-04-phase-5-news-corporate-actions.md`，将 `Phase 5` 的官方 HTTP 设计约束、真实 API 观察与任务拆分落成仓库文档
+- 新建 `tests/live_news.rs`，使用真实 Alpaca API 覆盖 `news.list`、`news.list_all` 与 `news.list_stream`
+- 为 `news` 新增 request / response / route / public API 单元测试，覆盖官方 query 单词、`/v1beta1/news` route 与 wrapper shape
+
+### Changed
+
+- `NewsClient` 现在已接通 `GET /v1beta1/news`，并同时打通 `list_all` / `list_stream`
+- `news::ListRequest` 现在使用 `Option<Vec<String>>` 承载官方 `symbols` CSV query；`ListResponse` 现在忠实反序列化官方 `news` + `next_page_token` wrapper，并支持分页聚合
+- `news::NewsItem` 与 `news::NewsImage` 现在补齐官方字段：`author`、`created_at`、`updated_at`、`summary`、`content`、`url`、`images`、`symbols`、`source`
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-5-news-corporate-actions-design.md`、`docs/superpowers/plans/2026-04-04-phase-5-news-corporate-actions.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 5 / Task 1` 完成后的真实状态
+- 将 crate 版本提升到 `0.4.1`，对齐 `Phase 5 / Task 1` 的版本提交要求
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `set -a && source .env && set +a && export APCA_API_KEY_ID=\"$ALPACA_DATA_API_KEY\" APCA_API_SECRET_KEY=\"$ALPACA_DATA_SECRET_KEY\" && cargo test news -- --nocapture`
+
 ## v0.4.0
 
 ### Added

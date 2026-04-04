@@ -16,7 +16,7 @@
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
 - 当前已经落地共享基础层，以及三个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`，以及对应真实 API happy-path、异常路径 mock 与本地 benchmark baseline。
-- 当前 `Phase 4: Crypto` 已完成，下一步进入 `Phase 5: News + Corporate Actions`。
+- 当前 `Phase 4: Crypto` 已完成；`Phase 5` 已先完成 `news.list` / `list_all` / `list_stream` 与 `tests/live_news.rs`，下一步继续推进 `corporate_actions`。
 
 ## 最高优先级规则
 

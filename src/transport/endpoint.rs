@@ -13,6 +13,7 @@ pub(crate) enum Endpoint {
     CryptoLatestTrades { loc: Loc },
     CryptoLatestOrderbooks { loc: Loc },
     CryptoSnapshots { loc: Loc },
+    NewsList,
     OptionsBars,
     OptionsTrades,
     OptionsLatestQuotes,
@@ -36,6 +37,7 @@ pub(crate) enum Endpoint {
     StocksSnapshot { symbol: String },
     StocksConditionCodes { ticktype: &'static str },
     StocksExchangeCodes,
+    CorporateActionsList,
 }
 
 #[allow(dead_code)]
@@ -148,6 +150,7 @@ impl Endpoint {
                 Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/orderbooks"))
             }
             Self::CryptoSnapshots { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/snapshots")),
+            Self::NewsList => Cow::Borrowed("/v1beta1/news"),
             Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
             Self::OptionsLatestQuotes => Cow::Borrowed("/v1beta1/options/quotes/latest"),
@@ -185,6 +188,7 @@ impl Endpoint {
                 Cow::Owned(format!("/v2/stocks/meta/conditions/{ticktype}"))
             }
             Self::StocksExchangeCodes => Cow::Borrowed("/v2/stocks/meta/exchanges"),
+            Self::CorporateActionsList => Cow::Borrowed("/v1/corporate-actions"),
         }
     }
 
@@ -199,6 +203,7 @@ impl Endpoint {
             | Self::CryptoLatestOrderbooks { .. }
             | Self::CryptoSnapshots { .. } => false,
             Self::OptionsBars
+            | Self::NewsList
             | Self::OptionsTrades
             | Self::OptionsLatestQuotes
             | Self::OptionsLatestTrades
@@ -220,7 +225,8 @@ impl Endpoint {
             | Self::StocksSnapshots
             | Self::StocksSnapshot { .. }
             | Self::StocksConditionCodes { .. }
-            | Self::StocksExchangeCodes => true,
+            | Self::StocksExchangeCodes
+            | Self::CorporateActionsList => true,
         }
     }
 }
@@ -255,6 +261,17 @@ mod tests {
             "/v1beta3/crypto/eu-1/trades"
         );
         assert!(!Endpoint::crypto_bars(Loc::Eu1).requires_auth());
+    }
+
+    #[test]
+    fn endpoint_routes_news_and_corporate_actions_to_official_paths() {
+        assert_eq!(Endpoint::NewsList.path(), "/v1beta1/news");
+        assert!(Endpoint::NewsList.requires_auth());
+        assert_eq!(
+            Endpoint::CorporateActionsList.path(),
+            "/v1/corporate-actions"
+        );
+        assert!(Endpoint::CorporateActionsList.requires_auth());
     }
 
     #[test]
