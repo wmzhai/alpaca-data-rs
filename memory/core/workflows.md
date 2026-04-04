@@ -8,6 +8,7 @@
 4. 为当前 phase 写出对应的 spec / plan 文档。
 5. 最后检查是否有过期事实需要删除。
 6. 在开始该 phase 的代码开发前，停下来等待用户确认设计。
+7. 如果当前是 `Phase 6`，保留 `docs/superpowers/` 与 `memory/` 在 git 中，先通过文档与 package boundary 做 release preparation；internal docs 的 git 清理留给 `Phase 7`。
 
 ## 代码落地阶段默认顺序
 
@@ -39,6 +40,7 @@
 - 没有真实代码事实时，明确写为“当前约定”或“待落地”。
 - phase 收尾时，先完成验证、文档对齐、MINOR 版本升级和 phase 收尾提交，再在合并 `main` / 推送 / 删分支前停下来等待用户确认。
 - phase 收尾时，最终版本提交必须先在开发分支上整理完成；不要把任何文档补丁或状态修正留到合并 `main` 之后再补。
+- `Phase 6` 的 package 需要排除 `docs/superpowers/` 与 `memory/`，但这两个目录本身仍继续保留在 git 中；真正的目录移除与 `.gitignore` 收口属于 `Phase 7`。
 
 ## commit 默认要求
 
@@ -52,3 +54,4 @@
 - 如果是最终带 `CHANGELOG` 的发版提交，标题使用 `chore: bump version and changelog (vX.Y.Z)`。
 - 每个 phase 收尾时，自动执行一次 MINOR 版本升级（`X.Y.Z -> X.(Y+1).0`）并完成 phase 收尾提交；合并到 `main`、推送远端并删除当前开发分支这一步需要在用户确认后再执行。
 - phase 合并时只允许 `git merge --ff-only`；目标是让 phase 最终版本提交本身直接出现在 `main` 上，不再额外生成 merge commit。
+- `Phase 6` 结束时只收敛到 release-prepared 状态，不自动触发真实 crates.io 发布。

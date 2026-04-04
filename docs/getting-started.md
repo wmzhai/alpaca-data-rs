@@ -1,0 +1,56 @@
+# Getting Started
+
+## Current State
+
+`alpaca-data` is not published to crates.io yet. Until the release phase is complete, depend on the repository directly.
+
+```toml
+[dependencies]
+alpaca-data = { git = "https://github.com/wmzhai/alpaca-data-rs.git" }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+```
+
+## Create a Client
+
+```rust
+use alpaca_data::Client;
+
+let client = Client::new();
+let client = Client::builder().build()?;
+# Ok::<(), alpaca_data::Error>(())
+```
+
+Use `Client::builder()` when you need explicit configuration:
+
+- `api_key(...)`
+- `secret_key(...)`
+- `base_url(...)`
+- `timeout(...)`
+- `max_retries(...)`
+- `max_in_flight(...)`
+
+## Choose a Resource
+
+The root client exposes five resource entrypoints:
+
+- `client.stocks()`
+- `client.options()`
+- `client.crypto()`
+- `client.news()`
+- `client.corporate_actions()`
+
+## Understand the Two Layers
+
+- Mirror layer: direct endpoint wrappers such as `stocks().bars(...)` or `news().list(...)`
+- Convenience layer: pagination helpers such as `bars_all`, `bars_stream`, `list_all`, and `list_stream`
+
+The convenience layer does not rename official fields. It only automates pagination.
+
+## Run Local Checks
+
+```bash
+cargo test
+cargo bench --no-run
+```
+
+For live Alpaca integration tests, see [authentication.md](authentication.md) and [release-checklist.md](release-checklist.md).

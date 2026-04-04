@@ -11,12 +11,12 @@
 
 ## 项目当前状态
 
-- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`。
+- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options`、`Phase 4: Crypto` 与 `Phase 5: News + Corporate Actions`。
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已经落地共享基础层，以及三个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`，以及对应真实 API happy-path、异常路径 mock 与本地 benchmark baseline。
-- 当前 `Phase 4: Crypto` 已完成；`Phase 5` 的收尾版本候选 `v0.5.0` 已在当前分支准备完成，覆盖 `news` / `corporate_actions` 的 happy-path、fault coverage 与 benchmark baseline；在得到用户确认前，不执行 merge / push / 删分支，下一步默认进入 `Phase 6: Release Hardening`。
+- 当前已经落地共享基础层，以及五个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`；以及 `news` / `corporate_actions` 的 `list` / `list_all` / `list_stream`、happy-path、fault coverage 与 benchmark baseline。
+- 当前 `Phase 5` 已在 `v0.5.0` 完成并落到 `main`；下一步默认进入 `Phase 6: Release Hardening`，随后由 `Phase 7: Release` 负责 internal docs 的 git 清理与最终发布决策。
 
 ## 最高优先级规则
 
@@ -48,6 +48,9 @@
 - 如果是最终那个带 `CHANGELOG` 的发版提交，标题格式使用 `chore: bump version and changelog (vX.Y.Z)`。
 - 版本号格式固定为三段：`MAJOR.MINOR.PATCH`。
 - 没有真实代码事实时，只能写“当前约定”或“设计约束”，不能伪装成已实现事实。
+- `Phase 6` 只做 release preparation，不移除 `docs/superpowers/` 或 `memory/`，也不自动发布 crates.io。
+- `docs/superpowers/` 与 `memory/` 在 `Phase 6` 继续保留在 git 中驱动工作；如果需要保持发布产物干净，优先通过 package boundary 排除，而不是提前从 git 删除。
+- `Phase 7` 才负责 `docs/superpowers/` / `memory/` 的 git 移除、`.gitignore` 收口，以及是否真正发布 crates.io 的最终决策。
 
 ## 当前默认工作方式
 
@@ -65,6 +68,9 @@
   5. 在合并 `main`、推送远端和删除分支之前，再停下来等待用户确认
   6. 用户确认后，只允许用 fast-forward 方式把该 phase 的最终版本提交落到 `main`
 - 提交前的对齐检查不是走形式；如果文档和代码不一致，要先把事实修正到一致，再执行验证和提交。
+- 当前 release 主线拆成两段：
+  1. `Phase 6: Release Hardening` 负责公开英文文档、examples、rustdoc、API coverage、API sync skill、package metadata、package boundary 与预发布验证
+  2. `Phase 7: Release` 负责 internal docs 的 git 移除、`.gitignore` 收口和最终发布决策
 
 ## 关键目录边界
 

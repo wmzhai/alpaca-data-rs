@@ -8,6 +8,26 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.5.1
+
+### Added
+
+- Added a first public English documentation surface under `docs/`: `getting-started.md`, `authentication.md`, `layers.md`, `examples.md`, and `release-checklist.md`
+- Added a new public English `README.md` that documents the shipped API surface, auth behavior, test strategy, benchmark targets, and the current `Phase 6` / `Phase 7` release split
+- Added the initial `Phase 6` design and implementation documents for release hardening
+
+### Changed
+
+- Reconciled stale repository state docs so `Phase 5` is consistently recorded as completed in `v0.5.0`, not as a pending merge candidate
+- Updated `AGENTS.md`, `memory/README.md`, `memory/api/README.md`, `memory/core/invariants.md`, `memory/core/system-map.md`, `memory/core/workflows.md`, and the master roadmap to align on the approved `Phase 6` and `Phase 7` boundaries
+- Bumped the crate version to `0.5.1` for the `Phase 6 / Task 1` documentation baseline commit
+
+### Verification
+
+- `cargo test`
+- `git diff --check`
+- `rg -n "awaiting merge approval|merge candidate|收尾版本候选|merge approval|merge 获批" README.md AGENTS.md memory docs`
+
 ## v0.5.0
 
 ### Changed

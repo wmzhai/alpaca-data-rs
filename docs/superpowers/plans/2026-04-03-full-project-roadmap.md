@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 `alpaca-data` 从当前 `v0.1.0` 的 shared-core 基线起点，逐步推进到可发布到 crates.io 的高性能 Alpaca Market Data API Rust 客户端。
+**Goal:** 将 `alpaca-data` 从当前 `v0.1.0` 的 shared-core 基线起点，逐步推进到完成 release preparation，并在后续 `Phase 7` 决定是否执行最终发布的高性能 Alpaca Market Data API Rust 客户端。
 
-**Architecture:** 开发主线按共享基础层和资源域拆成独立 phase，先做 transport、错误模型、分页、真实 API 测试基线，再按 `stocks -> options -> crypto -> news/corporate_actions -> release hardening` 推进。benchmark、真实 API 测试和文档/CHANGELOG 作为横向轨道持续贯穿所有 phase，而不是只在最后补。
+**Architecture:** 开发主线按共享基础层和资源域拆成独立 phase，先做 transport、错误模型、分页、真实 API 测试基线，再按 `stocks -> options -> crypto -> news/corporate_actions -> release hardening -> release` 推进。benchmark、真实 API 测试和文档/CHANGELOG 作为横向轨道持续贯穿所有 phase，而不是只在最后补。
 
 **Tech Stack:** Rust 2024 edition, Cargo library crate, reqwest transport, real Alpaca Market Data HTTP API integration tests, limited mock fault injection for exceptional paths only
 
@@ -17,8 +17,9 @@
 - **Phase 2: Stocks**，已完成（`v0.2.0`）
 - **Phase 3: Options**，已完成（`v0.3.0`）
 - **Phase 4: Crypto**，已完成（`v0.4.0`）
-- **Phase 5: News + Corporate Actions**
+- **Phase 5: News + Corporate Actions**，已完成（`v0.5.0`）
 - **Phase 6: Release Hardening**
+- **Phase 7: Release**
 
 横向持续轨道：
 
@@ -251,7 +252,7 @@
 
 ## Phase 5: News + Corporate Actions
 
-**Status:** Completion candidate prepared (`v0.5.0`, awaiting merge approval)
+**Status:** Done in `v0.5.0`
 
 **Delivered so far:**
 
@@ -295,7 +296,7 @@
 
 - 两个资源域的官方字段映射完成
 - list / list_all / list_stream 的统一行为完成
-- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在当前分支准备完成；下一步只等待 merge approval，然后进入 Phase 6
+- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在 `v0.5.0` 完成；下一步进入 `Phase 6: Release Hardening`
 
 **Exit Criteria:**
 
@@ -304,18 +305,19 @@
 
 ## Phase 6: Release Hardening
 
-**Goal:** 把项目从“功能可用”推进到“可发布到 crates.io”。
+**Goal:** 在不移除内部工作文档、也不自动发布 crates.io 的前提下，把项目从“功能可用”推进到“release-prepared”。
 
 **Primary Scope:**
 
-- benchmark 收口
-- README 示例校对
-- rustdoc 示例补齐
-- package metadata 完整化
-- 发布前检查脚本或文档
+- 对外英文文档收口
+- examples 与 rustdoc 补齐
+- API coverage contract
+- API sync skill
+- package metadata 与 package boundary
+- CI guardrails
 - `cargo package`
 - `cargo publish --dry-run`
-- CHANGELOG 与版本发布流程定型
+- release checklist 与版本发布流程定型
 
 **Files Likely Touched:**
 
@@ -324,22 +326,70 @@
 - Modify: `CHANGELOG.md`
 - Modify: `AGENTS.md`
 - Modify: `memory/` 中相关文档
-- Create: `benches/` 下 benchmark 文件
-- Create: 需要的发布辅助文档或脚本
+- Create: `docs/` 下公开英文文档
+- Create: `examples/` 下标准 examples
+- Create: `tools/api-coverage/` 下 coverage manifest
+- Create: `.agents/skills/alpaca-market-data-sync/`
+- Create: `.github/workflows/ci.yml`
 
 **Deliverables:**
 
-- crates.io 可发布状态
-- 公开文档与代码一致
-- benchmark 与验证流程成型
+- release-prepared crate 状态
+- 公开英文文档、examples 和 rustdoc 与代码一致
+- package 不包含 `docs/superpowers/` 与 `memory/`
+- API coverage contract 与 API sync skill 成型
+- 预发布验证流程成型，但仍不自动发布 crates.io
 
 **Exit Criteria:**
 
 - `cargo fmt --check` 通过
 - `cargo test` 通过
+- 必要 live tests 通过
+- `cargo check --examples` 通过
+- `cargo test --doc` 通过
+- `cargo doc --no-deps` 通过
 - `cargo package` 通过
 - `cargo publish --dry-run` 通过
-- `CHANGELOG.md`、版本号、README 示例保持一致
+- `CHANGELOG.md`、版本号、README、public docs、examples 与 rustdoc 保持一致
+- package 产物中不包含 `docs/superpowers/` 与 `memory/`
+
+## Phase 7: Release
+
+**Goal:** 在 `Phase 6` 完成 release preparation 之后，做最终 public-repo cleanup，并根据用户决策决定是否真正发布。
+
+**Primary Scope:**
+
+- 从 git 中移除 `docs/superpowers/`
+- 从 git 中移除 `memory/`
+- 将上述目录加入 `.gitignore`
+- 最终 public-repo cleanup
+- 可选的 GitHub Pages 叙述型站点准备
+- 最终 release gate
+- 根据用户明确指令决定是否真正发布 crates.io
+
+**Files Likely Touched:**
+
+- Modify: `.gitignore`
+- Modify: `README.md`
+- Modify: `CHANGELOG.md`
+- Modify: `AGENTS.md`
+- Modify: `Cargo.toml`
+- Modify: `docs/` 下对外文档
+- Delete: `docs/superpowers/`
+- Delete: `memory/`
+
+**Deliverables:**
+
+- public repo 结构收口
+- internal working docs 从 git 中退场
+- 发布决策所需的最终检查材料
+
+**Exit Criteria:**
+
+- `docs/superpowers/` 与 `memory/` 已从 git 中移除
+- `.gitignore` 已覆盖这两个内部目录
+- `Phase 6` 的验证闭环仍保持可重复执行
+- 是否真正发布 crates.io 由用户最终明确决定
 
 ## Cross-Cutting Tracks
 
@@ -360,6 +410,7 @@
 - 每个 phase 结束后更新 `README.md`、`CHANGELOG.md`、`memory/`
 - 新版本提交前必须更新 `CHANGELOG.md`
 - `CHANGELOG.md` 记录各种新变化，不只记录结构变化
+- `Phase 6` 负责公开英文文档与 package boundary；`Phase 7` 负责 internal docs 的 git 移除与最终 public repo cleanup
 - phase 收尾时要完成完整验证、自动做一次 MINOR 版本升级，并在合并 `main` 推送后删除开发分支
 
 ## Recommended Execution Order From Now
@@ -369,10 +420,15 @@
 - [x] Then execute **Phase 3: Options**
 - [x] Then execute **Phase 4: Crypto**
 - [x] Then execute **Phase 5: News + Corporate Actions**
-- [ ] Finish with **Phase 6: Release Hardening**
+- [ ] Execute **Phase 6: Release Hardening**
+- [ ] Finish with **Phase 7: Release**
 
 ## Next Planning Step
 
-This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The recommended next detailed plan is:
+This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The current next detailed plan is:
 
 - `Phase 6: Release Hardening`
+
+After `Phase 6` closes, the next planning target is:
+
+- `Phase 7: Release`
