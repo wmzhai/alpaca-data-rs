@@ -1,3 +1,20 @@
+//! Crypto market data endpoints.
+//!
+//! Mirror methods cover historical bars, quotes, trades, latest data, latest
+//! orderbooks, and snapshots.
+//!
+//! Convenience methods add:
+//!
+//! - `bars_all`
+//! - `bars_stream`
+//! - `quotes_all`
+//! - `quotes_stream`
+//! - `trades_all`
+//! - `trades_stream`
+//!
+//! The currently implemented crypto HTTP endpoints can be used without
+//! credentials.
+
 mod client;
 mod enums;
 mod model;

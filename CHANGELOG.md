@@ -8,6 +8,28 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.5.2
+
+### Added
+
+- Added crate-level rustdoc in `src/lib.rs`
+- Added public docs for `Client`, `ClientBuilder`, and all root resource accessors in `src/client.rs`
+- Added module-level rustdoc for `stocks`, `options`, `crypto`, `news`, and `corporate_actions`
+- Added runnable examples under `examples/`: `client_builder`, `stocks_latest_bar`, `stocks_bars_all`, `options_chain`, `crypto_latest_quotes`, `news_list`, and `corporate_actions_list`
+
+### Changed
+
+- Updated `docs/examples.md` and `README.md` to point at the runnable `examples/` directory
+- Updated `memory/core/system-map.md` to record the new `examples/` tree as part of the real repository structure
+- Bumped the crate version to `0.5.2` for the `Phase 6 / Task 2` examples and rustdoc commit
+
+### Verification
+
+- `cargo fmt`
+- `cargo check --examples`
+- `cargo test --doc`
+- `git diff --check`
+
 ## v0.5.1
 
 ### Added

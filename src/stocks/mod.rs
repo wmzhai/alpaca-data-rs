@@ -1,3 +1,15 @@
+//! Stock market data endpoints.
+//!
+//! Mirror methods cover historical batch and single-symbol endpoints, latest
+//! endpoints, snapshots, and metadata endpoints.
+//!
+//! Convenience methods add:
+//!
+//! - `*_all`
+//! - `*_stream`
+//! - `*_single_all`
+//! - `*_single_stream`
+
 mod client;
 mod enums;
 mod model;

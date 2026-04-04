@@ -1,3 +1,16 @@
+//! Corporate actions endpoints.
+//!
+//! Mirror method:
+//!
+//! - `list`
+//!
+//! Convenience methods:
+//!
+//! - `list_all`
+//! - `list_stream`
+//!
+//! The response preserves the official bucketed `corporate_actions` wrapper.
+
 mod client;
 mod model;
 mod request;

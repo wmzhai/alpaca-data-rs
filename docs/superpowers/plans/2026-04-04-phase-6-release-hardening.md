@@ -114,6 +114,7 @@
 - Modify: `src/corporate_actions/mod.rs`
 - Modify: `README.md`
 - Modify: `docs/examples.md`
+- Modify: `memory/core/system-map.md`
 - Create: `examples/client_builder.rs`
 - Create: `examples/stocks_latest_bar.rs`
 - Create: `examples/stocks_bars_all.rs`
@@ -122,15 +123,15 @@
 - Create: `examples/news_list.rs`
 - Create: `examples/corporate_actions_list.rs`
 
-- [ ] Add crate-level rustdoc to `src/lib.rs` with a minimal `Client` setup example and resource entrypoint overview
-- [ ] Add module-level rustdoc for each public resource module, documenting mirror methods vs convenience methods
-- [ ] Add concise docs for `Client`, `ClientBuilder`, and the resource accessor methods that appear in the public entrypoint
-- [ ] Create the short standard examples listed in the design doc, using async-only happy paths and current public method names
-- [ ] Cross-link README and `docs/examples.md` to the new examples directory
-- [ ] Run `cargo fmt`
-- [ ] Run `cargo check --examples`
-- [ ] Run `cargo test --doc`
-- [ ] Prepare the patch version commit for the examples and rustdoc task
+- [x] Add crate-level rustdoc to `src/lib.rs` with a minimal `Client` setup example and resource entrypoint overview
+- [x] Add module-level rustdoc for each public resource module, documenting mirror methods vs convenience methods
+- [x] Add concise docs for `Client`, `ClientBuilder`, and the resource accessor methods that appear in the public entrypoint
+- [x] Create the short standard examples listed in the design doc, using async-only happy paths and current public method names
+- [x] Cross-link README and `docs/examples.md` to the new examples directory
+- [x] Run `cargo fmt`
+- [x] Run `cargo check --examples`
+- [x] Run `cargo test --doc`
+- [x] Prepare the patch version commit for the examples and rustdoc task
 
 ### Task 3: API Coverage Contract
 

@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.5.1`
+- Current branch baseline: `v0.5.2`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - Current phase: `Phase 6: Release Hardening`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
@@ -172,6 +172,7 @@ See [docs/authentication.md](docs/authentication.md) for the current auth contra
 ## Documentation Map
 
 The intended API-reference host is `docs.rs` once the crate is published. Repository docs under `docs/` are the narrative companion.
+Runnable examples live under [`examples/`](examples/) and are indexed in [docs/examples.md](docs/examples.md).
 
 - [Getting started](docs/getting-started.md)
 - [Authentication](docs/authentication.md)

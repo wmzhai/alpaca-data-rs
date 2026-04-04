@@ -1,3 +1,14 @@
+//! News endpoints.
+//!
+//! Mirror method:
+//!
+//! - `list`
+//!
+//! Convenience methods:
+//!
+//! - `list_all`
+//! - `list_stream`
+
 mod client;
 mod model;
 mod request;
