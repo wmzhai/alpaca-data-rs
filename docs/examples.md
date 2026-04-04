@@ -12,7 +12,7 @@ Examples in this repository follow these rules:
 - no extra abstraction layer
 - environment-driven authentication
 
-## Planned Example Set
+## Example Set
 
 - [`client_builder.rs`](../examples/client_builder.rs)
 - [`stocks_latest_bar.rs`](../examples/stocks_latest_bar.rs)

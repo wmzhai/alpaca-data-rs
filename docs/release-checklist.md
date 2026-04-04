@@ -2,7 +2,7 @@
 
 This checklist describes the release-preparation bar for the repository.
 
-The current branch baseline is `v0.6.3`.
+The current branch baseline is `v0.7.0`.
 
 ## Public Surface
 
@@ -41,7 +41,7 @@ Required live tests must also be run with real Alpaca credentials when the scena
 The published crate should be clean:
 
 - public docs are present
-- internal working directories are not shipped in the package artifact
-- `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/` are excluded from the package contents
+- internal workflow material is not shipped in the package artifact
+- `.agents/`, `.github/`, and `AGENTS.md` are excluded from the package contents
 
-This is currently achieved through package-boundary configuration rather than by deleting internal directories from git.
+The repository no longer tracks `docs/superpowers/` or `memory/`. Local recreations of those directories are ignored by git.

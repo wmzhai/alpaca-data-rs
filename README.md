@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.6.3`
+- Current branch baseline: `v0.7.0`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
@@ -248,6 +248,8 @@ cargo bench --no-run
 
 ## Publication Notes
 
-The published crate is expected to exclude internal workflow material such as `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/`, while tag-triggered CI verifies formatting, tests, examples, docs, and package creation on pushed release tags.
+The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while tag-triggered CI verifies formatting, tests, examples, docs, and package creation on pushed release tags.
+
+This repository does not currently publish a separate GitHub Pages site. `docs.rs` remains the primary API-reference host, and the repository docs under `docs/` remain the narrative documentation surface.
 
 No automatic crates.io publication is performed by repository CI.

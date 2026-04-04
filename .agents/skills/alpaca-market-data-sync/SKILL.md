@@ -35,7 +35,7 @@ Do not use third-party SDKs or secondary docs as semantic authority.
    - convenience-layer compatibility note
 5. Fix or recommend mirror-layer changes first.
 6. Only after mirror parity is restored, re-check `*_all` and `*_stream` compatibility for the affected resource.
-7. Sync `docs/api-coverage.md`, `tools/api-coverage/market-data-api.json`, `README.md`, `CHANGELOG.md`, and affected `memory/` docs to the new reality.
+7. Sync `docs/api-coverage.md`, `tools/api-coverage/market-data-api.json`, `README.md`, `CHANGELOG.md`, and any affected retained repository docs to the new reality.
 
 ## Suggested Commands
 
@@ -105,7 +105,7 @@ Do not treat convenience compatibility as valid while mirror drift is still open
 
 Run this audit before:
 
-- `Phase 6` or `Phase 7` release preparation work
+- release-readiness work
 - any task that claims official API parity
 - any version bump intended to tighten coverage or release readiness
 

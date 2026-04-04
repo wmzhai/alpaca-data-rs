@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.7.0
+
+### Changed
+
+- Removed the tracked `docs/superpowers/` and `memory/` directories from the repository as part of the final public-repository cleanup.
+- Added `.gitignore` rules so local recreations of `docs/superpowers/` and `memory/` stay out of git.
+- Updated the retained docs and internal audit skill to stop referring to those removed directories as part of the live repository state.
+- Simplified package-boundary notes now that the internal planning and memory directories are no longer tracked.
+- Kept `docs.rs` as the primary documentation host and did not add a GitHub Pages site.
+
 ## v0.6.3
 
 ### Added
