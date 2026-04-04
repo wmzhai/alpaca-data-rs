@@ -39,7 +39,13 @@ Do not use third-party SDKs or secondary docs as semantic authority.
 
 ## Suggested Commands
 
-Use the official OpenAPI directly. A minimal path inventory looks like:
+Use the repository audit entry point first:
+
+```bash
+./scripts/api-sync-audit
+```
+
+If you need to inspect the raw source separately, use the official OpenAPI directly. A minimal path inventory looks like:
 
 ```bash
 curl -fsSL https://docs.alpaca.markets/openapi/market-data-api.json \

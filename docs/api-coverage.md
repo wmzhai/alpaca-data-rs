@@ -162,19 +162,18 @@ This document is intentionally strict:
 - Gap means the official endpoint exists in an adopted local resource family but is not yet implemented.
 - Not adopted means the official family exists in Alpaca Market Data, but the local crate has not added that resource family yet.
 
-The machine-readable manifest is the source that future API audit tooling should consume first.
+The machine-readable manifest is the source that future API audit tooling should consume first. It stores the current endpoint mapping, parameter signatures, response-field signatures, convenience helpers, and known parity gaps.
 
 ## Audit Workflow
 
-Future API sync and release-preparation work should start with the local audit entry points:
+Future API sync and release-preparation work should start with:
 
-- `./scripts/api-sync-openapi`
 - `./scripts/api-sync-audit`
 
 The expected audit order is:
 
 1. Compare the latest official OpenAPI and reference pages against `tools/api-coverage/market-data-api.json`.
-2. Classify drift into missing mirror endpoints, parameter drift, response-field drift, convenience-layer compatibility notes, and newly observed out-of-scope families.
+2. Check mirror-path coverage, parameter signatures, response-field signatures, known enum gaps, and out-of-scope families.
 3. Fix mirror drift first.
 4. Re-validate `*_all` and `*_stream` compatibility only after the mirror layer is back in sync.
 

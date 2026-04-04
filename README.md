@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.6.2`
+- Current branch baseline: `v0.6.3`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
@@ -186,9 +186,9 @@ The release metadata now uses the dual-license expression `MIT OR Apache-2.0`.
 
 The formal endpoint-to-method mapping lives in [docs/api-coverage.md](docs/api-coverage.md).
 
-## API Audit Scripts
+## API Audit Script
 
-The repository includes two local entry points for official Market Data API audit work.
+The repository includes one local entry point for official Market Data API audit work.
 
 Requirements:
 
@@ -197,31 +197,13 @@ Requirements:
 - `jq`
 - `rg`
 
-Fetch the latest official OpenAPI summary and path inventory:
-
-```bash
-./scripts/api-sync-openapi
-```
-
-Print the raw official OpenAPI document:
-
-```bash
-./scripts/api-sync-openapi --json
-```
-
-Run a read-only parity audit against the local coverage manifest and source tree:
+Run the read-only parity audit against the local coverage manifest and source tree:
 
 ```bash
 ./scripts/api-sync-audit
 ```
 
-Run the same audit in strict mode so blocking findings return a non-zero exit code:
-
-```bash
-./scripts/api-sync-audit --strict
-```
-
-The audit script does not modify files. It prints findings and recommended follow-up changes directly to the terminal.
+The script accepts no command-line arguments. It prints the complete audit report directly to the terminal and exits non-zero when blocking drift is detected. The report covers mirror-path coverage, parameter signatures, response-field signatures, enum gaps, and convenience helpers that require re-validation after mirror changes.
 
 ## Testing
 

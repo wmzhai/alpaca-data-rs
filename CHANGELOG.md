@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.6.3
+
+### Added
+
+- Added parameter-signature and response-field-signature contracts to `tools/api-coverage/market-data-api.json`.
+- Added audit regression coverage for rejected CLI arguments and for parameter and response drift reporting in `tests/api_sync_scripts.rs`.
+
+### Changed
+
+- Consolidated the public API audit workflow into `scripts/api-sync-audit` as the single entry point.
+- Made `scripts/api-sync-audit` run the full report by default, reject CLI arguments, and exit non-zero on blocking drift.
+- Extended the audit report to cover mirror-path drift, parameter drift, response-field drift, enum gaps, and convenience-helper re-validation notes.
+- Updated the retained docs and the internal audit skill to describe the single-script audit workflow.
+
 ## v0.6.2
 
 ### Added

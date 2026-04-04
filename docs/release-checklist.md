@@ -2,7 +2,7 @@
 
 This checklist describes the release-preparation bar for the repository.
 
-The current branch baseline is `v0.6.2`.
+The current branch baseline is `v0.6.3`.
 
 ## Public Surface
 
@@ -14,7 +14,7 @@ The current branch baseline is `v0.6.2`.
 - examples and rustdoc point to the same API shape
 - API coverage documentation matches the codebase
 - `docs/api-coverage.md` matches `tools/api-coverage/market-data-api.json`
-- `./scripts/api-sync-audit` has been run against the intended release baseline
+- `./scripts/api-sync-audit` has been run against the intended release baseline and reports no blocking drift
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
 - repository CI is a tag-triggered release guardrail and runs only when a `vX.Y.Z` tag is pushed
 
