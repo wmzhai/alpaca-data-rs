@@ -8,6 +8,23 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.5.4
+
+### Added
+
+- Added `.agents/skills/alpaca-market-data-sync/SKILL.md` as the internal API audit workflow for official Market Data parity checks
+
+### Changed
+
+- Updated `docs/api-coverage.md` to document the audit order and the current baseline gaps that the sync skill must continue to surface
+- Updated `docs/release-checklist.md`, `AGENTS.md`, `memory/README.md`, `memory/api/README.md`, `memory/core/system-map.md`, and `memory/core/workflows.md` so release work now explicitly requires the API sync audit before treating coverage as release-ready
+- Bumped the crate version to `0.5.4` for the `Phase 6 / Task 4` API sync skill commit
+
+### Verification
+
+- `cargo test`
+- `git diff --check`
+
 ## v0.5.3
 
 ### Added

@@ -9,6 +9,7 @@
 5. 最后检查是否有过期事实需要删除。
 6. 在开始该 phase 的代码开发前，停下来等待用户确认设计。
 7. 如果当前是 `Phase 6`，保留 `docs/superpowers/` 与 `memory/` 在 git 中，先通过文档与 package boundary 做 release preparation；internal docs 的 git 清理留给 `Phase 7`。
+8. 如果当前工作涉及 release preparation 或 API parity，同步先跑 `.agents/skills/alpaca-market-data-sync/SKILL.md` 约定的审计流程，再决定是补 mirror layer 还是只更新 coverage contract。
 
 ## 代码落地阶段默认顺序
 
@@ -41,6 +42,7 @@
 - phase 收尾时，先完成验证、文档对齐、MINOR 版本升级和 phase 收尾提交，再在合并 `main` / 推送 / 删分支前停下来等待用户确认。
 - phase 收尾时，最终版本提交必须先在开发分支上整理完成；不要把任何文档补丁或状态修正留到合并 `main` 之后再补。
 - `Phase 6` 的 package 需要排除 `docs/superpowers/` 与 `memory/`，但这两个目录本身仍继续保留在 git 中；真正的目录移除与 `.gitignore` 收口属于 `Phase 7`。
+- release/API sync 工作默认先做 official-vs-local drift audit；只有 mirror layer 无漂移时，才允许把 convenience layer 判定为兼容。
 
 ## commit 默认要求
 

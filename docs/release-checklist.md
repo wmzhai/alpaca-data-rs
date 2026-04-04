@@ -20,6 +20,8 @@ This checklist describes the release-preparation bar for the repository.
 - examples and rustdoc point to the same API shape
 - API coverage documentation matches the codebase
 - `docs/api-coverage.md` matches `tools/api-coverage/market-data-api.json`
+- the API sync audit from `.agents/skills/alpaca-market-data-sync/SKILL.md` has been run against the intended release baseline
+- any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
 
 ## Verification Targets
 

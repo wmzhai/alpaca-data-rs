@@ -9,13 +9,13 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.5.3`
+- Current branch baseline: `v0.5.4`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - Current phase: `Phase 6: Release Hardening`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
 
-`Phase 6` is release preparation only. It improves the public docs surface, runnable examples, rustdoc, API coverage documentation, package metadata, and pre-release verification. Final internal-doc cleanup and any real crates.io publication decision are deferred to `Phase 7: Release`.
+`Phase 6` is release preparation only. It improves the public docs surface, runnable examples, rustdoc, API coverage documentation, the internal API sync workflow, package metadata, and pre-release verification. Final internal-doc cleanup and any real crates.io publication decision are deferred to `Phase 7: Release`.
 
 ## Design Contract
 

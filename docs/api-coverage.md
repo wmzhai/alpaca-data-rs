@@ -163,3 +163,23 @@ This document is intentionally strict:
 - Not adopted means the official family exists in Alpaca Market Data, but the local crate has not added that resource family yet.
 
 The machine-readable manifest is the source that future API audit tooling should consume first.
+
+## Audit Workflow
+
+Future API sync and release-preparation work should run the internal audit skill first:
+
+- `.agents/skills/alpaca-market-data-sync/SKILL.md`
+
+The expected audit order is:
+
+1. Compare the latest official OpenAPI and reference pages against `tools/api-coverage/market-data-api.json`.
+2. Classify drift into missing mirror endpoints, parameter drift, response-field drift, convenience-layer compatibility notes, and newly observed out-of-scope families.
+3. Fix mirror drift first.
+4. Re-validate `*_all` and `*_stream` compatibility only after the mirror layer is back in sync.
+
+The current baseline audit should continue to surface these open items until they are implemented:
+
+- `StockAuctions` at `/v2/stocks/auctions`
+- `StockAuctionSingle` at `/v2/stocks/{symbol}/auctions`
+- `OptionMetaConditions` at `/v1beta1/options/meta/conditions/{ticktype}`
+- `crypto::Loc` missing the official `us-2` and `bs-1` values

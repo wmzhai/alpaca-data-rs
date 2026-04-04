@@ -16,7 +16,7 @@
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
 - 当前已经落地共享基础层，以及五个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`；以及 `news` / `corporate_actions` 的 `list` / `list_all` / `list_stream`、happy-path、fault coverage 与 benchmark baseline。
-- 当前 `Phase 5` 已在 `v0.5.0` 完成并落到 `main`；下一步默认进入 `Phase 6: Release Hardening`，随后由 `Phase 7: Release` 负责 internal docs 的 git 清理与最终发布决策。
+- 当前 `Phase 5` 已在 `v0.5.0` 完成并落到 `main`；当前主线是 `Phase 6: Release Hardening`，随后由 `Phase 7: Release` 负责 internal docs 的 git 清理与最终发布决策。
 
 ## 最高优先级规则
 
@@ -36,6 +36,7 @@
 - 每完成一个明确的开发 task，都要做一次带版本号更新的提交，不能把多个已完成 task 长时间堆在工作区里不提交。
 - 每个 task 完成后的提交前，都必须先同步版本号、`CHANGELOG.md` 和所有受影响文档，再进行提交。
 - 每个 task 完成后的版本提交标题统一使用英文格式：`<type>: <summary> (vX.Y.Z)`。
+- 开始 release work 或 API sync work 前，先运行 `.agents/skills/alpaca-market-data-sync/SKILL.md` 的审计流程，对照官方 OpenAPI / reference 与本地 `tools/api-coverage/market-data-api.json`；如果发现 mirror drift，必须先修 mirror layer，再重新验证 convenience layer。
 - 每个 phase 开始时，必须先完成该 phase 的设计文档与实现计划文档，并停下来等待用户确认设计；未得到 phase 设计确认前，不得开始该 phase 的代码开发。
 - 每个 phase 完成后，必须先全面跑完该 phase 的格式检查、单元测试、集成测试、所需 live tests 和 benchmark 验证，并对齐 `README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md`。
 - 每个 phase 完成后的收尾版本必须自动执行一次 MINOR 递增（`X.Y.Z -> X.(Y+1).0`）；在合并到 `main`、推送远端并删除当前开发分支之前，必须再停下来等待用户确认。
@@ -77,6 +78,7 @@
 - `README.md`：项目最终设计方案与公开 API 契约。
 - `CHANGELOG.md`：每个版本提交的变化记录，版本提交前必须同步更新。
 - `AGENTS.md`：新会话必须先遵守的高优先级规则。
+- `.agents/skills/`：仓库内的内部 agent workflow 入口；当前包含 Alpaca Market Data API sync 审计 skill。
 - `memory/`：项目导航、约束、工作流和领域落点。
 
 ## 当前禁区

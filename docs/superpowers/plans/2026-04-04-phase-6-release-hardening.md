@@ -164,12 +164,12 @@
 - Modify: `docs/release-checklist.md`
 - Modify: `AGENTS.md`
 
-- [ ] Create the internal skill scaffold for Alpaca Market Data API audits
-- [ ] Teach the skill to use the official Market Data OpenAPI, the official reference pages, and the local `tools/api-coverage/market-data-api.json` manifest as its sources of truth
-- [ ] Document the expected audit outputs: missing mirror endpoints, parameter drift, response-field drift, convenience-layer compatibility notes, and recommended follow-up actions
-- [ ] Explicitly document that mirror drift must be fixed before convenience-layer compatibility is re-validated
-- [ ] Add operator guidance showing how future sessions should run the audit before release work or API sync work
-- [ ] Prepare the patch version commit for the API sync skill task
+- [x] Create the internal skill scaffold for Alpaca Market Data API audits
+- [x] Teach the skill to use the official Market Data OpenAPI, the official reference pages, and the local `tools/api-coverage/market-data-api.json` manifest as its sources of truth
+- [x] Document the expected audit outputs: missing mirror endpoints, parameter drift, response-field drift, convenience-layer compatibility notes, and recommended follow-up actions
+- [x] Explicitly document that mirror drift must be fixed before convenience-layer compatibility is re-validated
+- [x] Add operator guidance showing how future sessions should run the audit before release work or API sync work
+- [x] Prepare the patch version commit for the API sync skill task
 
 ### Task 5: Package Metadata, Package Boundary, and CI Guardrails
 
