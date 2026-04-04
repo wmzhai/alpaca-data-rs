@@ -15,8 +15,8 @@
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已经落地共享基础层、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层，并补齐 `benches/shared_core.rs` 与 `benches/stocks.rs` 本地 benchmark baseline。
-- 当前下一步默认进入 `Phase 3: Options`。
+- 当前已经落地共享基础层、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 现已开始落地历史 batch `bars` / `trades` 与 `bars_all` / `bars_stream`、`trades_all` / `trades_stream`，并补齐 `tests/live_options_historical.rs`。
+- 当前 `Phase 3: Options` 已启动；下一步继续推进 latest / metadata 与 snapshot / chain。
 
 ## 最高优先级规则
 

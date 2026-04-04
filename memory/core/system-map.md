@@ -2,7 +2,7 @@
 
 ## 当前仓库结构
 
-当前仓库已完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`，`stocks` 已成为第一个完整资源模板模块，核心文件和目录如下：
+当前仓库已完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`，并已进入 `Phase 3: Options`；`stocks` 仍是第一个完整资源模板模块，`options` 已完成 historical task 1，核心文件和目录如下：
 
 - `README.md`：最终设计方案与公开 API 契约
 - `CHANGELOG.md`：版本提交的变化记录
@@ -15,18 +15,20 @@
 - `src/error.rs`：顶层 `Error` 类型，当前已包含 `InvalidConfiguration`、`RateLimited`、`HttpStatus`、`Deserialize` 等共享错误变体
 - `src/common/enums.rs`：共享 `Sort` 与 `Currency` 基础类型，当前已经按官方 Market Data 参数字符串建模
 - `src/common/query.rs`：共享 query 参数构造器，当前已支持 CSV 参数和可选参数写入
-- `src/transport/endpoint.rs`：共享 endpoint 路由定义，当前已打通 `crypto.latest_quotes` 与 `stocks` batch / single skeleton 路径映射
+- `src/transport/endpoint.rs`：共享 endpoint 路由定义，当前已打通 `crypto.latest_quotes`、完整 `stocks` 路由，以及 `options` historical 路由
 - `src/transport/http.rs`：共享 async HTTP JSON transport，当前已具备 timeout、status/error mapping 和 retry-after 解析
 - `src/transport/retry.rs`：共享最小重试策略
 - `src/transport/rate_limit.rs`：共享最小并发限制器
 - `src/transport/pagination.rs`：共享分页 trait 与 helper，当前已提供 `collect_all` 和 `stream_pages`
 - `src/stocks/`：第一个开始真实实现的资源域，当前已包含 `bars` / `quotes` / `trades` 历史 batch + single request、typed response/model、query 序列化、client fetcher、batch + single historical 的 `*_all` / `*_stream`，以及 latest / snapshot / metadata 的 batch + single 端点
-- `src/options/`、`src/crypto/`、`src/news/`、`src/corporate_actions/`：其余资源域当前仍以最小模块骨架为主
+- `src/options/`：第二个开始真实实现的资源域，当前已包含 historical batch `bars` / `trades` request、typed response/model、query 序列化、client fetcher，以及 `bars_all` / `bars_stream`、`trades_all` / `trades_stream`
+- `src/crypto/`、`src/news/`、`src/corporate_actions/`：其余资源域当前仍以最小模块骨架为主
 - `tests/public_api.rs`：公开 API 形状的编译期使用测试
 - `tests/client_builder.rs`：`ClientBuilder` 运行时配置与认证校验测试
 - `tests/mock_transport_errors.rs`：共享 transport 的异常路径测试
 - `tests/live_crypto_latest_quotes_smoke.rs`：真实 Alpaca API 下的 crypto latest quotes smoke test
 - `tests/live_stocks_batch_historical.rs`：真实 Alpaca API 下的 `stocks.bars` / `stocks.quotes` / `stocks.trades` 以及 batch `*_all` / `*_stream` happy-path baseline
+- `tests/live_options_historical.rs`：真实 Alpaca API 下的 `options.bars` / `options.trades` 以及 batch `bars_all` / `trades_stream` happy-path baseline
 - `tests/live_stocks_single_historical.rs`：真实 Alpaca API 下的 `stocks.*_single` 与 `*_single_all` / `*_single_stream` happy-path baseline
 - `tests/live_stocks_latest_snapshot.rs`：真实 Alpaca API 下的 `stocks.latest_*` 与 `stocks.snapshot*` happy-path baseline
 - `tests/live_stocks_metadata.rs`：真实 Alpaca API 下的 `stocks.condition_codes` 与 `stocks.exchange_codes` happy-path baseline
@@ -40,8 +42,8 @@
 以下结构目前仍未落地，属于后续代码实现阶段的预期目录：
 
 - 按资源域拆分的 `tests/live/` 与 `tests/mock/` 子目录（当前 live/mock 测试仍位于 `tests/` 根下）
-- `options`、`news`、`corporate_actions` 的真实 HTTP endpoint 实现
-- 除 `crypto.latest_quotes` 与 `stocks` 历史 + latest + snapshot + metadata 之外的完整 Market Data 请求/响应字段模型
+- `options` 的 latest / metadata / snapshot / chain，以及 `news`、`corporate_actions` 的真实 HTTP endpoint 实现
+- 除 `crypto.latest_quotes`、完整 `stocks`、以及 `options` historical 之外的完整 Market Data 请求/响应字段模型
 - `options`、`crypto` 其余 endpoint 与后续资源域的 benchmark 基线
 
 ## 预期的代码分层
@@ -57,6 +59,6 @@
 ## 当前事实边界
 
 - 现在已经存在的是“共享基础层 + 部分真实资源实现”，还不是完整 API 实现。
-- 当前真正落地的真实能力已覆盖共享层、`crypto.latest_quotes`，以及完整 `stocks` 模块：历史 batch + single、latest、snapshot、metadata 与历史 batch + single `*_all` / `*_stream` 的公开 HTTP 行为。
-- 当前 `stocks` 已完成 phase 级收尾，可以作为后续 `options` / `crypto` / `news` / `corporate_actions` 的实现模板；其余资源域方法仍以占位壳为主，不能当成真实 HTTP 逻辑已完成。
+- 当前真正落地的真实能力已覆盖共享层、`crypto.latest_quotes`、完整 `stocks` 模块，以及 `options` historical batch `bars` / `trades` 与对应 convenience 层。
+- 当前 `stocks` 已完成 phase 级收尾，可以作为后续 `options` / `crypto` / `news` / `corporate_actions` 的实现模板；`options` 现在已进入真实实现阶段，但 latest / metadata / snapshot / chain 仍未完成，其余资源域方法仍以占位壳为主，不能当成真实 HTTP 逻辑已完成。
 - 后续代码真正补齐后，这份文档需要继续从“部分真实目录图”更新为更细的完整实现图。

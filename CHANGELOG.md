@@ -8,6 +8,29 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.2.2
+
+### Added
+
+- 新建 `docs/superpowers/specs/2026-04-03-phase-3-options-design.md` 与 `docs/superpowers/plans/2026-04-03-phase-3-options.md`，把 `Phase 3: Options` 的设计约束、真实 API 观察和任务拆分落成仓库文档
+- 新建 `tests/live_options_historical.rs`，使用真实 Alpaca API 覆盖 `options.bars`、`options.trades`、`options.bars_all` 与 `options.trades_stream`
+- 为 `options` 历史批量端点新增 request/response/route 单元测试，覆盖官方 query 单词、wrapper shape 与分页 merge
+
+### Changed
+
+- `OptionsClient` 现在已接通 `GET /v1beta1/options/bars` 与 `GET /v1beta1/options/trades`，并同时打通 `bars_all` / `bars_stream` 与 `trades_all` / `trades_stream`
+- `src/transport/endpoint.rs` 现在已补齐 `options` historical route：`/v1beta1/options/bars` 与 `/v1beta1/options/trades`
+- `options::TimeFrame` 现在改为与 `stocks` 一致的官方字符串封装；`options::OptionsFeed` 与 `options::ContractType` 现在也具备官方字符串序列化
+- `options::Bar` 与 `options::Trade` 现在改为真实 typed model，`BarsResponse` 与 `TradesResponse` 现在可直接反序列化官方 body，并支持 batch pagination merge
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/core/system-map.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 3 / Task 1` 完成后的真实状态
+- 将 crate 版本提升到 `0.2.2`，对齐 `Phase 3 / Task 1` 的版本提交要求
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `set -a && source .env && set +a && cargo test --test live_options_historical -- --nocapture`
+
 ## v0.2.1
 
 ### Changed

@@ -4,6 +4,8 @@ use crate::{
     Error,
     client::Inner,
     common::response::{ResponseStream, empty_stream},
+    transport::endpoint::Endpoint,
+    transport::pagination::{collect_all, stream_pages},
 };
 
 use super::{
@@ -22,46 +24,79 @@ impl OptionsClient {
         Self { inner }
     }
 
-    pub async fn bars(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
+    pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.bars",
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::OptionsBars,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn bars_all(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.bars(request).await }
+        })
+        .await
+    }
+
+    pub fn bars_stream(&self, request: BarsRequest) -> ResponseStream<Result<BarsResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.bars(request).await }
         })
     }
 
-    pub async fn bars_all(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
+    pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.bars_all",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::OptionsTrades,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
-    pub fn bars_stream(
-        &self,
-        _request: BarsRequest,
-    ) -> ResponseStream<Result<BarsResponse, Error>> {
-        empty_stream()
-    }
-
-    pub async fn trades(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {
+    pub async fn trades_all(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.trades",
-        })
-    }
+        let client = self.clone();
 
-    pub async fn trades_all(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {
-        self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.trades_all",
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.trades(request).await }
         })
+        .await
     }
 
     pub fn trades_stream(
         &self,
-        _request: TradesRequest,
+        request: TradesRequest,
     ) -> ResponseStream<Result<TradesResponse, Error>> {
-        empty_stream()
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.trades(request).await }
+        })
     }
 
     pub async fn latest_quotes(
@@ -142,5 +177,12 @@ impl OptionsClient {
         } else {
             Err(Error::MissingCredentials)
         }
+    }
+
+    fn error_stream<Response>(error: Error) -> ResponseStream<Result<Response, Error>>
+    where
+        Response: Send + 'static,
+    {
+        Box::pin(futures_util::stream::once(async move { Err(error) }))
     }
 }

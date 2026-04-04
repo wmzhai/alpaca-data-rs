@@ -6,6 +6,8 @@ use crate::crypto::Loc;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) enum Endpoint {
     CryptoLatestQuotes { loc: Loc },
+    OptionsBars,
+    OptionsTrades,
     StocksBars,
     StocksQuotes,
     StocksTrades,
@@ -28,6 +30,14 @@ pub(crate) enum Endpoint {
 impl Endpoint {
     pub(crate) fn crypto_latest_quotes(loc: Loc) -> Self {
         Self::CryptoLatestQuotes { loc }
+    }
+
+    pub(crate) fn options_bars() -> Self {
+        Self::OptionsBars
+    }
+
+    pub(crate) fn options_trades() -> Self {
+        Self::OptionsTrades
     }
 
     pub(crate) fn stocks_bars() -> Self {
@@ -60,6 +70,8 @@ impl Endpoint {
             Self::CryptoLatestQuotes { loc: Loc::Us1 } => {
                 Cow::Borrowed("/v1beta3/crypto/us1/latest/quotes")
             }
+            Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
+            Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
             Self::StocksBars => Cow::Borrowed("/v2/stocks/bars"),
             Self::StocksQuotes => Cow::Borrowed("/v2/stocks/quotes"),
             Self::StocksTrades => Cow::Borrowed("/v2/stocks/trades"),
@@ -94,7 +106,9 @@ impl Endpoint {
     pub(crate) fn requires_auth(&self) -> bool {
         match self {
             Self::CryptoLatestQuotes { .. } => false,
-            Self::StocksBars
+            Self::OptionsBars
+            | Self::OptionsTrades
+            | Self::StocksBars
             | Self::StocksQuotes
             | Self::StocksTrades
             | Self::StocksBarsSingle { .. }
@@ -144,6 +158,12 @@ mod tests {
             Endpoint::stocks_snapshot("AAPL").path(),
             "/v2/stocks/AAPL/snapshot"
         );
+    }
+
+    #[test]
+    fn endpoint_routes_options_historical_paths() {
+        assert_eq!(Endpoint::options_bars().path(), "/v1beta1/options/bars");
+        assert_eq!(Endpoint::options_trades().path(), "/v1beta1/options/trades");
     }
 
     #[test]
@@ -262,5 +282,15 @@ mod tests {
         }
 
         assert!(!Endpoint::crypto_latest_quotes(Loc::Us1).requires_auth());
+    }
+
+    #[test]
+    fn endpoint_requires_auth_for_options_historical_routes() {
+        let cases = [Endpoint::OptionsBars, Endpoint::OptionsTrades];
+
+        for endpoint in cases {
+            assert!(endpoint.requires_auth());
+            assert!(matches!(endpoint.path(), Cow::Borrowed(_)));
+        }
     }
 }

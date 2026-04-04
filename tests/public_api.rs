@@ -141,6 +141,18 @@ fn stocks_client_exposes_batch_and_single_method_names() {
 fn resource_clients_expose_core_method_names() {
     let client = Client::new();
 
+    let _ = client.options().bars(options::BarsRequest::default());
+    let _ = client.options().bars_all(options::BarsRequest::default());
+    let _ = client
+        .options()
+        .bars_stream(options::BarsRequest::default());
+    let _ = client.options().trades(options::TradesRequest::default());
+    let _ = client
+        .options()
+        .trades_all(options::TradesRequest::default());
+    let _ = client
+        .options()
+        .trades_stream(options::TradesRequest::default());
     let _ = client.options().chain(options::ChainRequest::default());
     let _ = client.options().chain_all(options::ChainRequest::default());
     let _ = client
@@ -157,4 +169,12 @@ fn resource_clients_expose_core_method_names() {
     let _ = client
         .corporate_actions()
         .list(corporate_actions::ListRequest::default());
+}
+
+#[test]
+fn options_module_exposes_historical_type_names() {
+    let _ = options::BarsRequest::default();
+    let _ = options::TradesRequest::default();
+    let _ = options::BarsResponse::default();
+    let _ = options::TradesResponse::default();
 }

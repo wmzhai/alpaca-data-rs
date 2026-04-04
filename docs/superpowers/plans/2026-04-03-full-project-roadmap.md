@@ -15,7 +15,7 @@
 - **Phase 0: Bootstrap**，已完成
 - **Phase 1: Shared Core**，已完成（`v0.1.0`）
 - **Phase 2: Stocks**，已完成（`v0.2.0`）
-- **Phase 3: Options**
+- **Phase 3: Options**，进行中（`v0.2.2`，Task 1 已完成）
 - **Phase 4: Crypto**
 - **Phase 5: News + Corporate Actions**
 - **Phase 6: Release Hardening**
@@ -155,6 +155,16 @@
 - `bars_all` / `bars_stream` 行为已通过真实 API 验证
 
 ## Phase 3: Options
+
+**Status:** In progress in `v0.2.2` (Task 1 complete)
+
+**Delivered so far:**
+
+- `options.bars` 与 `options.trades` 已具备真实 HTTP 行为
+- `options.bars_all` / `options.bars_stream` 与 `options.trades_all` / `options.trades_stream` 已接通共享分页 helper
+- `src/options/request.rs`、`src/options/response.rs`、`src/options/model.rs` 已具备 historical batch 的 typed query / wrapper / model
+- `tests/live_options_historical.rs` 已用真实 Alpaca API 验证 `options` historical happy path
+- `docs/superpowers/specs/2026-04-03-phase-3-options-design.md` 与 `docs/superpowers/plans/2026-04-03-phase-3-options.md` 已建立 phase 设计与执行文档
 
 **Goal:** 完成最复杂的资源域，锁定 option chain 和 snapshots 的正式实现方式。
 
