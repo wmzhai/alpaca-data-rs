@@ -2,6 +2,8 @@
 
 This checklist describes the release-preparation bar for the repository.
 
+The current branch baseline is `v0.6.0`. It is the `Phase 6` release-prepared candidate and still requires explicit approval before any fast-forward merge, push, branch deletion, or real publication step.
+
 ## Phase Boundary
 
 `Phase 6` prepares the crate for publication but does not publish it.

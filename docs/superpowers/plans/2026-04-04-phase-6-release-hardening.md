@@ -205,7 +205,7 @@
 - Modify: `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
 - Modify: `docs/release-checklist.md`
 
-- [ ] Run full phase verification:
+- [x] Run full phase verification:
   - `cargo fmt --check`
   - `cargo test`
   - required live tests with real Alpaca credentials
@@ -215,6 +215,6 @@
   - `cargo bench --no-run`
   - `cargo package`
   - `cargo publish --dry-run`
-- [ ] Verify that README, public docs, examples, rustdoc, API coverage manifest, AGENTS, memory, and roadmap all describe the same final `Phase 6` reality
-- [ ] Bump the MINOR version for phase completion and create the phase closing release commit
-- [ ] Stop and wait for user approval before any fast-forward merge to `main`, push, or branch deletion
+- [x] Verify that README, public docs, examples, rustdoc, API coverage manifest, AGENTS, memory, and roadmap all describe the same final `Phase 6` reality
+- [x] Bump the MINOR version for phase completion and create the phase closing release commit
+- [x] Stop and wait for user approval before any fast-forward merge to `main`, push, or branch deletion

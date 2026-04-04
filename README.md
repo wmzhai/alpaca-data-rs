@@ -9,13 +9,14 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.5.5`
+- Current branch baseline: `v0.6.0`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - Current phase: `Phase 6: Release Hardening`
+- Current branch status: release-prepared phase-close candidate awaiting merge approval
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
 
-`Phase 6` is release preparation only. It improves the public docs surface, runnable examples, rustdoc, API coverage documentation, the internal API sync workflow, package metadata, and pre-release verification. Final internal-doc cleanup and any real crates.io publication decision are deferred to `Phase 7: Release`.
+`Phase 6` is release preparation only. The current branch closes this phase with public docs, runnable examples, rustdoc, API coverage documentation, the internal API sync workflow, release metadata, package boundary controls, CI guardrails, and pre-release verification. Final internal-doc cleanup and any real crates.io publication decision are deferred to `Phase 7: Release`.
 
 ## Design Contract
 
@@ -232,5 +233,7 @@ cargo bench --no-run
 - `Phase 7: Release` handles internal-doc cleanup, final repository cleanup, and the final publication decision
 
 The published crate is expected to exclude internal workflow material such as `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/`, while CI verifies formatting, tests, examples, docs, and package creation.
+
+The current branch is the `Phase 6` close-out candidate. Fast-forward merge, push, branch deletion, and any actual publication decision remain gated on explicit user approval.
 
 No automatic crates.io publication happens during `Phase 6`.

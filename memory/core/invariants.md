@@ -51,6 +51,7 @@
 - 版本号格式固定为三段：`MAJOR.MINOR.PATCH`。
 - `Phase 6` 只做 release preparation，不移除 `docs/superpowers/` 或 `memory/`，也不自动发布 crates.io。
 - `docs/superpowers/` 与 `memory/` 在 `Phase 6` 继续保留在 git 中；如需保持 published crate 干净，优先通过 package boundary 排除。
+- `Phase 6` 的 package boundary 现已明确排除 `.agents/`、`.github/`、`AGENTS.md`、`docs/superpowers/` 与 `memory/`。
 - `Phase 7` 才负责 internal docs 的 git 移除、`.gitignore` 收口和最终发布决策。
 
 ## 测试红线

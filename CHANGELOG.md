@@ -8,6 +8,27 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.6.0
+
+### Changed
+
+- Closed `Phase 6: Release Hardening` on the current branch as a release-prepared candidate with public English docs, runnable examples, rustdoc, API coverage contract, API sync skill, release metadata, package-boundary rules, and CI guardrails aligned to the shipped code
+- Updated `README.md`, `AGENTS.md`, `memory/README.md`, `memory/api/README.md`, `memory/core/invariants.md`, `memory/core/system-map.md`, `memory/core/workflows.md`, `docs/release-checklist.md`, the master roadmap, and the `Phase 6` implementation plan so they all describe the same post-verification `v0.6.0` branch state
+- Bumped the crate version to `0.6.0` as the `Phase 6` MINOR close-out candidate; fast-forward merge, push, branch deletion, and any release decision remain gated on explicit user approval
+
+### Verification
+
+- `cargo fmt --check`
+- `set -a && source .env >/dev/null 2>&1 && set +a && export APCA_API_KEY_ID="$ALPACA_DATA_API_KEY" APCA_API_SECRET_KEY="$ALPACA_DATA_SECRET_KEY" ALPACA_LIVE_TESTS=1 && cargo test`
+- `cargo check --examples`
+- `cargo test --doc`
+- `cargo doc --no-deps`
+- `cargo bench --no-run`
+- `cargo package --list --allow-dirty`
+- `cargo package --allow-dirty`
+- `cargo publish --dry-run --allow-dirty`
+- `git diff --check`
+
 ## v0.5.5
 
 ### Added

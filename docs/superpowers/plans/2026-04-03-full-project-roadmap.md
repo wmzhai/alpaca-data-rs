@@ -18,7 +18,7 @@
 - **Phase 3: Options**，已完成（`v0.3.0`）
 - **Phase 4: Crypto**，已完成（`v0.4.0`）
 - **Phase 5: News + Corporate Actions**，已完成（`v0.5.0`）
-- **Phase 6: Release Hardening**
+- **Phase 6: Release Hardening**，当前分支已完成（`v0.6.0` phase-close candidate）
 - **Phase 7: Release**
 
 横向持续轨道：
@@ -296,7 +296,7 @@
 
 - 两个资源域的官方字段映射完成
 - list / list_all / list_stream 的统一行为完成
-- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在 `v0.5.0` 完成；下一步进入 `Phase 6: Release Hardening`
+- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在 `v0.5.0` 完成；当前分支已把 `Phase 6: Release Hardening` 收敛到 `v0.6.0` 的收尾版本候选
 
 **Exit Criteria:**
 
@@ -304,6 +304,8 @@
 - 分页聚合和按页 stream 行为与共享框架一致
 
 ## Phase 6: Release Hardening
+
+**Status:** Done on the current branch in `v0.6.0` as a phase-close candidate awaiting merge approval
 
 **Goal:** 在不移除内部工作文档、也不自动发布 crates.io 的前提下，把项目从“功能可用”推进到“release-prepared”。
 
@@ -336,7 +338,7 @@
 
 - release-prepared crate 状态
 - 公开英文文档、examples 和 rustdoc 与代码一致
-- package 不包含 `docs/superpowers/` 与 `memory/`
+- package 不包含 `.agents/`、`.github/`、`AGENTS.md`、`docs/superpowers/` 与 `memory/`
 - API coverage contract 与 API sync skill 成型
 - 预发布验证流程成型，但仍不自动发布 crates.io
 
@@ -348,10 +350,11 @@
 - `cargo check --examples` 通过
 - `cargo test --doc` 通过
 - `cargo doc --no-deps` 通过
+- `cargo bench --no-run` 通过
 - `cargo package` 通过
 - `cargo publish --dry-run` 通过
 - `CHANGELOG.md`、版本号、README、public docs、examples 与 rustdoc 保持一致
-- package 产物中不包含 `docs/superpowers/` 与 `memory/`
+- package 产物中不包含 `.agents/`、`.github/`、`AGENTS.md`、`docs/superpowers/` 与 `memory/`
 
 ## Phase 7: Release
 
@@ -420,14 +423,14 @@
 - [x] Then execute **Phase 3: Options**
 - [x] Then execute **Phase 4: Crypto**
 - [x] Then execute **Phase 5: News + Corporate Actions**
-- [ ] Execute **Phase 6: Release Hardening**
+- [x] Execute **Phase 6: Release Hardening**
 - [ ] Finish with **Phase 7: Release**
 
 ## Next Planning Step
 
 This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The current next detailed plan is:
 
-- `Phase 6: Release Hardening`
+- `Phase 7: Release`
 
 After `Phase 6` closes, the next planning target is:
 
