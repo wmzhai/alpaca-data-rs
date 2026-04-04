@@ -2,14 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.7.1
+
+### Changed
+
+- Removed the last retained references to the deleted internal planning directories from the kept public docs and changelog history.
+- Kept `.gitignore` rules for local recreations of the removed internal directories while clearing those names from the retained repository text.
+
 ## v0.7.0
 
 ### Changed
 
-- Removed the tracked `docs/superpowers/` and `memory/` directories from the repository as part of the final public-repository cleanup.
-- Added `.gitignore` rules so local recreations of `docs/superpowers/` and `memory/` stay out of git.
+- Removed the tracked internal planning and working-note directories from the repository as part of the final public-repository cleanup.
+- Added `.gitignore` rules so local recreations of those removed internal directories stay out of git.
 - Updated the retained docs and internal audit skill to stop referring to those removed directories as part of the live repository state.
-- Simplified package-boundary notes now that the internal planning and memory directories are no longer tracked.
+- Simplified package-boundary notes now that those internal directories are no longer tracked.
 - Kept `docs.rs` as the primary documentation host and did not add a GitHub Pages site.
 
 ## v0.6.3
@@ -457,7 +464,7 @@ All notable changes to this project are documented in this file.
 - Added `stocks`, `options`, `crypto`, `news`, and `corporate_actions` module skeletons.
 - Added the initial `transport` and `common` layers.
 - Added `tests/public_api.rs` to verify the public API surface.
-- Added `AGENTS.md` and `memory/` as repository operating docs.
+- Added `AGENTS.md` and the initial repository operating docs.
 
 ### Changed
 

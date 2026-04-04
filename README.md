@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.7.0`
+- Current branch baseline: `v0.7.1`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only

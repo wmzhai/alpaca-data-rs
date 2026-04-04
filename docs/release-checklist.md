@@ -2,7 +2,7 @@
 
 This checklist describes the release-preparation bar for the repository.
 
-The current branch baseline is `v0.7.0`.
+The current branch baseline is `v0.7.1`.
 
 ## Public Surface
 
@@ -44,4 +44,4 @@ The published crate should be clean:
 - internal workflow material is not shipped in the package artifact
 - `.agents/`, `.github/`, and `AGENTS.md` are excluded from the package contents
 
-The repository no longer tracks `docs/superpowers/` or `memory/`. Local recreations of those directories are ignored by git.
+The repository no longer tracks the removed internal planning directories, while local recreations remain ignored by git.
