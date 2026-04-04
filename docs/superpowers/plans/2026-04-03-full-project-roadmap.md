@@ -16,7 +16,7 @@
 - **Phase 1: Shared Core**，已完成（`v0.1.0`）
 - **Phase 2: Stocks**，已完成（`v0.2.0`）
 - **Phase 3: Options**，已完成（`v0.3.0`）
-- **Phase 4: Crypto**，进行中（historical + latest + snapshots done in `v0.3.3`）
+- **Phase 4: Crypto**，已完成（`v0.4.0`）
 - **Phase 5: News + Corporate Actions**
 - **Phase 6: Release Hardening**
 
@@ -209,6 +209,8 @@
 
 ## Phase 4: Crypto
 
+**Status:** Done in `v0.4.0`
+
 **Goal:** 完成 crypto 资源域，并处理其认证和路径差异。
 
 **Primary Scope:**
@@ -349,8 +351,8 @@
 
 - [x] Execute **Phase 1: Shared Core** first
 - [x] Then execute **Phase 2: Stocks** as the first real resource implementation
-- [ ] Then execute **Phase 3: Options**
-- [ ] Then execute **Phase 4: Crypto**
+- [x] Then execute **Phase 3: Options**
+- [x] Then execute **Phase 4: Crypto**
 - [ ] Then execute **Phase 5: News + Corporate Actions**
 - [ ] Finish with **Phase 6: Release Hardening**
 
@@ -358,4 +360,4 @@
 
 This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The recommended next detailed plan is:
 
-- `Phase 3: Options`
+- `Phase 5: News + Corporate Actions`

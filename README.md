@@ -21,15 +21,15 @@
 
 ## 当前实现状态
 
-- 当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks` 与 `Phase 3: Options`；`Phase 4: Crypto` 的功能面已经完成，当前工作版本是 `v0.3.3`
+- 当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`；当前工作版本是 `v0.4.0`
 - 已落地共享 `ClientBuilder` 运行时配置、认证配对校验与 header 注入、query 构造、endpoint 路由、async HTTP transport、错误映射和分页 helper
 - 当前真实打通的 endpoint 包括完整 `stocks` 模块、完整 `options` 模块，以及现在已经完整覆盖 mirror scope 的 `crypto`：historical `bars` / `quotes` / `trades`、historical convenience `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`、latest family `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、以及 `snapshots`
 - `stocks` 的历史 convenience 层现在已经同时覆盖 batch + single：`bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`，以及 `bars_single_all` / `bars_single_stream`、`quotes_single_all` / `quotes_single_stream`、`trades_single_all` / `trades_single_stream`
 - `options` 的 convenience 层现在已经覆盖完整 options 范围：`bars_all` / `bars_stream`、`trades_all` / `trades_stream`、`snapshots_all` / `snapshots_stream`、`chain_all` / `chain_stream` 都已可用
-- `stocks` 与 `options` 现在已经成为前两个完整资源模板；`crypto` 现在已经成为第三个完整资源模板，覆盖 official mirror endpoint、historical convenience、真实 API happy-path 与 fault-path baseline，接下来只剩 `benches/crypto.rs` 和 phase 收尾版本流程
+- `stocks`、`options` 与 `crypto` 现在已经成为前三个完整资源模板，覆盖 official mirror endpoint、historical convenience、真实 API happy-path、异常路径 mock 与本地 benchmark baseline
 - 真实 happy-path 测试已覆盖完整 `crypto` 模块的 historical / latest / snapshots、`stocks` 历史 batch / single、latest / snapshot、metadata，以及完整 `options` 模块的 historical / latest / snapshot / chain / metadata 端点
-- 当前本地 micro-benchmark baseline 位于 `benches/shared_core.rs`、`benches/stocks.rs` 与 `benches/options.rs`
-- 当前下一步进入 `Phase 4: Crypto` 的 benchmark 与 phase 收尾
+- 当前本地 micro-benchmark baseline 位于 `benches/shared_core.rs`、`benches/stocks.rs`、`benches/options.rs` 与 `benches/crypto.rs`
+- 当前下一步进入 `Phase 5: News + Corporate Actions`
 
 ## 设计原则
 
@@ -669,6 +669,7 @@ benchmark 以真实 API 为主，用于验证：
 cargo bench --bench shared_core
 cargo bench --bench stocks
 cargo bench --bench options
+cargo bench --bench crypto
 ```
 
 不使用 mock 得出主性能结论。

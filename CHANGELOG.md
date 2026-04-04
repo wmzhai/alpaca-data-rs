@@ -8,6 +8,25 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.4.0
+
+### Added
+
+- 新建 `benches/crypto.rs`，为 `crypto.snapshots` 建立本地 `criterion` micro-benchmark baseline
+- `Cargo.toml` 现在新增 `crypto` bench target，可直接用 `cargo bench --bench crypto --no-run` 验证 crypto benchmark 编译链路
+
+### Changed
+
+- `Phase 4: Crypto` 现在正式标记为完成；`crypto` 已成为继 `stocks`、`options` 之后第三个完整资源模板，覆盖官方 mirror endpoint、historical convenience、真实 API happy-path、异常路径 mock 与本地 benchmark baseline
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`memory/core/workflows.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4` 完成后的真实状态，并把下一步推进到 `Phase 5: News + Corporate Actions`
+- 将 crate 版本提升到 `0.4.0`，作为 `Phase 4: Crypto` 的 MINOR 收尾版本
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `cargo bench --bench crypto --no-run`
+
 ## v0.3.3
 
 ### Added

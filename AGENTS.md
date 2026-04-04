@@ -11,12 +11,12 @@
 
 ## 项目当前状态
 
-- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`。
+- 这是一个新的 Rust crate 仓库，当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`。
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已经落地共享基础层、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 现已完整打通 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层，并补齐 `tests/live_options_historical.rs`、`tests/live_options_latest_metadata.rs`、`tests/live_options_snapshots_chain.rs` 与 `tests/mock_options_errors.rs`。
-- 当前 `Phase 3: Options` 已完成，包括完整 `options` HTTP 能力、真实 API happy-path、异常路径 mock 与本地 benchmark baseline；下一步进入 `Phase 4: Crypto`。
+- 当前已经落地共享基础层，以及三个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`，以及对应真实 API happy-path、异常路径 mock 与本地 benchmark baseline。
+- 当前 `Phase 4: Crypto` 已完成，下一步进入 `Phase 5: News + Corporate Actions`。
 
 ## 最高优先级规则
 

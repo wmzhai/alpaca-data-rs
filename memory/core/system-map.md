@@ -2,7 +2,7 @@
 
 ## 当前仓库结构
 
-当前仓库已完成 `Phase 1: Shared Core`、`Phase 2: Stocks` 与 `Phase 3: Options`；`Phase 4: Crypto` 当前已完成全部功能端点，`stocks` 与 `options` 现已成为前两个完整资源模板模块，核心文件和目录如下：
+当前仓库已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`；`stocks`、`options` 与 `crypto` 现已成为前三个完整资源模板模块，核心文件和目录如下：
 
 - `README.md`：最终设计方案与公开 API 契约
 - `CHANGELOG.md`：版本提交的变化记录
@@ -44,6 +44,7 @@
 - `benches/shared_core.rs`：本地 `criterion` benchmark baseline，当前覆盖 `crypto.latest_quotes` 共享通路
 - `benches/stocks.rs`：本地 `criterion` benchmark baseline，当前覆盖 `stocks.latest_quote` 的本地 hot path
 - `benches/options.rs`：本地 `criterion` benchmark baseline，当前覆盖 `options.chain` 的本地 hot path
+- `benches/crypto.rs`：本地 `criterion` benchmark baseline，当前覆盖 `crypto.snapshots` 的本地 hot path
 - `memory/`：项目导航、约束和后续扩展落点
 
 ## 当前还没有的结构
@@ -52,7 +53,7 @@
 
 - 按资源域拆分的 `tests/live/` 与 `tests/mock/` 子目录（当前 live/mock 测试仍位于 `tests/` 根下）
 - `news`、`corporate_actions` 的真实 HTTP endpoint 实现
-- `crypto` 其余 endpoint 与后续资源域的 benchmark 基线
+- `news`、`corporate_actions` 与后续资源域的 benchmark 基线
 
 ## 预期的代码分层
 
@@ -68,5 +69,5 @@
 
 - 现在已经存在的是“共享基础层 + 部分真实资源实现”，还不是完整 API 实现。
 - 当前真正落地的真实能力已覆盖共享层、完整 `crypto` 模块、完整 `stocks` 模块，以及完整 `options` 模块与其对应 convenience 层。
-- 当前 `stocks` 与 `options` 都已完成 phase 级收尾；`crypto` 的功能面也已完成，下一步只剩 benchmark 与 phase 收尾流程，然后才会进入 `news` / `corporate_actions`。
+- 当前 `stocks`、`options` 与 `crypto` 都已完成 phase 级收尾；下一步进入 `news` / `corporate_actions`。
 - 后续代码真正补齐后，这份文档需要继续从“部分真实目录图”更新为更细的完整实现图。
