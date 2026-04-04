@@ -51,7 +51,7 @@ Start new sessions with:
 - If no audited MSRV is maintained, do not declare `rust-version` in `Cargo.toml`.
 - GitHub CI must use the floating `stable` toolchain.
 - Release CI must only run on pushed release tags such as `vX.Y.Z`.
-- GitHub Pages documentation deployment may run separately on `main`.
+- GitHub Pages documentation deployment must only run on pushed release tags such as `vX.Y.Z`.
 - Keep internal workflow material out of the published crate artifact.
 - Before release-readiness or API-parity work, run `.agents/skills/alpaca-market-data-sync/SKILL.md`.
 - If the audit finds mirror drift, fix the mirror layer before re-validating convenience helpers.

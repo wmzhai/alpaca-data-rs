@@ -21,7 +21,7 @@ The current branch baseline is `v0.9.1`.
 - `./scripts/api-sync-audit` has been run against the intended release baseline and reports no blocking drift
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
 - release CI is a tag-triggered guardrail and runs only when a `vX.Y.Z` tag is pushed
-- GitHub Pages deployment is a separate workflow that builds on `main`
+- GitHub Pages deployment is a separate workflow that builds and deploys only when a `vX.Y.Z` tag is pushed
 
 ## Verification Targets
 
