@@ -1,12 +1,27 @@
 # Phase 5 News and Corporate Actions Design
 
 **Date:** 2026-04-04
-**Status:** In Progress (`news` completed in `v0.4.1`)
+**Status:** Approved (`news` shipped in `v0.4.1`; `corporate_actions` shipped in `v0.4.2`; Task 3/4 pending)
 **Target Phase:** `Phase 5: News + Corporate Actions`
 
 ## Goal
 
 将 `news` 与 `corporate_actions` 做成继 `stocks`、`options`、`crypto` 之后的第四、第五个资源域，忠实对应 Alpaca Market Data HTTP API 的 list/filter/pagination 型 HTTP 端点，并把这两个资源域接入现有共享 pagination helper、真实 API happy-path 测试和 phase 级 benchmark / 文档收尾流程。
+
+## Approval Gate
+
+- 本文档和对应 implementation plan 已在 2026-04-04 获得用户确认，并已作为 `Phase 5` 的执行基线。
+- 已提交的 `news` 基线与已落地的 `corporate_actions` / shared pagination 实现都已按最终方案对齐。
+
+## Current Baseline
+
+截至 `v0.4.2`：
+
+- `news.list`、`news.list_all`、`news.list_stream` 已在 `v0.4.1` 落地并提交
+- `tests/live_news.rs` 已验证 `news` happy path
+- `corporate_actions.list`、`list_all`、`list_stream` 已在 `v0.4.2` 落地并提交
+- `tests/live_corporate_actions.rs` 已验证 `corporate_actions` happy path
+- 共享 pagination helper 已补上重复 `next_page_token` 防护
 
 ## Scope
 
@@ -240,6 +255,7 @@ pub struct ListResponse {
 - `*_stream` 按页返回 `ListResponse`
 - `news` 分页合并逻辑是单纯追加 `news`
 - `corporate_actions` 分页合并逻辑是逐 bucket 追加对应数组；不会尝试跨 bucket 去重或重排
+- 共享 pagination helper 还必须防御“服务端重复返回同一个 `next_page_token`”的情况；一旦检测到重复 token，统一返回 `Error::Pagination`，避免 `list_all` / `list_stream` 陷入无限循环
 
 ## Internal Architecture
 
@@ -265,15 +281,18 @@ pub struct ListResponse {
   - `list_stream`
   - bucketed wrapper 形状
   - 至少两个不同 family 的真实 item shape
+  - 重复 `next_page_token` 不会让共享分页 helper 无限循环
 - mock 只用于：
   - 损坏 JSON
   - transport error
   - 分页 merge 行为
   - undocumented bucket 的保留行为回归测试
+  - 重复 `next_page_token` 的故障注入回归测试
 
 ## Exit Criteria
 
 - `news` 与 `corporate_actions` 的 happy path 都使用真实 Alpaca API 验证通过
 - `corporate_actions` 的 bucketed response 形状被 typed Rust object 正确保留
 - `contract_adjustment` / `partial_call` query 不会因为 SDK enum 缺失而无法发起请求
+- `corporate_actions` 相关真实 API 分页路径不会因为重复 `next_page_token` 而挂死
 - 所有 phase 5 文档、CHANGELOG、tests、benchmark 和版本号在 phase 收尾时保持一致

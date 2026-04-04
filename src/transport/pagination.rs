@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{Error, common::response::ResponseStream};
 
 #[allow(dead_code)]
@@ -25,8 +27,15 @@ where
 {
     let mut current_request = request;
     let mut combined = fetch(current_request.clone()).await?;
+    let mut seen_page_tokens = HashSet::new();
 
     while let Some(next_page_token) = combined.next_page_token().map(str::to_owned) {
+        if !seen_page_tokens.insert(next_page_token.clone()) {
+            return Err(Error::Pagination(format!(
+                "received repeated next_page_token: {next_page_token}"
+            )));
+        }
+
         current_request = current_request.with_page_token(Some(next_page_token));
         let page = fetch(current_request.clone()).await?;
         combined.merge_page(page)?;
@@ -50,12 +59,14 @@ where
     struct StreamState<Request, Response, Fetch> {
         next_request: Option<Request>,
         previous_page: Option<Response>,
+        seen_page_tokens: HashSet<String>,
         fetch: Fetch,
     }
 
     let state: StreamState<Request, Response, Fetch> = StreamState {
         next_request: Some(request),
         previous_page: None,
+        seen_page_tokens: HashSet::new(),
         fetch,
     };
 
@@ -74,11 +85,28 @@ where
                         }
                     }
 
-                    state.next_request = page
-                        .next_page_token()
-                        .map(str::to_owned)
-                        .map(|page_token| request.with_page_token(Some(page_token)));
+                    state.next_request =
+                        page.next_page_token()
+                            .map(str::to_owned)
+                            .and_then(|page_token| {
+                                if !state.seen_page_tokens.insert(page_token.clone()) {
+                                    state.next_request = None;
+                                    return None;
+                                }
+
+                                Some(request.with_page_token(Some(page_token)))
+                            });
                     state.previous_page = Some(page.clone());
+
+                    if page.next_page_token().is_some() && state.next_request.is_none() {
+                        return Some((
+                            Err(Error::Pagination(
+                                "received repeated next_page_token".into(),
+                            )),
+                            state,
+                        ));
+                    }
+
                     Some((Ok(page), state))
                 }
                 Err(error) => Some((Err(error), state)),
@@ -235,6 +263,38 @@ mod tests {
             pages[0].as_ref().expect("first page should succeed").values,
             vec![1, 2]
         );
+        assert!(matches!(pages[1], Err(Error::Pagination(_))));
+    }
+
+    #[tokio::test]
+    async fn collect_all_rejects_repeated_next_page_token() {
+        let error = collect_all(FakeRequest::default(), |_request| async move {
+            Ok(FakeResponse {
+                values: vec![1],
+                next_page_token: Some("page-1".into()),
+                group: Some("A"),
+            })
+        })
+        .await
+        .expect_err("collect_all should reject repeated page tokens");
+
+        assert!(matches!(error, Error::Pagination(_)));
+    }
+
+    #[tokio::test]
+    async fn stream_pages_rejects_repeated_next_page_token() {
+        let pages = stream_pages(FakeRequest::default(), |_request| async move {
+            Ok(FakeResponse {
+                values: vec![1],
+                next_page_token: Some("page-1".into()),
+                group: Some("A"),
+            })
+        })
+        .collect::<Vec<_>>()
+        .await;
+
+        assert_eq!(pages.len(), 2);
+        assert!(pages[0].as_ref().is_ok());
         assert!(matches!(pages[1], Err(Error::Pagination(_))));
     }
 }

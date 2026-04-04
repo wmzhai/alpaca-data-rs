@@ -3,7 +3,9 @@ use std::sync::Arc;
 use crate::{
     Error,
     client::Inner,
-    common::response::{ResponseStream, empty_stream},
+    common::response::ResponseStream,
+    transport::endpoint::Endpoint,
+    transport::pagination::{collect_all, stream_pages},
 };
 
 use super::{ListRequest, ListResponse};
@@ -18,25 +20,40 @@ impl CorporateActionsClient {
         Self { inner }
     }
 
-    pub async fn list(&self, _request: ListRequest) -> Result<ListResponse, Error> {
+    pub async fn list(&self, request: ListRequest) -> Result<ListResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "corporate_actions.list",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::CorporateActionsList,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
-    pub async fn list_all(&self, _request: ListRequest) -> Result<ListResponse, Error> {
+    pub async fn list_all(&self, request: ListRequest) -> Result<ListResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "corporate_actions.list_all",
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.list(request).await }
         })
+        .await
     }
 
-    pub fn list_stream(
-        &self,
-        _request: ListRequest,
-    ) -> ResponseStream<Result<ListResponse, Error>> {
-        empty_stream()
+    pub fn list_stream(&self, request: ListRequest) -> ResponseStream<Result<ListResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.list(request).await }
+        })
     }
 
     fn ensure_credentials(&self) -> Result<(), Error> {
@@ -45,5 +62,12 @@ impl CorporateActionsClient {
         } else {
             Err(Error::MissingCredentials)
         }
+    }
+
+    fn error_stream<Response>(error: Error) -> ResponseStream<Result<Response, Error>>
+    where
+        Response: Send + 'static,
+    {
+        Box::pin(futures_util::stream::once(async move { Err(error) }))
     }
 }

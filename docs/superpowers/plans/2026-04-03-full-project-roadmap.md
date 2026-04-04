@@ -251,7 +251,7 @@
 
 ## Phase 5: News + Corporate Actions
 
-**Status:** In progress (`v0.4.1` delivered `news`)
+**Status:** In progress (`v0.4.1` delivered `news`, `v0.4.2` delivered `corporate_actions`)
 
 **Delivered so far:**
 
@@ -259,6 +259,9 @@
 - `news::ListRequest` 现在按官方 query 单词序列化 `start` / `end` / `sort` / `symbols` / `limit` / `include_content` / `exclude_contentless` / `page_token`
 - `news::NewsItem` 与 `news::NewsImage` 现已补齐官方字段，并保持官方 `news` + `next_page_token` wrapper
 - `tests/live_news.rs` 已用真实 Alpaca API 验证 `news` happy path 与分页便利层
+- `corporate_actions.list`、`corporate_actions.list_all` 与 `corporate_actions.list_stream` 已具备真实 HTTP 行为
+- `corporate_actions::CorporateActionType` 现已覆盖真实 API 接受的 15 个 query 值，`CorporateActions` 现已保留官方 bucketed wrapper、13 个 documented family typed model、`contract_adjustments` / `partial_calls` fallback 与 `other` unknown bucket
+- `tests/live_corporate_actions.rs` 已用真实 Alpaca API 验证 `corporate_actions` happy path；共享 pagination helper 现已拒绝重复 `next_page_token`
 
 **Goal:** 完成两个 list/filter/pagination 型资源域。
 
@@ -290,6 +293,7 @@
 
 - 两个资源域的官方字段映射完成
 - list / list_all / list_stream 的统一行为完成
+- 下一步只剩 `news` / `corporate_actions` 的 fault coverage 与 benchmark baseline
 
 **Exit Criteria:**
 

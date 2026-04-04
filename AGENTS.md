@@ -16,7 +16,7 @@
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
 - 当前已经落地共享基础层，以及三个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`，以及对应真实 API happy-path、异常路径 mock 与本地 benchmark baseline。
-- 当前 `Phase 4: Crypto` 已完成；`Phase 5` 已先完成 `news.list` / `list_all` / `list_stream` 与 `tests/live_news.rs`，下一步继续推进 `corporate_actions`。
+- 当前 `Phase 4: Crypto` 已完成；`Phase 5` 已完成 `news.list` / `list_all` / `list_stream` 与 `corporate_actions.list` / `list_all` / `list_stream` 的真实 API happy-path 落地，下一步继续推进 `news` / `corporate_actions` 的 fault coverage 与 benchmark baseline。
 
 ## 最高优先级规则
 
@@ -36,9 +36,12 @@
 - 每完成一个明确的开发 task，都要做一次带版本号更新的提交，不能把多个已完成 task 长时间堆在工作区里不提交。
 - 每个 task 完成后的提交前，都必须先同步版本号、`CHANGELOG.md` 和所有受影响文档，再进行提交。
 - 每个 task 完成后的版本提交标题统一使用英文格式：`<type>: <summary> (vX.Y.Z)`。
+- 每个 phase 开始时，必须先完成该 phase 的设计文档与实现计划文档，并停下来等待用户确认设计；未得到 phase 设计确认前，不得开始该 phase 的代码开发。
 - 每个 phase 完成后，必须先全面跑完该 phase 的格式检查、单元测试、集成测试、所需 live tests 和 benchmark 验证，并对齐 `README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md`。
-- 每个 phase 完成后的收尾版本必须自动执行一次 MINOR 递增（`X.Y.Z -> X.(Y+1).0`），然后合并到 `main`、推送远端，并删除当前开发分支。
-- 每个 phase 一旦计划拍板，默认一次性连续执行到该 phase 完成；除非遇到 blocker、官方 API 事实不确定、需求冲突或用户明确要求暂停，否则每个 task 完成后直接进入下一个 task，不再逐 task 询问用户。
+- 每个 phase 完成后的收尾版本必须自动执行一次 MINOR 递增（`X.Y.Z -> X.(Y+1).0`）；在合并到 `main`、推送远端并删除当前开发分支之前，必须再停下来等待用户确认。
+- 每个 phase 的最终版本提交必须直接成为落到 `main` 的那个 commit；不允许在 phase 最终版本提交之后，再额外生成一个只用于合并的 commit。
+- phase 收尾合并默认只允许使用 `git merge --ff-only`；如果无法 fast-forward，必须先停下来处理分支差异，不能生成额外 merge commit。
+- 每个 phase 一旦设计已获用户确认，默认一次性连续执行到该 phase 完成；除非遇到 blocker、官方 API 事实不确定、需求冲突或用户明确要求暂停，否则每个 task 完成后直接进入下一个 task，不再逐 task 询问用户。
 - 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先直接修正，再提交。
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 不只记录结构变化，也要记录各种新变化，包括对外接口、文档、测试、工程配置和内部实现上的重要变化。
@@ -54,7 +57,13 @@
 - 不要使用 `.worktrees/` 或其他 git worktree 工作目录；新任务直接创建并切换到普通 git 分支即可。
 - 每个 task 完成后，默认同步检查并更新：`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档、`CHANGELOG.md`。
 - 每个 task 完成后，默认先做版本号递增，再做带版本号的提交；除非用户明确要求暂不提交。
-- 每个 phase 完成后，默认执行完整验证、自动做一次 MINOR 版本升级、合并 `main`、推送远端并删除当前分支。
+- 每个 phase 的标准节奏固定为：
+  1. 先写并同步该 phase 的 spec / plan 文档
+  2. 停下来等待用户确认 phase 设计
+  3. 设计确认后，连续执行该 phase 的各个 task，中间不逐 task 询问
+  4. phase 内所有 task 完成后，先做完整验证、文档对齐、MINOR 版本升级和 phase 收尾提交
+  5. 在合并 `main`、推送远端和删除分支之前，再停下来等待用户确认
+  6. 用户确认后，只允许用 fast-forward 方式把该 phase 的最终版本提交落到 `main`
 - 提交前的对齐检查不是走形式；如果文档和代码不一致，要先把事实修正到一致，再执行验证和提交。
 
 ## 关键目录边界

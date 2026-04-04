@@ -43,7 +43,11 @@
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 必须记录各种新变化，不只记录结构变化；至少覆盖对外接口、文档、测试、工程配置和内部实现上的重要变化。
 - 最终那个带 `CHANGELOG` 的发版提交，标题格式固定为 `chore: bump version and changelog (vX.Y.Z)`。
-- 每个 phase 完成后，必须跑完整验证、同步所有受影响文档、自动执行一次 MINOR 版本升级，然后合并到 `main`、推送远端并删除当前开发分支。
+- 每个 phase 开始时，必须先有对应的 spec / plan 文档，并在开始该 phase 的代码开发前得到用户确认。
+- 每个 phase 一旦设计获批，phase 内各个 task 默认连续执行，不在 task 之间逐一停顿。
+- 每个 phase 完成后，必须先跑完整验证、同步所有受影响文档、自动执行一次 MINOR 版本升级与 phase 收尾提交；在合并到 `main`、推送远端并删除当前开发分支前，必须再得到用户确认。
+- 每个 phase 的最终版本提交必须就是最终落到 `main` 的那个 commit；不允许在 phase 发版提交之后，再额外补一个 merge commit。
+- phase 合并到 `main` 时默认必须使用 fast-forward；如果 `git merge --ff-only` 无法成立，先停下来处理，再继续。
 - 版本号格式固定为三段：`MAJOR.MINOR.PATCH`。
 
 ## 测试红线

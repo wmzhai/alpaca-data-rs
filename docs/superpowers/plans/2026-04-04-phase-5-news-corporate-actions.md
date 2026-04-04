@@ -10,6 +10,12 @@
 
 ---
 
+## Phase Start Gate
+
+- 本计划已在 2026-04-04 获得用户确认，并已作为当前 phase 的执行基线。
+- `news` baseline 已按 no-op freeze 重新核对并验证通过。
+- `corporate_actions` / shared pagination 草稿已完成 reconciliation，只保留与计划一致的实现。
+
 ## Execution Constraints
 
 - 遵守 `AGENTS.md`：不要使用 `.worktrees/`；直接在普通 git 分支上执行
@@ -61,11 +67,27 @@
 - `corporate_actions.list_all`
 - `corporate_actions.list_stream`
 
+## Reconciliation Rule
+
+在你确认本计划之后，先执行一轮 reconciliation：
+
+- 保留已经提交且与计划一致的 `news` 代码、测试和文档
+- 逐项比对当前工作区里的 `corporate_actions` / pagination 草稿
+- 与计划一致的实现可直接吸收
+- 与计划冲突的实现必须先修改，再进入对应 task 的正式提交
+
 ## Task Order
 
-### Task 1: News Endpoint, Typed Models, and Pagination Convenience
+### Task 1: Baseline Reconciliation and News Freeze
 
 **Files:**
+- Modify: `README.md`
+- Modify: `CHANGELOG.md`
+- Modify: `memory/README.md`
+- Modify: `memory/api/README.md`
+- Modify: `memory/core/system-map.md`
+- Modify: `docs/superpowers/specs/2026-04-04-phase-5-news-corporate-actions-design.md`
+- Modify: `docs/superpowers/plans/2026-04-04-phase-5-news-corporate-actions.md`
 - Modify: `src/transport/endpoint.rs`
 - Modify: `src/news/mod.rs`
 - Modify: `src/news/client.rs`
@@ -75,21 +97,18 @@
 - Modify: `tests/public_api.rs`
 - Create: `tests/live_news.rs`
 
-- [x] Add failing request, response, route, and public API coverage for `news.list`, `news.list_all`, and `news.list_stream`
-- [x] Run the targeted tests and confirm they fail for the current placeholder implementation
-- [x] Implement `/v1beta1/news` endpoint routing
-- [x] Replace placeholder `NewsItem` with typed `NewsItem` / `NewsImage` models using official field words
-- [x] Implement `ListRequest` query serialization with official parameters and shared `PaginatedRequest`
-- [x] Implement `ListResponse` serde + `PaginatedResponse`
-- [x] Implement `NewsClient::list`, `list_all`, and `list_stream`
-- [x] Add live happy-path coverage with bounded `AAPL` queries and forced pagination via low `limit`
-- [x] Run targeted tests, then `cargo test`
-- [x] Sync docs and prepare patch version commit
+- [x] Re-read the shipped `v0.4.1` `news` implementation against the approved phase design
+- [x] Keep the existing `news` implementation unchanged if it matches the approved design; otherwise patch it before any further phase work
+- [x] Re-run `tests/live_news.rs` and relevant unit/public API tests as the baseline freeze verification
+- [x] Sync phase docs so they clearly distinguish “already shipped baseline” from “remaining work”
+- [x] If any baseline adjustments were required, prepare the corresponding patch version commit; if no code/doc changes were needed, record that Task 1 is a no-op baseline freeze
 
 ### Task 2: Corporate Actions Buckets, Typed Families, and Pagination Convenience
 
 **Files:**
+- Modify: `src/common/response.rs`
 - Modify: `src/transport/endpoint.rs`
+- Modify: `src/transport/pagination.rs`
 - Modify: `src/corporate_actions/mod.rs`
 - Modify: `src/corporate_actions/client.rs`
 - Modify: `src/corporate_actions/request.rs`
@@ -98,20 +117,24 @@
 - Modify: `tests/public_api.rs`
 - Create: `tests/live_corporate_actions.rs`
 
-- [ ] Add failing request, response, route, and public API coverage for `corporate_actions.list`, `corporate_actions.list_all`, and `corporate_actions.list_stream`
-- [ ] Run the targeted tests and confirm they fail for the current placeholder implementation
-- [ ] Implement `/v1/corporate-actions` endpoint routing
-- [ ] Expand `CorporateActionType` to the full current real-API enum surface
-- [ ] Replace placeholder models with typed bucketed `CorporateActions` response families for the documented action schemas
-- [ ] Add conservative fallback modeling for `contract_adjustments`, `partial_calls`, and future unknown buckets without flattening the whole response into untyped JSON
-- [ ] Implement `ListRequest` query serialization with official parameters and shared `PaginatedRequest`
-- [ ] Implement `ListResponse` serde + `PaginatedResponse` bucket merge logic
-- [ ] Implement `CorporateActionsClient::list`, `list_all`, and `list_stream`
-- [ ] Add live happy-path coverage using broad historical date windows that return multiple buckets and multiple pages
-- [ ] Run targeted tests, then `cargo test`
-- [ ] Sync docs and prepare patch version commit
+- [x] Add failing request, response, route, and public API coverage for `corporate_actions.list`, `corporate_actions.list_all`, and `corporate_actions.list_stream`
+- [x] Run the targeted tests and confirm they fail for the current placeholder implementation
+- [x] Implement `/v1/corporate-actions` endpoint routing
+- [x] Expand `CorporateActionType` to the full current real-API enum surface
+- [x] Replace placeholder models with typed bucketed `CorporateActions` response families for the documented action schemas
+- [x] Add conservative fallback modeling for `contract_adjustments`, `partial_calls`, and future unknown buckets without flattening the whole response into untyped JSON
+- [x] Add repeated-`next_page_token` protection to the shared pagination helper so `corporate_actions` cannot hang on pathological server pagination
+- [x] Implement `ListRequest` query serialization with official parameters and shared `PaginatedRequest`
+- [x] Implement `ListResponse` serde + `PaginatedResponse` bucket merge logic
+- [x] Implement `CorporateActionsClient::list`, `list_all`, and `list_stream`
+- [x] Add live happy-path coverage using bounded real queries:
+  - one query that proves multi-bucket decoding
+  - one query that proves `list_all` success on a stable bounded dataset such as explicit `ids`
+  - one query that proves `list_stream` yields multiple real pages without depending on unbounded history fetches
+- [x] Run targeted tests, then `cargo test`
+- [x] Sync docs and prepare patch version commit
 
-### Task 3: Fault Injection, Benchmark, and Phase Completion
+### Task 3: Fault Injection and Benchmark
 
 **Files:**
 - Modify: `Cargo.toml`
@@ -127,7 +150,25 @@
 - Modify: `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
 
 - [ ] Add mock-only fault coverage for malformed JSON and pagination merge behavior in `news` / `corporate_actions`
+- [ ] Add a mock regression for repeated `next_page_token` so the shared guard stays covered
 - [ ] Add `news_corporate_actions` benchmark baseline and verify it compiles with `cargo bench --bench news_corporate_actions --no-run`
-- [ ] Run full phase verification: format, unit/integration/live tests, benchmark compile
+- [ ] Run targeted tests and benchmark compile verification
+- [ ] Sync docs and prepare patch version commit
+
+### Task 4: Phase Completion Candidate
+
+**Files:**
+- Modify: `Cargo.toml`
+- Modify: `README.md`
+- Modify: `CHANGELOG.md`
+- Modify: `AGENTS.md`
+- Modify: `memory/README.md`
+- Modify: `memory/api/README.md`
+- Modify: `memory/core/system-map.md`
+- Modify: `memory/core/workflows.md`
+- Modify: `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
+
+- [ ] Run full phase verification: format, full test suite, required live tests, benchmark compile
 - [ ] Sync all docs to the final `Phase 5` state
-- [ ] Bump MINOR version for phase completion and finish branch per repo rules
+- [ ] Bump MINOR version for phase completion and create the phase closing release commit
+- [ ] Stop and wait for user approval before any fast-forward merge to `main`, push, or branch deletion

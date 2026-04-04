@@ -48,6 +48,8 @@ fn resource_modules_expose_short_type_names() {
     let _ = news::NewsImage::default();
     let _ = corporate_actions::ListRequest::default();
     let _ = corporate_actions::ListResponse::default();
+    let _ = corporate_actions::CorporateActions::default();
+    let _ = corporate_actions::UnknownCorporateAction::default();
 }
 
 #[test]
@@ -219,6 +221,12 @@ fn resource_clients_expose_core_method_names() {
     let _ = client
         .corporate_actions()
         .list(corporate_actions::ListRequest::default());
+    let _ = client
+        .corporate_actions()
+        .list_all(corporate_actions::ListRequest::default());
+    let _ = client
+        .corporate_actions()
+        .list_stream(corporate_actions::ListRequest::default());
 }
 
 #[test]

@@ -8,6 +8,31 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.4.2
+
+### Added
+
+- 新建 `tests/live_corporate_actions.rs`，使用真实 Alpaca API 覆盖 `corporate_actions.list`、`list_all` 与 `list_stream`
+- 为 `corporate_actions` 新增 request / response / route / public API 单元测试，覆盖官方 query 单词、`/v1/corporate-actions` route、bucketed wrapper shape 与 typed family merge
+- 为共享 pagination helper 新增重复 `next_page_token` 回归测试，覆盖 `collect_all` / `stream_pages` 的死循环防护
+
+### Changed
+
+- `CorporateActionsClient` 现在已接通 `GET /v1/corporate-actions`，并同时打通 `list_all` / `list_stream`
+- `corporate_actions::CorporateActionType` 现在覆盖真实 API 接受的全部 15 个 query 值；`CorporateActions` 现在保留官方 bucketed `corporate_actions` wrapper，并将 13 个 documented family 反序列化为 typed arrays，同时为 `contract_adjustments` / `partial_calls` 与未来未知 bucket 提供保守 fallback
+- 共享 `collect_all` / `stream_pages` 现在会在服务端重复返回同一个 `next_page_token` 时立即返回 `Error::Pagination`，避免 `corporate_actions` 等分页资源陷入无限循环
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/invariants.md`、`memory/core/system-map.md`、`memory/core/workflows.md`、`docs/superpowers/specs/2026-04-04-phase-5-news-corporate-actions-design.md`、`docs/superpowers/plans/2026-04-04-phase-5-news-corporate-actions.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 5 / Task 2` 完成后的真实状态，并明确 phase 开始确认、phase 内连续执行、phase 收尾前再次停顿确认，以及 `git merge --ff-only` 的收尾规则
+- 将 crate 版本提升到 `0.4.2`，对齐 `Phase 5 / Task 2` 的版本提交要求
+
+### Verification
+
+- `cargo test news -- --nocapture`
+- `cargo test corporate_actions -- --nocapture`
+- `cargo test --test public_api -- --nocapture`
+- `cargo test`
+- `set -a && source .env && set +a && export APCA_API_KEY_ID=\"$ALPACA_DATA_API_KEY\" APCA_API_SECRET_KEY=\"$ALPACA_DATA_SECRET_KEY\" ALPACA_LIVE_TESTS=1 && cargo test --test live_news -- --nocapture`
+- `set -a && source .env && set +a && export APCA_API_KEY_ID=\"$ALPACA_DATA_API_KEY\" APCA_API_SECRET_KEY=\"$ALPACA_DATA_SECRET_KEY\" ALPACA_LIVE_TESTS=1 && cargo test --test live_corporate_actions -- --nocapture`
+
 ## v0.4.1
 
 ### Added
