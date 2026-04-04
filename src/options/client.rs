@@ -9,9 +9,10 @@ use crate::{
 };
 
 use super::{
-    BarsRequest, BarsResponse, ChainRequest, ChainResponse, ExchangeCodesResponse,
-    LatestQuotesRequest, LatestQuotesResponse, LatestTradesRequest, LatestTradesResponse,
-    SnapshotsRequest, SnapshotsResponse, TradesRequest, TradesResponse,
+    BarsRequest, BarsResponse, ChainRequest, ChainResponse, ConditionCodesRequest,
+    ConditionCodesResponse, ExchangeCodesResponse, LatestQuotesRequest, LatestQuotesResponse,
+    LatestTradesRequest, LatestTradesResponse, SnapshotsRequest, SnapshotsResponse, TradesRequest,
+    TradesResponse,
 };
 
 #[derive(Clone, Debug)]
@@ -225,6 +226,20 @@ impl OptionsClient {
                 &self.inner.auth,
                 Vec::new(),
             )
+            .await
+    }
+
+    pub async fn condition_codes(
+        &self,
+        request: ConditionCodesRequest,
+    ) -> Result<ConditionCodesResponse, Error> {
+        self.ensure_credentials()?;
+        let endpoint = Endpoint::OptionsConditionCodes {
+            ticktype: request.ticktype(),
+        };
+        self.inner
+            .http
+            .get_json(&self.inner.base_url, endpoint, &self.inner.auth, Vec::new())
             .await
     }
 

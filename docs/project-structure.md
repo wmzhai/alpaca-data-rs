@@ -93,11 +93,14 @@ sidebar_position: 4
 | `tests/live_crypto_historical.rs` | live | crypto |
 | `tests/live_crypto_latest.rs` | live | crypto |
 | `tests/live_crypto_latest_quotes_smoke.rs` | live | crypto |
+| `tests/live_crypto_loc_variants.rs` | live | crypto |
 | `tests/live_crypto_snapshots.rs` | live | crypto |
 | `tests/live_news.rs` | live | news |
+| `tests/live_options_condition_codes.rs` | live | options |
 | `tests/live_options_historical.rs` | live | options |
 | `tests/live_options_latest_metadata.rs` | live | options |
 | `tests/live_options_snapshots_chain.rs` | live | options |
+| `tests/live_stocks_auctions.rs` | live | stocks |
 | `tests/live_stocks_batch_historical.rs` | live | stocks |
 | `tests/live_stocks_latest_snapshot.rs` | live | stocks |
 | `tests/live_stocks_metadata.rs` | live | stocks |

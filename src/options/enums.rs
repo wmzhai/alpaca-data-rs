@@ -86,3 +86,25 @@ impl Display for OptionsFeed {
         formatter.write_str(self.as_str())
     }
 }
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum TickType {
+    #[default]
+    Trade,
+    Quote,
+}
+
+impl TickType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Trade => "trade",
+            Self::Quote => "quote",
+        }
+    }
+}
+
+impl Display for TickType {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}

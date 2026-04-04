@@ -345,7 +345,9 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | --- | --- |
 | `Us` | `us` |
 | `Us1` | `us-1` |
+| `Us2` | `us-2` |
 | `Eu1` | `eu-1` |
+| `Bs1` | `bs-1` |
 
 ### `TimeFrame`
 
@@ -359,7 +361,7 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 ## Related Repository Artifacts
 
 - Examples: `examples/crypto_latest_quotes.rs`
-- Tests: `tests/live_crypto_historical.rs`, `tests/live_crypto_latest.rs`, `tests/live_crypto_latest_quotes_smoke.rs`, `tests/live_crypto_snapshots.rs`, `tests/mock_crypto_errors.rs`
+- Tests: `tests/live_crypto_historical.rs`, `tests/live_crypto_latest.rs`, `tests/live_crypto_latest_quotes_smoke.rs`, `tests/live_crypto_loc_variants.rs`, `tests/live_crypto_snapshots.rs`, `tests/mock_crypto_errors.rs`
 - Benchmarks: `benches/crypto.rs`
 
 ## Coverage Notes

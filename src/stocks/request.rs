@@ -1,7 +1,7 @@
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
 
-use super::{Adjustment, Currency, DataFeed, Sort, Tape, TickType, TimeFrame};
+use super::{Adjustment, AuctionFeed, Currency, DataFeed, Sort, Tape, TickType, TimeFrame};
 
 #[derive(Clone, Debug, Default)]
 pub struct BarsRequest {
@@ -31,6 +31,32 @@ pub struct BarsSingleRequest {
     pub asof: Option<String>,
     pub currency: Option<Currency>,
     pub page_token: Option<String>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct AuctionsRequest {
+    pub symbols: Vec<String>,
+    pub start: Option<String>,
+    pub end: Option<String>,
+    pub limit: Option<u32>,
+    pub asof: Option<String>,
+    pub feed: Option<AuctionFeed>,
+    pub currency: Option<Currency>,
+    pub page_token: Option<String>,
+    pub sort: Option<Sort>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct AuctionsSingleRequest {
+    pub symbol: String,
+    pub start: Option<String>,
+    pub end: Option<String>,
+    pub limit: Option<u32>,
+    pub asof: Option<String>,
+    pub feed: Option<AuctionFeed>,
+    pub currency: Option<Currency>,
+    pub page_token: Option<String>,
+    pub sort: Option<Sort>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -182,6 +208,37 @@ impl BarsSingleRequest {
     }
 }
 
+impl AuctionsRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        let mut query = QueryWriter::default();
+        query.push_csv("symbols", self.symbols);
+        query.push_opt("start", self.start);
+        query.push_opt("end", self.end);
+        query.push_opt("limit", self.limit);
+        query.push_opt("feed", self.feed);
+        query.push_opt("currency", self.currency);
+        query.push_opt("page_token", self.page_token);
+        query.push_opt("sort", self.sort);
+        query.push_opt("asof", self.asof);
+        query.finish()
+    }
+}
+
+impl AuctionsSingleRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        let mut query = QueryWriter::default();
+        query.push_opt("start", self.start);
+        query.push_opt("end", self.end);
+        query.push_opt("limit", self.limit);
+        query.push_opt("feed", self.feed);
+        query.push_opt("currency", self.currency);
+        query.push_opt("page_token", self.page_token);
+        query.push_opt("sort", self.sort);
+        query.push_opt("asof", self.asof);
+        query.finish()
+    }
+}
+
 impl QuotesRequest {
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
@@ -316,6 +373,14 @@ impl PaginatedRequest for QuotesSingleRequest {
     }
 }
 
+impl PaginatedRequest for AuctionsSingleRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
 fn latest_batch_query(
     symbols: Vec<String>,
     feed: Option<DataFeed>,
@@ -347,6 +412,14 @@ impl PaginatedRequest for TradesSingleRequest {
 }
 
 impl PaginatedRequest for BarsRequest {
+    fn with_page_token(&self, page_token: Option<String>) -> Self {
+        let mut next = self.clone();
+        next.page_token = page_token;
+        next
+    }
+}
+
+impl PaginatedRequest for AuctionsRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
         next.page_token = page_token;
@@ -467,6 +540,70 @@ mod tests {
                 ("feed".to_string(), "boats".to_string()),
                 ("currency".to_string(), "USD".to_string()),
                 ("page_token".to_string(), "page-123".to_string()),
+                ("sort".to_string(), "desc".to_string()),
+                ("asof".to_string(), "2024-03-04".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn stocks_auction_feed_serializes_to_official_strings() {
+        assert_eq!(AuctionFeed::Sip.to_string(), "sip");
+    }
+
+    #[test]
+    fn auctions_request_serializes_official_query_words() {
+        let request = AuctionsRequest {
+            symbols: vec!["AAPL".into(), "MSFT".into()],
+            start: Some("2024-03-01T00:00:00Z".into()),
+            end: Some("2024-03-05T00:00:00Z".into()),
+            limit: Some(10),
+            asof: Some("2024-03-04".into()),
+            feed: Some(AuctionFeed::Sip),
+            currency: Some(Currency::from("USD")),
+            page_token: Some("page-auctions".into()),
+            sort: Some(Sort::Asc),
+        };
+
+        assert_eq!(
+            request.to_query(),
+            vec![
+                ("symbols".to_string(), "AAPL,MSFT".to_string()),
+                ("start".to_string(), "2024-03-01T00:00:00Z".to_string()),
+                ("end".to_string(), "2024-03-05T00:00:00Z".to_string()),
+                ("limit".to_string(), "10".to_string()),
+                ("feed".to_string(), "sip".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+                ("page_token".to_string(), "page-auctions".to_string()),
+                ("sort".to_string(), "asc".to_string()),
+                ("asof".to_string(), "2024-03-04".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn auctions_single_request_serializes_official_query_words() {
+        let request = AuctionsSingleRequest {
+            symbol: "AAPL".into(),
+            start: Some("2024-03-01T00:00:00Z".into()),
+            end: Some("2024-03-05T00:00:00Z".into()),
+            limit: Some(10),
+            asof: Some("2024-03-04".into()),
+            feed: Some(AuctionFeed::Sip),
+            currency: Some(Currency::from("USD")),
+            page_token: Some("page-auctions-single".into()),
+            sort: Some(Sort::Desc),
+        };
+
+        assert_eq!(
+            request.to_query(),
+            vec![
+                ("start".to_string(), "2024-03-01T00:00:00Z".to_string()),
+                ("end".to_string(), "2024-03-05T00:00:00Z".to_string()),
+                ("limit".to_string(), "10".to_string()),
+                ("feed".to_string(), "sip".to_string()),
+                ("currency".to_string(), "USD".to_string()),
+                ("page_token".to_string(), "page-auctions-single".to_string()),
                 ("sort".to_string(), "desc".to_string()),
                 ("asof".to_string(), "2024-03-04".to_string()),
             ]

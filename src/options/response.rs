@@ -38,6 +38,8 @@ pub struct ChainResponse {
     pub next_page_token: Option<String>,
 }
 
+pub type ConditionCodesResponse = HashMap<String, String>;
+
 pub type ExchangeCodesResponse = HashMap<String, String>;
 
 fn merge_batch_page<Item>(
@@ -134,8 +136,8 @@ mod tests {
     use std::collections::HashMap;
 
     use super::{
-        Bar, BarsResponse, ChainResponse, ExchangeCodesResponse, LatestQuotesResponse,
-        LatestTradesResponse, SnapshotsResponse, Trade, TradesResponse,
+        Bar, BarsResponse, ChainResponse, ConditionCodesResponse, ExchangeCodesResponse,
+        LatestQuotesResponse, LatestTradesResponse, SnapshotsResponse, Trade, TradesResponse,
     };
     use crate::{Error, transport::pagination::PaginatedResponse};
 
@@ -251,6 +253,22 @@ mod tests {
         )
         .expect("latest trades response should deserialize");
         assert!(trades.trades.contains_key("AAPL260406C00180000"));
+    }
+
+    #[test]
+    fn condition_codes_response_deserializes_official_map_shape() {
+        let condition_codes: ConditionCodesResponse = serde_json::from_str(
+            r#"{"a":"SLAN - Single Leg Auction Non ISO","e":"SLFT - Single Leg Floor Trade"}"#,
+        )
+        .expect("condition codes response should deserialize");
+        assert_eq!(
+            condition_codes.get("a").map(String::as_str),
+            Some("SLAN - Single Leg Auction Non ISO")
+        );
+        assert_eq!(
+            condition_codes.get("e").map(String::as_str),
+            Some("SLFT - Single Leg Floor Trade")
+        );
     }
 
     #[test]

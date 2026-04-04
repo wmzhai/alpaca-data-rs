@@ -36,6 +36,114 @@ async fn malformed_single_historical_json_maps_to_deserialize_error() {
 }
 
 #[tokio::test]
+async fn malformed_auctions_json_maps_to_deserialize_error() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/auctions"))
+        .respond_with(ResponseTemplate::new(200).set_body_raw("not-json", "application/json"))
+        .mount(&server)
+        .await;
+
+    let error = authed_client(server.uri())
+        .stocks()
+        .auctions(stocks::AuctionsRequest {
+            symbols: vec!["AAPL".into()],
+            ..Default::default()
+        })
+        .await
+        .expect_err("request should fail");
+
+    assert!(matches!(error, Error::Deserialize(_)));
+}
+
+#[tokio::test]
+async fn auctions_single_all_rejects_mismatched_symbol_across_pages() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/AAPL/auctions"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "symbol": "AAPL",
+            "auctions": [],
+            "next_page_token": "page-2",
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/AAPL/auctions"))
+        .and(query_param("page_token", "page-2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "symbol": "MSFT",
+            "auctions": [],
+            "next_page_token": null,
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    let error = authed_client(server.uri())
+        .stocks()
+        .auctions_single_all(stocks::AuctionsSingleRequest {
+            symbol: "AAPL".into(),
+            ..Default::default()
+        })
+        .await
+        .expect_err("pagination should reject mismatched symbol");
+
+    assert!(matches!(error, Error::Pagination(_)));
+}
+
+#[tokio::test]
+async fn auctions_all_rejects_mismatched_batch_currency_across_pages() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/auctions"))
+        .and(query_param_is_missing("page_token"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "auctions": {
+                "AAPL": [
+                    { "d": "2024-03-01", "o": [], "c": [] }
+                ]
+            },
+            "next_page_token": "page-2",
+            "currency": "USD"
+        })))
+        .mount(&server)
+        .await;
+
+    Mock::given(method("GET"))
+        .and(path("/v2/stocks/auctions"))
+        .and(query_param("page_token", "page-2"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "auctions": {
+                "AAPL": [
+                    { "d": "2024-03-04", "o": [], "c": [] }
+                ]
+            },
+            "next_page_token": null,
+            "currency": "CAD"
+        })))
+        .mount(&server)
+        .await;
+
+    let error = authed_client(server.uri())
+        .stocks()
+        .auctions_all(stocks::AuctionsRequest {
+            symbols: vec!["AAPL".into()],
+            ..Default::default()
+        })
+        .await
+        .expect_err("pagination should reject mismatched currency");
+
+    assert!(matches!(error, Error::Pagination(_)));
+}
+
+#[tokio::test]
 async fn bars_single_all_rejects_mismatched_symbol_across_pages() {
     let server = MockServer::start().await;
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{Error, transport::pagination::PaginatedResponse};
 
-use super::{Bar, Currency, Quote, Snapshot, Trade};
+use super::{Bar, Currency, DailyAuction, Quote, Snapshot, Trade};
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct BarsResponse {
@@ -15,6 +15,21 @@ pub struct BarsResponse {
 pub struct BarsSingleResponse {
     pub symbol: String,
     pub bars: Vec<Bar>,
+    pub next_page_token: Option<String>,
+    pub currency: Option<Currency>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct AuctionsResponse {
+    pub auctions: HashMap<String, Vec<DailyAuction>>,
+    pub next_page_token: Option<String>,
+    pub currency: Option<Currency>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct AuctionsSingleResponse {
+    pub symbol: String,
+    pub auctions: Vec<DailyAuction>,
     pub next_page_token: Option<String>,
     pub currency: Option<Currency>,
 }
@@ -206,6 +221,46 @@ impl PaginatedResponse for BarsResponse {
     }
 }
 
+impl PaginatedResponse for AuctionsSingleResponse {
+    fn next_page_token(&self) -> Option<&str> {
+        self.next_page_token.as_deref()
+    }
+
+    fn merge_page(&mut self, next: Self) -> Result<(), Error> {
+        merge_single_metadata(
+            "stocks.auctions_single_all",
+            &mut self.symbol,
+            &mut self.currency,
+            next.symbol,
+            next.currency,
+        )?;
+        self.auctions.extend(next.auctions);
+        self.next_page_token = next.next_page_token;
+        Ok(())
+    }
+
+    fn clear_next_page_token(&mut self) {
+        self.next_page_token = None;
+    }
+}
+
+impl PaginatedResponse for AuctionsResponse {
+    fn next_page_token(&self) -> Option<&str> {
+        self.next_page_token.as_deref()
+    }
+
+    fn merge_page(&mut self, next: Self) -> Result<(), Error> {
+        merge_batch_currency("stocks.auctions_all", &mut self.currency, next.currency)?;
+        merge_batch_page(&mut self.auctions, next.auctions);
+        self.next_page_token = next.next_page_token;
+        Ok(())
+    }
+
+    fn clear_next_page_token(&mut self) {
+        self.next_page_token = None;
+    }
+}
+
 impl PaginatedResponse for QuotesSingleResponse {
     fn next_page_token(&self) -> Option<&str> {
         self.next_page_token.as_deref()
@@ -291,15 +346,26 @@ mod tests {
     use std::collections::HashMap;
 
     use super::{
-        BarsResponse, BarsSingleResponse, ConditionCodesResponse, ExchangeCodesResponse,
-        LatestBarResponse, LatestBarsResponse, LatestQuoteResponse, LatestQuotesResponse,
-        LatestTradeResponse, LatestTradesResponse, QuotesSingleResponse, SnapshotResponse,
-        SnapshotsResponse, TradesSingleResponse,
+        AuctionsResponse, AuctionsSingleResponse, BarsResponse, BarsSingleResponse,
+        ConditionCodesResponse, ExchangeCodesResponse, LatestBarResponse, LatestBarsResponse,
+        LatestQuoteResponse, LatestQuotesResponse, LatestTradeResponse, LatestTradesResponse,
+        QuotesSingleResponse, SnapshotResponse, SnapshotsResponse, TradesSingleResponse,
     };
     use crate::{Error, transport::pagination::PaginatedResponse};
 
     #[test]
     fn single_historical_responses_deserialize_official_wrapper_fields() {
+        let auctions: AuctionsSingleResponse = serde_json::from_str(
+            r#"{"symbol":"AAPL","auctions":[],"next_page_token":"page-1","currency":"USD"}"#,
+        )
+        .expect("auctions single response should deserialize");
+        assert_eq!(auctions.symbol, "AAPL");
+        assert_eq!(auctions.next_page_token.as_deref(), Some("page-1"));
+        assert_eq!(
+            auctions.currency.as_ref().map(|value| value.as_str()),
+            Some("USD")
+        );
+
         let bars: BarsSingleResponse = serde_json::from_str(
             r#"{"symbol":"AAPL","bars":[],"next_page_token":"page-2","currency":"USD"}"#,
         )
@@ -336,6 +402,29 @@ mod tests {
 
     #[test]
     fn single_historical_merge_preserves_symbol_and_currency() {
+        let mut auctions = AuctionsSingleResponse {
+            symbol: "AAPL".into(),
+            auctions: vec![],
+            next_page_token: Some("page-2".into()),
+            currency: Some("USD".into()),
+        };
+
+        auctions
+            .merge_page(AuctionsSingleResponse {
+                symbol: "AAPL".into(),
+                auctions: vec![],
+                next_page_token: None,
+                currency: Some("USD".into()),
+            })
+            .expect("matching auction pages should merge");
+
+        assert_eq!(auctions.symbol, "AAPL");
+        assert_eq!(
+            auctions.currency.as_ref().map(|value| value.as_str()),
+            Some("USD")
+        );
+        assert_eq!(auctions.next_page_token, None);
+
         let mut first = BarsSingleResponse {
             symbol: "AAPL".into(),
             bars: vec![],
@@ -362,6 +451,23 @@ mod tests {
 
     #[test]
     fn single_historical_merge_rejects_mismatched_symbol_or_currency() {
+        let mut auctions_symbol_mismatch = AuctionsSingleResponse {
+            symbol: "AAPL".into(),
+            auctions: vec![],
+            next_page_token: Some("page-2".into()),
+            currency: Some("USD".into()),
+        };
+
+        let auctions_symbol_error = auctions_symbol_mismatch
+            .merge_page(AuctionsSingleResponse {
+                symbol: "MSFT".into(),
+                auctions: vec![],
+                next_page_token: None,
+                currency: Some("USD".into()),
+            })
+            .expect_err("mismatched auction symbols should fail");
+        assert!(matches!(auctions_symbol_error, Error::Pagination(_)));
+
         let mut symbol_mismatch = BarsSingleResponse {
             symbol: "AAPL".into(),
             bars: vec![],
@@ -512,6 +618,60 @@ mod tests {
             exchange_codes.get("N").map(String::as_str),
             Some("New York Stock Exchange")
         );
+    }
+
+    #[test]
+    fn auctions_responses_deserialize_official_wrapper_shapes() {
+        let batch: AuctionsResponse = serde_json::from_str(
+            r#"{"auctions":{"AAPL":[{"d":"2024-03-01","o":[{"c":"Q","p":179.55,"s":8,"t":"2024-03-01T14:30:00.092366196Z","x":"P"}],"c":[{"c":"M","p":179.64,"s":2008,"t":"2024-03-01T21:00:00.071062102Z","x":"P"}]}]},"next_page_token":"page-2","currency":"USD"}"#,
+        )
+        .expect("batch auctions response should deserialize");
+        assert_eq!(batch.next_page_token.as_deref(), Some("page-2"));
+        assert_eq!(
+            batch.currency.as_ref().map(|value| value.as_str()),
+            Some("USD")
+        );
+        assert_eq!(batch.auctions.get("AAPL").map(Vec::len), Some(1));
+
+        let single: AuctionsSingleResponse = serde_json::from_str(
+            r#"{"symbol":"AAPL","auctions":[{"d":"2024-03-01","o":[{"c":"Q","p":179.55,"s":8,"t":"2024-03-01T14:30:00.092366196Z","x":"P"}],"c":[{"c":"M","p":179.64,"s":2008,"t":"2024-03-01T21:00:00.071062102Z","x":"P"}]}],"next_page_token":null,"currency":"USD"}"#,
+        )
+        .expect("single auctions response should deserialize");
+        assert_eq!(single.symbol, "AAPL");
+        assert_eq!(single.auctions.len(), 1);
+    }
+
+    #[test]
+    fn auctions_batch_merge_combines_symbol_buckets_and_clears_next_page_token() {
+        let mut first = AuctionsResponse {
+            auctions: HashMap::from([(
+                "AAPL".into(),
+                vec![serde_json::from_str(
+                    r#"{"d":"2024-03-01","o":[{"c":"Q","p":179.55,"t":"2024-03-01T14:30:00.092366196Z","x":"P"}],"c":[{"c":"M","p":179.64,"t":"2024-03-01T21:00:00.071062102Z","x":"P"}]}"#,
+                )
+                .expect("daily auction should deserialize")],
+            )]),
+            next_page_token: Some("page-2".into()),
+            currency: Some("USD".into()),
+        };
+
+        first
+            .merge_page(AuctionsResponse {
+                auctions: HashMap::from([(
+                    "MSFT".into(),
+                    vec![serde_json::from_str(
+                        r#"{"d":"2024-03-01","o":[{"c":"Q","p":415.10,"t":"2024-03-01T14:30:00.100000000Z","x":"P"}],"c":[{"c":"M","p":415.20,"t":"2024-03-01T21:00:00.100000000Z","x":"P"}]}"#,
+                    )
+                    .expect("daily auction should deserialize")],
+                )]),
+                next_page_token: None,
+                currency: Some("USD".into()),
+            })
+            .expect("matching auction currencies should merge");
+
+        assert_eq!(first.auctions.get("AAPL").map(Vec::len), Some(1));
+        assert_eq!(first.auctions.get("MSFT").map(Vec::len), Some(1));
+        assert_eq!(first.next_page_token, None);
     }
 
     #[test]

@@ -1,7 +1,7 @@
 {
   "crate": {
     "name": "alpaca-data",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "edition": "2024",
     "repository": "https://github.com/wmzhai/alpaca-data-rs",
     "documentation": "https://docs.rs/alpaca-data",
@@ -37,7 +37,7 @@
       "module": "alpaca_data::stocks",
       "title": "Stocks",
       "client_type": "StocksClient",
-      "summary": "Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, snapshots, and metadata endpoints. Convenience methods add:",
+      "summary": "Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, auction history, snapshots, and metadata endpoints. Convenience methods add:",
       "internal_only": false,
       "methods": [
         {
@@ -48,6 +48,60 @@
           "response_type": "Result<BarsResponse, Error>",
           "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars",
           "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars"
+        },
+        {
+          "name": "auctions",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "AuctionsRequest",
+          "response_type": "Result<AuctionsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions"
+        },
+        {
+          "name": "auctions_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "AuctionsRequest",
+          "response_type": "Result<AuctionsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_all"
+        },
+        {
+          "name": "auctions_single",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "AuctionsSingleRequest",
+          "response_type": "Result<AuctionsSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single"
+        },
+        {
+          "name": "auctions_single_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "AuctionsSingleRequest",
+          "response_type": "Result<AuctionsSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_all"
+        },
+        {
+          "name": "auctions_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "AuctionsRequest",
+          "response_type": "ResponseStream<Result<AuctionsResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_stream"
+        },
+        {
+          "name": "auctions_single_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "AuctionsSingleRequest",
+          "response_type": "ResponseStream<Result<AuctionsSingleResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_stream"
         },
         {
           "name": "bars_all",
@@ -295,6 +349,8 @@
       ],
       "types": {
         "requests": [
+          "AuctionsRequest",
+          "AuctionsSingleRequest",
           "BarsRequest",
           "BarsSingleRequest",
           "ConditionCodesRequest",
@@ -312,6 +368,8 @@
           "TradesSingleRequest"
         ],
         "responses": [
+          "AuctionsResponse",
+          "AuctionsSingleResponse",
           "BarsResponse",
           "BarsSingleResponse",
           "ConditionCodesResponse",
@@ -330,13 +388,16 @@
           "TradesSingleResponse"
         ],
         "models": [
+          "Auction",
           "Bar",
+          "DailyAuction",
           "Quote",
           "Snapshot",
           "Trade"
         ],
         "enums": [
           "Adjustment",
+          "AuctionFeed",
           "DataFeed",
           "Tape",
           "TickType",
@@ -345,6 +406,10 @@
         "shared": []
       },
       "convenience_methods": [
+        "auctions_all",
+        "auctions_single_all",
+        "auctions_stream",
+        "auctions_single_stream",
         "bars_all",
         "bars_single_all",
         "bars_stream",
@@ -363,6 +428,7 @@
         "examples/stocks_latest_bar.rs"
       ],
       "tests": [
+        "tests/live_stocks_auctions.rs",
         "tests/live_stocks_batch_historical.rs",
         "tests/live_stocks_latest_snapshot.rs",
         "tests/live_stocks_metadata.rs",
@@ -378,7 +444,7 @@
       "module": "alpaca_data::options",
       "title": "Options",
       "client_type": "OptionsClient",
-      "summary": "Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and exchange metadata. Convenience methods add:",
+      "summary": "Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and metadata endpoints. Convenience methods add:",
       "internal_only": false,
       "methods": [
         {
@@ -515,12 +581,22 @@
           "response_type": "Result<ExchangeCodesResponse, Error>",
           "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.exchange_codes",
           "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.exchange_codes"
+        },
+        {
+          "name": "condition_codes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "ConditionCodesRequest",
+          "response_type": "Result<ConditionCodesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.condition_codes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.condition_codes"
         }
       ],
       "types": {
         "requests": [
           "BarsRequest",
           "ChainRequest",
+          "ConditionCodesRequest",
           "LatestQuotesRequest",
           "LatestTradesRequest",
           "SnapshotsRequest",
@@ -529,6 +605,7 @@
         "responses": [
           "BarsResponse",
           "ChainResponse",
+          "ConditionCodesResponse",
           "ExchangeCodesResponse",
           "LatestQuotesResponse",
           "LatestTradesResponse",
@@ -545,6 +622,7 @@
         "enums": [
           "ContractType",
           "OptionsFeed",
+          "TickType",
           "TimeFrame"
         ],
         "shared": []
@@ -563,6 +641,7 @@
         "examples/options_chain.rs"
       ],
       "tests": [
+        "tests/live_options_condition_codes.rs",
         "tests/live_options_historical.rs",
         "tests/live_options_latest_metadata.rs",
         "tests/live_options_snapshots_chain.rs",
@@ -757,6 +836,7 @@
         "tests/live_crypto_historical.rs",
         "tests/live_crypto_latest.rs",
         "tests/live_crypto_latest_quotes_smoke.rs",
+        "tests/live_crypto_loc_variants.rs",
         "tests/live_crypto_snapshots.rs",
         "tests/mock_crypto_errors.rs"
       ],

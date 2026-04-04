@@ -1,7 +1,7 @@
 //! Options market data endpoints.
 //!
 //! Mirror methods cover historical bars and trades, latest quotes and trades,
-//! snapshots, chain lookups, and exchange metadata.
+//! snapshots, chain lookups, and metadata endpoints.
 //!
 //! Convenience methods add:
 //!
@@ -21,13 +21,13 @@ mod request;
 mod response;
 
 pub use client::OptionsClient;
-pub use enums::{ContractType, OptionsFeed, Sort, TimeFrame};
+pub use enums::{ContractType, OptionsFeed, Sort, TickType, TimeFrame};
 pub use model::{Bar, Greeks, Quote, Snapshot, Trade};
 pub use request::{
-    BarsRequest, ChainRequest, LatestQuotesRequest, LatestTradesRequest, SnapshotsRequest,
-    TradesRequest,
+    BarsRequest, ChainRequest, ConditionCodesRequest, LatestQuotesRequest, LatestTradesRequest,
+    SnapshotsRequest, TradesRequest,
 };
 pub use response::{
-    BarsResponse, ChainResponse, ExchangeCodesResponse, LatestQuotesResponse, LatestTradesResponse,
-    SnapshotsResponse, TradesResponse,
+    BarsResponse, ChainResponse, ConditionCodesResponse, ExchangeCodesResponse,
+    LatestQuotesResponse, LatestTradesResponse, SnapshotsResponse, TradesResponse,
 };

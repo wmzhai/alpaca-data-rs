@@ -1,6 +1,22 @@
 use crate::common::time::Timestamp;
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct Auction {
+    pub t: Option<Timestamp>,
+    pub x: Option<String>,
+    pub p: Option<f64>,
+    pub s: Option<u64>,
+    pub c: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct DailyAuction {
+    pub d: Option<String>,
+    pub o: Vec<Auction>,
+    pub c: Vec<Auction>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Bar {
     pub t: Option<Timestamp>,
     pub o: Option<f64>,

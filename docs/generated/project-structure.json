@@ -201,6 +201,11 @@
       "resource": "crypto"
     },
     {
+      "path": "tests/live_crypto_loc_variants.rs",
+      "kind": "live",
+      "resource": "crypto"
+    },
+    {
       "path": "tests/live_crypto_snapshots.rs",
       "kind": "live",
       "resource": "crypto"
@@ -209,6 +214,11 @@
       "path": "tests/live_news.rs",
       "kind": "live",
       "resource": "news"
+    },
+    {
+      "path": "tests/live_options_condition_codes.rs",
+      "kind": "live",
+      "resource": "options"
     },
     {
       "path": "tests/live_options_historical.rs",
@@ -224,6 +234,11 @@
       "path": "tests/live_options_snapshots_chain.rs",
       "kind": "live",
       "resource": "options"
+    },
+    {
+      "path": "tests/live_stocks_auctions.rs",
+      "kind": "live",
+      "resource": "stocks"
     },
     {
       "path": "tests/live_stocks_batch_historical.rs",

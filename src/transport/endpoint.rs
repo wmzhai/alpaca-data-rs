@@ -15,6 +15,7 @@ pub(crate) enum Endpoint {
     CryptoSnapshots { loc: Loc },
     NewsList,
     OptionsBars,
+    OptionsConditionCodes { ticktype: &'static str },
     OptionsTrades,
     OptionsLatestQuotes,
     OptionsLatestTrades,
@@ -22,9 +23,11 @@ pub(crate) enum Endpoint {
     OptionsChain { underlying_symbol: String },
     OptionsExchangeCodes,
     StocksBars,
+    StocksAuctions,
     StocksQuotes,
     StocksTrades,
     StocksBarsSingle { symbol: String },
+    StocksAuctionsSingle { symbol: String },
     StocksQuotesSingle { symbol: String },
     StocksTradesSingle { symbol: String },
     StocksLatestBars,
@@ -78,6 +81,10 @@ impl Endpoint {
         Self::OptionsBars
     }
 
+    pub(crate) fn options_condition_codes(ticktype: &'static str) -> Self {
+        Self::OptionsConditionCodes { ticktype }
+    }
+
     pub(crate) fn options_trades() -> Self {
         Self::OptionsTrades
     }
@@ -108,8 +115,18 @@ impl Endpoint {
         Self::StocksBars
     }
 
+    pub(crate) fn stocks_auctions() -> Self {
+        Self::StocksAuctions
+    }
+
     pub(crate) fn stocks_bars_single(symbol: impl Into<String>) -> Self {
         Self::StocksBarsSingle {
+            symbol: symbol.into(),
+        }
+    }
+
+    pub(crate) fn stocks_auctions_single(symbol: impl Into<String>) -> Self {
+        Self::StocksAuctionsSingle {
             symbol: symbol.into(),
         }
     }
@@ -140,8 +157,14 @@ impl Endpoint {
             Self::CryptoLatestQuotes { loc: Loc::Us1 } => {
                 Cow::Borrowed("/v1beta3/crypto/us-1/latest/quotes")
             }
+            Self::CryptoLatestQuotes { loc: Loc::Us2 } => {
+                Cow::Borrowed("/v1beta3/crypto/us-2/latest/quotes")
+            }
             Self::CryptoLatestQuotes { loc: Loc::Eu1 } => {
                 Cow::Borrowed("/v1beta3/crypto/eu-1/latest/quotes")
+            }
+            Self::CryptoLatestQuotes { loc: Loc::Bs1 } => {
+                Cow::Borrowed("/v1beta3/crypto/bs-1/latest/quotes")
             }
             Self::CryptoLatestTrades { loc } => {
                 Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/trades"))
@@ -152,6 +175,9 @@ impl Endpoint {
             Self::CryptoSnapshots { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/snapshots")),
             Self::NewsList => Cow::Borrowed("/v1beta1/news"),
             Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
+            Self::OptionsConditionCodes { ticktype } => {
+                Cow::Owned(format!("/v1beta1/options/meta/conditions/{ticktype}"))
+            }
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
             Self::OptionsLatestQuotes => Cow::Borrowed("/v1beta1/options/quotes/latest"),
             Self::OptionsLatestTrades => Cow::Borrowed("/v1beta1/options/trades/latest"),
@@ -161,9 +187,13 @@ impl Endpoint {
             }
             Self::OptionsExchangeCodes => Cow::Borrowed("/v1beta1/options/meta/exchanges"),
             Self::StocksBars => Cow::Borrowed("/v2/stocks/bars"),
+            Self::StocksAuctions => Cow::Borrowed("/v2/stocks/auctions"),
             Self::StocksQuotes => Cow::Borrowed("/v2/stocks/quotes"),
             Self::StocksTrades => Cow::Borrowed("/v2/stocks/trades"),
             Self::StocksBarsSingle { symbol } => Cow::Owned(format!("/v2/stocks/{symbol}/bars")),
+            Self::StocksAuctionsSingle { symbol } => {
+                Cow::Owned(format!("/v2/stocks/{symbol}/auctions"))
+            }
             Self::StocksQuotesSingle { symbol } => {
                 Cow::Owned(format!("/v2/stocks/{symbol}/quotes"))
             }
@@ -204,6 +234,7 @@ impl Endpoint {
             | Self::CryptoSnapshots { .. } => false,
             Self::OptionsBars
             | Self::NewsList
+            | Self::OptionsConditionCodes { .. }
             | Self::OptionsTrades
             | Self::OptionsLatestQuotes
             | Self::OptionsLatestTrades
@@ -211,9 +242,11 @@ impl Endpoint {
             | Self::OptionsChain { .. }
             | Self::OptionsExchangeCodes
             | Self::StocksBars
+            | Self::StocksAuctions
             | Self::StocksQuotes
             | Self::StocksTrades
             | Self::StocksBarsSingle { .. }
+            | Self::StocksAuctionsSingle { .. }
             | Self::StocksQuotesSingle { .. }
             | Self::StocksTradesSingle { .. }
             | Self::StocksLatestBars
@@ -285,6 +318,14 @@ mod tests {
             "/v1beta3/crypto/us-1/latest/quotes"
         );
         assert_eq!(
+            Endpoint::crypto_latest_quotes(Loc::Us2).path(),
+            "/v1beta3/crypto/us-2/latest/quotes"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_quotes(Loc::Bs1).path(),
+            "/v1beta3/crypto/bs-1/latest/quotes"
+        );
+        assert_eq!(
             Endpoint::crypto_latest_trades(Loc::Eu1).path(),
             "/v1beta3/crypto/eu-1/latest/trades"
         );
@@ -314,7 +355,12 @@ mod tests {
 
     #[test]
     fn endpoint_routes_stocks_batch_and_single_paths() {
+        assert_eq!(Endpoint::stocks_auctions().path(), "/v2/stocks/auctions");
         assert_eq!(Endpoint::stocks_bars().path(), "/v2/stocks/bars");
+        assert_eq!(
+            Endpoint::stocks_auctions_single("AAPL").path(),
+            "/v2/stocks/AAPL/auctions"
+        );
         assert_eq!(
             Endpoint::stocks_bars_single("AAPL").path(),
             "/v2/stocks/AAPL/bars"
@@ -353,6 +399,10 @@ mod tests {
             Endpoint::options_exchange_codes().path(),
             "/v1beta1/options/meta/exchanges"
         );
+        assert_eq!(
+            Endpoint::options_condition_codes("trade").path(),
+            "/v1beta1/options/meta/conditions/trade"
+        );
     }
 
     #[test]
@@ -360,6 +410,10 @@ mod tests {
         assert!(matches!(
             Endpoint::crypto_latest_quotes(Loc::Us).path(),
             Cow::Borrowed("/v1beta3/crypto/us/latest/quotes")
+        ));
+        assert!(matches!(
+            Endpoint::StocksAuctions.path(),
+            Cow::Borrowed("/v2/stocks/auctions")
         ));
         assert!(matches!(
             Endpoint::StocksBars.path(),
@@ -398,6 +452,12 @@ mod tests {
     #[test]
     fn endpoint_routes_all_stocks_dynamic_paths_and_marks_them_authenticated() {
         let cases = [
+            (
+                Endpoint::StocksAuctionsSingle {
+                    symbol: "AAPL".into(),
+                },
+                "/v2/stocks/AAPL/auctions",
+            ),
             (
                 Endpoint::StocksBarsSingle {
                     symbol: "AAPL".into(),
@@ -444,6 +504,10 @@ mod tests {
                 Endpoint::StocksConditionCodes { ticktype: "trade" },
                 "/v2/stocks/meta/conditions/trade",
             ),
+            (
+                Endpoint::OptionsConditionCodes { ticktype: "trade" },
+                "/v1beta1/options/meta/conditions/trade",
+            ),
         ];
 
         for (endpoint, expected_path) in cases {
@@ -456,6 +520,7 @@ mod tests {
     #[test]
     fn endpoint_requires_auth_for_all_stocks_batch_routes() {
         let cases = [
+            Endpoint::StocksAuctions,
             Endpoint::StocksBars,
             Endpoint::StocksQuotes,
             Endpoint::StocksTrades,
@@ -490,6 +555,10 @@ mod tests {
         }
 
         let endpoint = Endpoint::options_chain("AAPL");
+        assert!(endpoint.requires_auth());
+        assert!(matches!(endpoint.path(), Cow::Owned(_)));
+
+        let endpoint = Endpoint::OptionsConditionCodes { ticktype: "quote" };
         assert!(endpoint.requires_auth());
         assert!(matches!(endpoint.path(), Cow::Owned(_)));
     }

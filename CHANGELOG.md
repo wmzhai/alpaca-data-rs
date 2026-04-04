@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.9.0
+
+### Added
+
+- Added stock auction mirror coverage with `auctions`, `auctions_single`, `auctions_all`, `auctions_stream`, `auctions_single_all`, and `auctions_single_stream`.
+- Added option condition-code mirror coverage with `options().condition_codes`.
+- Added dual-license files `LICENSE-MIT` and `LICENSE-APACHE`.
+- Added live coverage for stock auctions, option condition codes, and the new crypto `loc` variants.
+
+### Changed
+
+- Extended `crypto::Loc` to include the official `us-2` and `bs-1` values.
+- Updated the API coverage contract and public docs to reflect full coverage of the currently adopted Market Data resource families.
+- Aligned installation and publication docs with the crates.io package and the live GitHub Pages documentation site.
+
 ## v0.8.0
 
 ### Added

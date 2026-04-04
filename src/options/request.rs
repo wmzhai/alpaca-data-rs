@@ -1,7 +1,7 @@
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
 
-use super::{ContractType, OptionsFeed, Sort, TimeFrame};
+use super::{ContractType, OptionsFeed, Sort, TickType, TimeFrame};
 
 #[derive(Clone, Debug, Default)]
 pub struct BarsRequest {
@@ -58,6 +58,11 @@ pub struct ChainRequest {
     pub updated_since: Option<String>,
     pub limit: Option<u32>,
     pub page_token: Option<String>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct ConditionCodesRequest {
+    pub ticktype: TickType,
 }
 
 impl BarsRequest {
@@ -132,6 +137,12 @@ impl ChainRequest {
     }
 }
 
+impl ConditionCodesRequest {
+    pub(crate) fn ticktype(&self) -> &'static str {
+        self.ticktype.as_str()
+    }
+}
+
 impl PaginatedRequest for BarsRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -175,8 +186,9 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
 #[cfg(test)]
 mod tests {
     use super::{
-        BarsRequest, ChainRequest, ContractType, LatestQuotesRequest, LatestTradesRequest,
-        OptionsFeed, SnapshotsRequest, Sort, TimeFrame, TradesRequest,
+        BarsRequest, ChainRequest, ConditionCodesRequest, ContractType, LatestQuotesRequest,
+        LatestTradesRequest, OptionsFeed, SnapshotsRequest, Sort, TickType, TimeFrame,
+        TradesRequest,
     };
 
     #[test]
@@ -327,5 +339,18 @@ mod tests {
                 ("page_token".to_string(), "page-3".to_string()),
             ]
         );
+    }
+
+    #[test]
+    fn condition_codes_request_uses_official_ticktype_word() {
+        let trade = ConditionCodesRequest {
+            ticktype: TickType::Trade,
+        };
+        assert_eq!(trade.ticktype(), "trade");
+
+        let quote = ConditionCodesRequest {
+            ticktype: TickType::Quote,
+        };
+        assert_eq!(quote.ticktype(), "quote");
     }
 }

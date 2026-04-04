@@ -36,6 +36,27 @@ async fn malformed_snapshots_json_maps_to_deserialize_error() {
 }
 
 #[tokio::test]
+async fn malformed_condition_codes_json_maps_to_deserialize_error() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v1beta1/options/meta/conditions/trade"))
+        .respond_with(ResponseTemplate::new(200).set_body_raw("not-json", "application/json"))
+        .mount(&server)
+        .await;
+
+    let error = authed_client(server.uri())
+        .options()
+        .condition_codes(options::ConditionCodesRequest {
+            ticktype: options::TickType::Trade,
+        })
+        .await
+        .expect_err("request should fail");
+
+    assert!(matches!(error, Error::Deserialize(_)));
+}
+
+#[tokio::test]
 async fn snapshots_all_rejects_duplicate_symbols_across_pages() {
     let server = MockServer::start().await;
 

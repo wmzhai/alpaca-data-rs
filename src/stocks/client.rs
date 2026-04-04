@@ -9,7 +9,8 @@ use crate::{
 };
 
 use super::{
-    BarsRequest, BarsResponse, BarsSingleRequest, BarsSingleResponse, ConditionCodesRequest,
+    AuctionsRequest, AuctionsResponse, AuctionsSingleRequest, AuctionsSingleResponse, BarsRequest,
+    BarsResponse, BarsSingleRequest, BarsSingleResponse, ConditionCodesRequest,
     ConditionCodesResponse, ExchangeCodesResponse, LatestBarRequest, LatestBarResponse,
     LatestBarsRequest, LatestBarsResponse, LatestQuoteRequest, LatestQuoteResponse,
     LatestQuotesRequest, LatestQuotesResponse, LatestTradeRequest, LatestTradeResponse,
@@ -39,6 +40,93 @@ impl StocksClient {
                 request.to_query(),
             )
             .await
+    }
+
+    pub async fn auctions(&self, request: AuctionsRequest) -> Result<AuctionsResponse, Error> {
+        self.ensure_credentials()?;
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::StocksAuctions,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn auctions_all(&self, request: AuctionsRequest) -> Result<AuctionsResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.auctions(request).await }
+        })
+        .await
+    }
+
+    pub async fn auctions_single(
+        &self,
+        request: AuctionsSingleRequest,
+    ) -> Result<AuctionsSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let endpoint = Endpoint::StocksAuctionsSingle {
+            symbol: request.symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn auctions_single_all(
+        &self,
+        request: AuctionsSingleRequest,
+    ) -> Result<AuctionsSingleResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.auctions_single(request).await }
+        })
+        .await
+    }
+
+    pub fn auctions_stream(
+        &self,
+        request: AuctionsRequest,
+    ) -> ResponseStream<Result<AuctionsResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.auctions(request).await }
+        })
+    }
+
+    pub fn auctions_single_stream(
+        &self,
+        request: AuctionsSingleRequest,
+    ) -> ResponseStream<Result<AuctionsSingleResponse, Error>> {
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.auctions_single(request).await }
+        })
     }
 
     pub async fn bars_all(&self, request: BarsRequest) -> Result<BarsResponse, Error> {

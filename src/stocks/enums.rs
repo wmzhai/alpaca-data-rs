@@ -121,6 +121,26 @@ impl Display for DataFeed {
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum AuctionFeed {
+    #[default]
+    Sip,
+}
+
+impl AuctionFeed {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Sip => "sip",
+        }
+    }
+}
+
+impl Display for AuctionFeed {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        formatter.write_str(self.as_str())
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum TickType {
     #[default]
     Trade,

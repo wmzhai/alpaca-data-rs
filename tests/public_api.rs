@@ -24,14 +24,24 @@ fn client_builder_builds_client() {
 
 #[test]
 fn resource_modules_expose_short_type_names() {
+    let _ = stocks::Auction::default();
+    let _ = stocks::AuctionFeed::default();
+    let _ = stocks::AuctionsRequest::default();
+    let _ = stocks::AuctionsResponse::default();
+    let _ = stocks::AuctionsSingleRequest::default();
+    let _ = stocks::AuctionsSingleResponse::default();
     let _ = stocks::BarsRequest::default();
     let _ = stocks::BarsResponse::default();
+    let _ = stocks::DailyAuction::default();
     let _ = stocks::QuotesSingleRequest::default();
     let _ = stocks::QuotesSingleResponse::default();
     let _ = stocks::TradesSingleRequest::default();
     let _ = stocks::TradesSingleResponse::default();
     let _ = options::ChainRequest::default();
     let _ = options::ChainResponse::default();
+    let _ = options::ConditionCodesRequest::default();
+    let _ = options::ConditionCodesResponse::default();
+    let _ = options::TickType::Trade;
     let _ = crypto::BarsRequest::default();
     let _ = crypto::BarsResponse::default();
     let _ = crypto::QuotesRequest::default();
@@ -54,8 +64,15 @@ fn resource_modules_expose_short_type_names() {
 
 #[test]
 fn stocks_module_exposes_batch_and_single_type_names() {
+    let _ = stocks::Auction::default();
+    let _ = stocks::AuctionFeed::Sip;
+    let _ = stocks::AuctionsRequest::default();
+    let _ = stocks::AuctionsResponse::default();
+    let _ = stocks::AuctionsSingleRequest::default();
+    let _ = stocks::AuctionsSingleResponse::default();
     let _ = stocks::BarsRequest::default();
     let _ = stocks::BarsSingleRequest::default();
+    let _ = stocks::DailyAuction::default();
     let _ = stocks::Tape::A;
     let _ = stocks::LatestBarRequest::default();
     let _ = stocks::LatestBarsRequest::default();
@@ -91,6 +108,22 @@ fn stocks_client_exposes_batch_and_single_method_names() {
         .build()
         .expect("client should build");
 
+    let _ = client.stocks().auctions(stocks::AuctionsRequest::default());
+    let _ = client
+        .stocks()
+        .auctions_all(stocks::AuctionsRequest::default());
+    let _ = client
+        .stocks()
+        .auctions_stream(stocks::AuctionsRequest::default());
+    let _ = client
+        .stocks()
+        .auctions_single(stocks::AuctionsSingleRequest::default());
+    let _ = client
+        .stocks()
+        .auctions_single_all(stocks::AuctionsSingleRequest::default());
+    let _ = client
+        .stocks()
+        .auctions_single_stream(stocks::AuctionsSingleRequest::default());
     let _ = client.stocks().bars(stocks::BarsRequest::default());
     let _ = client
         .stocks()
@@ -171,6 +204,9 @@ fn resource_clients_expose_core_method_names() {
     let _ = client
         .options()
         .latest_trades(options::LatestTradesRequest::default());
+    let _ = client
+        .options()
+        .condition_codes(options::ConditionCodesRequest::default());
     let _ = client.options().exchange_codes();
     let _ = client
         .options()
@@ -232,6 +268,9 @@ fn resource_clients_expose_core_method_names() {
 #[test]
 fn options_module_exposes_historical_type_names() {
     let _ = options::BarsRequest::default();
+    let _ = options::ConditionCodesRequest::default();
+    let _ = options::ConditionCodesResponse::default();
+    let _ = options::TickType::Trade;
     let _ = options::TradesRequest::default();
     let _ = options::BarsResponse::default();
     let _ = options::TradesResponse::default();

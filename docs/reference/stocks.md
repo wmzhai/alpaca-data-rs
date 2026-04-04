@@ -1,6 +1,6 @@
 ---
 title: "Stocks"
-description: "Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, snapshots, and metadata endpoints. Convenience methods add:"
+description: "Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, auction history, snapshots, and metadata endpoints. Convenience methods add:"
 ---
 
 # Stocks
@@ -11,13 +11,19 @@ description: "Stock market data endpoints. Mirror methods cover historical batch
 - Site rustdoc module: [https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/)
 - Scope: Public API surface
 
-Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, snapshots, and metadata endpoints. Convenience methods add:
+Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, auction history, snapshots, and metadata endpoints. Convenience methods add:
 
 ## Methods
 
 | Method | Kind | Async | Request | Return | docs.rs | Site rustdoc |
 | --- | --- | --- | --- | --- | --- | --- |
 | `bars` | mirror | yes | `BarsRequest` | `Result<BarsResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars) |
+| `auctions` | mirror | yes | `AuctionsRequest` | `Result<AuctionsResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions) |
+| `auctions_all` | convenience | yes | `AuctionsRequest` | `Result<AuctionsResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_all) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_all) |
+| `auctions_single` | mirror | yes | `AuctionsSingleRequest` | `Result<AuctionsSingleResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single) |
+| `auctions_single_all` | convenience | yes | `AuctionsSingleRequest` | `Result<AuctionsSingleResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_all) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_all) |
+| `auctions_stream` | convenience | no | `AuctionsRequest` | `ResponseStream<Result<AuctionsResponse, Error>>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_stream) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_stream) |
+| `auctions_single_stream` | convenience | no | `AuctionsSingleRequest` | `ResponseStream<Result<AuctionsSingleResponse, Error>>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_stream) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.auctions_single_stream) |
 | `bars_all` | convenience | yes | `BarsRequest` | `Result<BarsResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_all) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_all) |
 | `bars_single` | mirror | yes | `BarsSingleRequest` | `Result<BarsSingleResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_single) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_single) |
 | `bars_single_all` | convenience | yes | `BarsSingleRequest` | `Result<BarsSingleResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_single_all) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_single_all) |
@@ -47,6 +53,44 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 | `exchange_codes` | mirror | yes | - | `Result<ExchangeCodesResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.exchange_codes) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.exchange_codes) |
 
 ## Requests
+
+### `AuctionsRequest`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [AuctionsRequest](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.AuctionsRequest.html)
+- Site rustdoc: [AuctionsRequest](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.AuctionsRequest.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `symbols` | `symbols` | `Vec<String>` | - |
+| `start` | `start` | `Option<String>` | - |
+| `end` | `end` | `Option<String>` | - |
+| `limit` | `limit` | `Option<u32>` | - |
+| `asof` | `asof` | `Option<String>` | - |
+| `feed` | `feed` | `Option<AuctionFeed>` | - |
+| `currency` | `currency` | `Option<Currency>` | - |
+| `page_token` | `page_token` | `Option<String>` | - |
+| `sort` | `sort` | `Option<Sort>` | - |
+
+### `AuctionsSingleRequest`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [AuctionsSingleRequest](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.AuctionsSingleRequest.html)
+- Site rustdoc: [AuctionsSingleRequest](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.AuctionsSingleRequest.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `symbol` | `symbol` | `String` | - |
+| `start` | `start` | `Option<String>` | - |
+| `end` | `end` | `Option<String>` | - |
+| `limit` | `limit` | `Option<u32>` | - |
+| `asof` | `asof` | `Option<String>` | - |
+| `feed` | `feed` | `Option<AuctionFeed>` | - |
+| `currency` | `currency` | `Option<Currency>` | - |
+| `page_token` | `page_token` | `Option<String>` | - |
+| `sort` | `sort` | `Option<Sort>` | - |
 
 ### `BarsRequest`
 
@@ -285,6 +329,33 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 
 ## Responses
 
+### `AuctionsResponse`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [AuctionsResponse](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.AuctionsResponse.html)
+- Site rustdoc: [AuctionsResponse](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.AuctionsResponse.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `auctions` | `auctions` | `HashMap<String, Vec<DailyAuction>>` | - |
+| `next_page_token` | `next_page_token` | `Option<String>` | - |
+| `currency` | `currency` | `Option<Currency>` | - |
+
+### `AuctionsSingleResponse`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [AuctionsSingleResponse](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.AuctionsSingleResponse.html)
+- Site rustdoc: [AuctionsSingleResponse](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.AuctionsSingleResponse.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `symbol` | `symbol` | `String` | - |
+| `auctions` | `auctions` | `Vec<DailyAuction>` | - |
+| `next_page_token` | `next_page_token` | `Option<String>` | - |
+| `currency` | `currency` | `Option<Currency>` | - |
+
 ### `BarsResponse`
 
 - Kind: struct
@@ -485,6 +556,21 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 
 ## Models
 
+### `Auction`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [Auction](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.Auction.html)
+- Site rustdoc: [Auction](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.Auction.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `t` | `t` | `Option<Timestamp>` | - |
+| `x` | `x` | `Option<String>` | - |
+| `p` | `p` | `Option<f64>` | - |
+| `s` | `s` | `Option<u64>` | - |
+| `c` | `c` | `Option<String>` | - |
+
 ### `Bar`
 
 - Kind: struct
@@ -502,6 +588,19 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 | `v` | `v` | `Option<u64>` | - |
 | `n` | `n` | `Option<u64>` | - |
 | `vw` | `vw` | `Option<f64>` | - |
+
+### `DailyAuction`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [DailyAuction](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.DailyAuction.html)
+- Site rustdoc: [DailyAuction](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.DailyAuction.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `d` | `d` | `Option<String>` | - |
+| `o` | `o` | `Vec<Auction>` | - |
+| `c` | `c` | `Vec<Auction>` | - |
 
 ### `Quote`
 
@@ -566,6 +665,17 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 - Site rustdoc: [Adjustment](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.Adjustment.html)
 - Example constructors: `raw -> raw`, `split -> split`, `dividend -> dividend`, `spin_off -> spin-off`, `all -> all`
 
+### `AuctionFeed`
+
+- Kind: enum
+- Summary: -
+- docs.rs: [AuctionFeed](https://docs.rs/alpaca-data/latest/alpaca_data/stocks/enum.AuctionFeed.html)
+- Site rustdoc: [AuctionFeed](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/enum.AuctionFeed.html)
+
+| Variant | Official Value |
+| --- | --- |
+| `Sip` | `sip` |
+
 ### `DataFeed`
 
 - Kind: enum
@@ -619,7 +729,7 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 ## Related Repository Artifacts
 
 - Examples: `examples/stocks_bars_all.rs`, `examples/stocks_latest_bar.rs`
-- Tests: `tests/live_stocks_batch_historical.rs`, `tests/live_stocks_latest_snapshot.rs`, `tests/live_stocks_metadata.rs`, `tests/live_stocks_single_historical.rs`, `tests/mock_stocks_errors.rs`
+- Tests: `tests/live_stocks_auctions.rs`, `tests/live_stocks_batch_historical.rs`, `tests/live_stocks_latest_snapshot.rs`, `tests/live_stocks_metadata.rs`, `tests/live_stocks_single_historical.rs`, `tests/mock_stocks_errors.rs`
 - Benchmarks: `benches/stocks.rs`
 
 ## Coverage Notes

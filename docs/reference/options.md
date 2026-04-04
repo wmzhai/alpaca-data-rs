@@ -1,6 +1,6 @@
 ---
 title: "Options"
-description: "Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and exchange metadata. Convenience methods add:"
+description: "Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and metadata endpoints. Convenience methods add:"
 ---
 
 # Options
@@ -11,7 +11,7 @@ description: "Options market data endpoints. Mirror methods cover historical bar
 - Site rustdoc module: [https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/)
 - Scope: Public API surface
 
-Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and exchange metadata. Convenience methods add:
+Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and metadata endpoints. Convenience methods add:
 
 ## Methods
 
@@ -32,6 +32,7 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | `chain_all` | convenience | yes | `ChainRequest` | `Result<ChainResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.chain_all) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.chain_all) |
 | `chain_stream` | convenience | no | `ChainRequest` | `ResponseStream<Result<ChainResponse, Error>>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.chain_stream) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.chain_stream) |
 | `exchange_codes` | mirror | yes | - | `Result<ExchangeCodesResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.exchange_codes) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.exchange_codes) |
+| `condition_codes` | mirror | yes | `ConditionCodesRequest` | `Result<ConditionCodesResponse, Error>` | [docs.rs](https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.condition_codes) | [site](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.condition_codes) |
 
 ## Requests
 
@@ -73,6 +74,17 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | `updated_since` | `updated_since` | `Option<String>` | - |
 | `limit` | `limit` | `Option<u32>` | - |
 | `page_token` | `page_token` | `Option<String>` | - |
+
+### `ConditionCodesRequest`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [ConditionCodesRequest](https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.ConditionCodesRequest.html)
+- Site rustdoc: [ConditionCodesRequest](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.ConditionCodesRequest.html)
+
+| Field | Official Word | Type | Notes |
+| --- | --- | --- | --- |
+| `ticktype` | `ticktype` | `TickType` | - |
 
 ### `LatestQuotesRequest`
 
@@ -154,6 +166,14 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | --- | --- | --- | --- |
 | `snapshots` | `snapshots` | `HashMap<String, Snapshot>` | - |
 | `next_page_token` | `next_page_token` | `Option<String>` | - |
+
+### `ConditionCodesResponse`
+
+- Kind: type
+- Summary: -
+- docs.rs: [ConditionCodesResponse](https://docs.rs/alpaca-data/latest/alpaca_data/options/type.ConditionCodesResponse.html)
+- Site rustdoc: [ConditionCodesResponse](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/type.ConditionCodesResponse.html)
+- Alias target: `HashMap<String, String>`
 
 ### `ExchangeCodesResponse`
 
@@ -322,6 +342,18 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | `Opra` | `opra` |
 | `Indicative` | `indicative` |
 
+### `TickType`
+
+- Kind: enum
+- Summary: -
+- docs.rs: [TickType](https://docs.rs/alpaca-data/latest/alpaca_data/options/enum.TickType.html)
+- Site rustdoc: [TickType](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/enum.TickType.html)
+
+| Variant | Official Value |
+| --- | --- |
+| `Trade` | `trade` |
+| `Quote` | `quote` |
+
 ### `TimeFrame`
 
 - Kind: struct
@@ -334,7 +366,7 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 ## Related Repository Artifacts
 
 - Examples: `examples/options_chain.rs`
-- Tests: `tests/live_options_historical.rs`, `tests/live_options_latest_metadata.rs`, `tests/live_options_snapshots_chain.rs`, `tests/mock_options_errors.rs`
+- Tests: `tests/live_options_condition_codes.rs`, `tests/live_options_historical.rs`, `tests/live_options_latest_metadata.rs`, `tests/live_options_snapshots_chain.rs`, `tests/mock_options_errors.rs`
 - Benchmarks: `benches/options.rs`
 
 ## Coverage Notes

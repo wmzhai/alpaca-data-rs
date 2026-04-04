@@ -32,6 +32,7 @@ Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infra
 | `OptionsSnapshots` | `OptionsSnapshots` |
 | `OptionsExchangeCodes` | `OptionsExchangeCodes` |
 | `StocksBars` | `StocksBars` |
+| `StocksAuctions` | `StocksAuctions` |
 | `StocksQuotes` | `StocksQuotes` |
 | `StocksTrades` | `StocksTrades` |
 | `StocksLatestBars` | `StocksLatestBars` |

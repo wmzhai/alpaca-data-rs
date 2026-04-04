@@ -9,11 +9,11 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.8.0`
+- Current branch baseline: `v0.9.0`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
-- The crate has not been published to crates.io yet
+- crates.io package: `alpaca-data`
 - Public docs include a GitHub Pages site, generated API reference pages, rustdoc links, API coverage docs, and tag-triggered release CI
 
 Release CI is intentionally tag-triggered only and follows GitHub-hosted `stable`. Documentation deployment is handled separately by GitHub Pages on `main`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
@@ -46,10 +46,10 @@ The convenience layer never changes the official payload words. It only automate
 
 ### Stocks
 
-- Historical batch: `bars`, `quotes`, `trades`
-- Historical single-symbol: `bars_single`, `quotes_single`, `trades_single`
-- Convenience: `bars_all`, `bars_stream`, `quotes_all`, `quotes_stream`, `trades_all`, `trades_stream`
-- Single-symbol convenience: `bars_single_all`, `bars_single_stream`, `quotes_single_all`, `quotes_single_stream`, `trades_single_all`, `trades_single_stream`
+- Historical batch: `auctions`, `bars`, `quotes`, `trades`
+- Historical single-symbol: `auctions_single`, `bars_single`, `quotes_single`, `trades_single`
+- Convenience: `auctions_all`, `auctions_stream`, `bars_all`, `bars_stream`, `quotes_all`, `quotes_stream`, `trades_all`, `trades_stream`
+- Single-symbol convenience: `auctions_single_all`, `auctions_single_stream`, `bars_single_all`, `bars_single_stream`, `quotes_single_all`, `quotes_single_stream`, `trades_single_all`, `trades_single_stream`
 - Latest: `latest_bars`, `latest_bar`, `latest_quotes`, `latest_quote`, `latest_trades`, `latest_trade`
 - Snapshots and metadata: `snapshots`, `snapshot`, `condition_codes`, `exchange_codes`
 
@@ -59,7 +59,7 @@ The convenience layer never changes the official payload words. It only automate
 - Convenience: `bars_all`, `bars_stream`, `trades_all`, `trades_stream`
 - Latest: `latest_quotes`, `latest_trades`
 - Snapshot family: `snapshots`, `snapshots_all`, `snapshots_stream`, `chain`, `chain_all`, `chain_stream`
-- Metadata: `exchange_codes`
+- Metadata: `condition_codes`, `exchange_codes`
 
 ### Crypto
 
@@ -78,11 +78,11 @@ The convenience layer never changes the official payload words. It only automate
 
 ## Quick Start
 
-The crate has not been published to crates.io yet. Use a git dependency for now.
+Install from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = { git = "https://github.com/wmzhai/alpaca-data-rs.git" }
+alpaca-data = "0.9.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -258,6 +258,6 @@ cargo bench --no-run
 
 The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while tag-triggered CI verifies formatting, tests, examples, docs, and package creation on pushed release tags.
 
-This repository does not currently publish a separate GitHub Pages site. `docs.rs` remains the primary API-reference host, and the repository docs under `docs/` remain the narrative documentation surface.
+The public documentation site is published at `https://wmzhai.github.io/alpaca-data-rs/`. `docs.rs` remains the primary rustdoc host, and the repository docs under `docs/` remain the narrative documentation surface.
 
 No automatic crates.io publication is performed by repository CI.

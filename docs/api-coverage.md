@@ -30,18 +30,16 @@ As of 2026-04-04:
 
 - Official OpenAPI paths in the Market Data API: `47`
 - Official paths in the adopted local resource families (`stocks`, `options`, `crypto`, `news`, `corporate_actions`): `36`
-- Implemented local mirror paths in those adopted families: `33`
-- Known open gaps inside adopted families: `3`
+- Implemented local mirror paths in those adopted families: `36`
+- Known open gaps inside adopted families: `0`
 
 Open gaps inside adopted families:
 
-- `StockAuctions` at `/v2/stocks/auctions`
-- `StockAuctionSingle` at `/v2/stocks/{symbol}/auctions`
-- `OptionMetaConditions` at `/v1beta1/options/meta/conditions/{ticktype}`
+- None.
 
-Known parity gap inside an implemented family:
+Known parity gaps inside implemented families:
 
-- Official crypto `loc` currently includes `us-2` and `bs-1`, but local `crypto::Loc` currently exposes only `us`, `us-1`, and `eu-1`
+- None.
 
 Official Market Data families not yet adopted locally:
 
@@ -71,10 +69,10 @@ Official Market Data families not yet adopted locally:
 | `/v2/stocks/{symbol}/trades/latest` | `StockLatestTradeSingle` | `stocks().latest_trade` | None | Implemented |
 | `/v2/stocks/snapshots` | `StockSnapshots` | `stocks().snapshots` | None | Implemented |
 | `/v2/stocks/{symbol}/snapshot` | `StockSnapshotSingle` | `stocks().snapshot` | None | Implemented |
+| `/v2/stocks/auctions` | `StockAuctions` | `stocks().auctions` | `auctions_all`, `auctions_stream` | Implemented |
+| `/v2/stocks/{symbol}/auctions` | `StockAuctionSingle` | `stocks().auctions_single` | `auctions_single_all`, `auctions_single_stream` | Implemented |
 | `/v2/stocks/meta/conditions/{ticktype}` | `StockMetaConditions` | `stocks().condition_codes` | None | Implemented |
 | `/v2/stocks/meta/exchanges` | `StockMetaExchanges` | `stocks().exchange_codes` | None | Implemented |
-| `/v2/stocks/auctions` | `StockAuctions` | None | None | Gap in adopted family |
-| `/v2/stocks/{symbol}/auctions` | `StockAuctionSingle` | None | None | Gap in adopted family |
 
 ### Options
 
@@ -86,8 +84,8 @@ Official Market Data families not yet adopted locally:
 | `/v1beta1/options/trades/latest` | `OptionLatestTrades` | `options().latest_trades` | None | Implemented |
 | `/v1beta1/options/snapshots` | `OptionSnapshots` | `options().snapshots` | `snapshots_all`, `snapshots_stream` | Implemented |
 | `/v1beta1/options/snapshots/{underlying_symbol}` | `OptionChain` | `options().chain` | `chain_all`, `chain_stream` | Implemented |
+| `/v1beta1/options/meta/conditions/{ticktype}` | `OptionMetaConditions` | `options().condition_codes` | None | Implemented |
 | `/v1beta1/options/meta/exchanges` | `OptionMetaExchanges` | `options().exchange_codes` | None | Implemented |
-| `/v1beta1/options/meta/conditions/{ticktype}` | `OptionMetaConditions` | None | None | Gap in adopted family |
 
 ### Crypto
 
@@ -122,6 +120,8 @@ The local convenience layer adds helpers on top of paginated official endpoints.
 | --- | --- | --- |
 | `stocks` | `bars` | `bars_all`, `bars_stream` |
 | `stocks` | `bars_single` | `bars_single_all`, `bars_single_stream` |
+| `stocks` | `auctions` | `auctions_all`, `auctions_stream` |
+| `stocks` | `auctions_single` | `auctions_single_all`, `auctions_single_stream` |
 | `stocks` | `quotes` | `quotes_all`, `quotes_stream` |
 | `stocks` | `quotes_single` | `quotes_single_all`, `quotes_single_stream` |
 | `stocks` | `trades` | `trades_all`, `trades_stream` |
@@ -152,7 +152,7 @@ These official Market Data families are present in the OpenAPI but remain outsid
 
 | Kind | Local area | Official fact | Local fact | Status |
 | --- | --- | --- | --- | --- |
-| Parameter enum gap | `crypto::Loc` | Official crypto `loc` includes `us`, `us-1`, `us-2`, `eu-1`, `bs-1` | Local `crypto::Loc` currently exposes `us`, `us-1`, `eu-1` | Open |
+| None | - | - | - | Closed |
 
 ## Release Interpretation
 
@@ -177,9 +177,4 @@ The expected audit order is:
 3. Fix mirror drift first.
 4. Re-validate `*_all` and `*_stream` compatibility only after the mirror layer is back in sync.
 
-The current baseline audit should continue to surface these open items until they are implemented:
-
-- `StockAuctions` at `/v2/stocks/auctions`
-- `StockAuctionSingle` at `/v2/stocks/{symbol}/auctions`
-- `OptionMetaConditions` at `/v1beta1/options/meta/conditions/{ticktype}`
-- `crypto::Loc` missing the official `us-2` and `bs-1` values
+The current baseline audit should continue to surface any future mirror drift, parameter drift, response-field drift, or enum drift against the official Market Data API.

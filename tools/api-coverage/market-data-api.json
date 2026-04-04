@@ -22,8 +22,8 @@
   "summary": {
     "official_total_paths": 47,
     "adopted_family_total_paths": 36,
-    "implemented_mirror_paths": 33,
-    "adopted_family_open_gaps": 3
+    "implemented_mirror_paths": 36,
+    "adopted_family_open_gaps": 0
   },
   "mirror_layer": [
     {
@@ -70,6 +70,53 @@
     },
     {
       "tag": "Stock",
+      "operation_id": "StockAuctions",
+      "path": "/v2/stocks/auctions",
+      "local_resource": "stocks",
+      "mirror_method": "auctions",
+      "request_type": "stocks::AuctionsRequest",
+      "response_type": "stocks::AuctionsResponse",
+      "parameter_contract": {
+        "signatures": [
+          "asof|query|optional|string",
+          "currency|query|optional|string",
+          "end|query|optional|string",
+          "feed|query|optional|string|default=sip",
+          "limit|query|optional|integer|default=1000",
+          "page_token|query|optional|string",
+          "sort|query|optional|string|enum=asc,desc|default=asc",
+          "start|query|optional|string",
+          "symbols|query|required|string"
+        ]
+      },
+      "response_contract": {
+        "status": "200",
+        "field_signatures": [
+          "auctions.*[].c[].c|string",
+          "auctions.*[].c[].p|number",
+          "auctions.*[].c[].s|integer",
+          "auctions.*[].c[].t|string",
+          "auctions.*[].c[].x|string",
+          "auctions.*[].c[]|object",
+          "auctions.*[].c|array",
+          "auctions.*[].d|string",
+          "auctions.*[].o[].c|string",
+          "auctions.*[].o[].p|number",
+          "auctions.*[].o[].s|integer",
+          "auctions.*[].o[].t|string",
+          "auctions.*[].o[].x|string",
+          "auctions.*[].o[]|object",
+          "auctions.*[].o|array",
+          "auctions.*[]|object",
+          "auctions.*|array",
+          "auctions|object",
+          "currency|string",
+          "next_page_token|string"
+        ]
+      }
+    },
+    {
+      "tag": "Stock",
       "operation_id": "StockBarSingle",
       "path": "/v2/stocks/{symbol}/bars",
       "local_resource": "stocks",
@@ -104,6 +151,53 @@
           "bars[].v|integer",
           "bars[]|object",
           "bars|array",
+          "currency|string",
+          "next_page_token|string",
+          "symbol|string"
+        ]
+      }
+    },
+    {
+      "tag": "Stock",
+      "operation_id": "StockAuctionSingle",
+      "path": "/v2/stocks/{symbol}/auctions",
+      "local_resource": "stocks",
+      "mirror_method": "auctions_single",
+      "request_type": "stocks::AuctionsSingleRequest",
+      "response_type": "stocks::AuctionsSingleResponse",
+      "parameter_contract": {
+        "signatures": [
+          "symbol|path|required|string",
+          "asof|query|optional|string",
+          "currency|query|optional|string",
+          "end|query|optional|string",
+          "feed|query|optional|string|default=sip",
+          "limit|query|optional|integer|default=1000",
+          "page_token|query|optional|string",
+          "sort|query|optional|string|enum=asc,desc|default=asc",
+          "start|query|optional|string"
+        ]
+      },
+      "response_contract": {
+        "status": "200",
+        "field_signatures": [
+          "auctions[].c[].c|string",
+          "auctions[].c[].p|number",
+          "auctions[].c[].s|integer",
+          "auctions[].c[].t|string",
+          "auctions[].c[].x|string",
+          "auctions[].c[]|object",
+          "auctions[].c|array",
+          "auctions[].d|string",
+          "auctions[].o[].c|string",
+          "auctions[].o[].p|number",
+          "auctions[].o[].s|integer",
+          "auctions[].o[].t|string",
+          "auctions[].o[].x|string",
+          "auctions[].o[]|object",
+          "auctions[].o|array",
+          "auctions[]|object",
+          "auctions|array",
           "currency|string",
           "next_page_token|string",
           "symbol|string"
@@ -959,6 +1053,26 @@
       }
     },
     {
+      "tag": "Option",
+      "operation_id": "OptionMetaConditions",
+      "path": "/v1beta1/options/meta/conditions/{ticktype}",
+      "local_resource": "options",
+      "mirror_method": "condition_codes",
+      "request_type": "options::ConditionCodesRequest",
+      "response_type": "options::ConditionCodesResponse",
+      "parameter_contract": {
+        "signatures": [
+          "ticktype|path|required|string|enum=quote,trade"
+        ]
+      },
+      "response_contract": {
+        "status": "200",
+        "field_signatures": [
+          "*|string"
+        ]
+      }
+    },
+    {
       "tag": "Crypto",
       "operation_id": "CryptoBars",
       "path": "/v1beta3/crypto/{loc}/bars",
@@ -1465,6 +1579,22 @@
   "convenience_layer": [
     {
       "resource": "stocks",
+      "base_mirror_method": "auctions",
+      "helpers": [
+        "auctions_all",
+        "auctions_stream"
+      ]
+    },
+    {
+      "resource": "stocks",
+      "base_mirror_method": "auctions_single",
+      "helpers": [
+        "auctions_single_all",
+        "auctions_single_stream"
+      ]
+    },
+    {
+      "resource": "stocks",
       "base_mirror_method": "bars",
       "helpers": [
         "bars_all",
@@ -1584,26 +1714,7 @@
       ]
     }
   ],
-  "gaps_in_adopted_families": [
-    {
-      "tag": "Stock",
-      "operation_id": "StockAuctions",
-      "path": "/v2/stocks/auctions",
-      "reason": "Official stock endpoint in an adopted family, but no local mirror method exists yet."
-    },
-    {
-      "tag": "Stock",
-      "operation_id": "StockAuctionSingle",
-      "path": "/v2/stocks/{symbol}/auctions",
-      "reason": "Official stock endpoint in an adopted family, but no local mirror method exists yet."
-    },
-    {
-      "tag": "Option",
-      "operation_id": "OptionMetaConditions",
-      "path": "/v1beta1/options/meta/conditions/{ticktype}",
-      "reason": "Official option endpoint in an adopted family, but no local mirror method exists yet."
-    }
-  ],
+  "gaps_in_adopted_families": [],
   "not_adopted_resource_families": [
     {
       "tag": "Fixed income",
@@ -1642,35 +1753,5 @@
       ]
     }
   ],
-  "known_parity_gaps": [
-    {
-      "kind": "parameter_enum",
-      "resource": "crypto",
-      "subject": "crypto::Loc",
-      "official_parameter": "loc",
-      "affected_paths": [
-        "/v1beta3/crypto/{loc}/bars",
-        "/v1beta3/crypto/{loc}/quotes",
-        "/v1beta3/crypto/{loc}/trades",
-        "/v1beta3/crypto/{loc}/latest/bars",
-        "/v1beta3/crypto/{loc}/latest/quotes",
-        "/v1beta3/crypto/{loc}/latest/trades",
-        "/v1beta3/crypto/{loc}/latest/orderbooks",
-        "/v1beta3/crypto/{loc}/snapshots"
-      ],
-      "official_values": [
-        "us",
-        "us-1",
-        "us-2",
-        "eu-1",
-        "bs-1"
-      ],
-      "local_values": [
-        "us",
-        "us-1",
-        "eu-1"
-      ],
-      "status": "open"
-    }
-  ]
+  "known_parity_gaps": []
 }

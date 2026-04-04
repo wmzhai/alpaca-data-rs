@@ -17,8 +17,8 @@ sidebar_position: 1
 
 | Module | Path | Client | Mirror Methods | Convenience Methods | Surface |
 | --- | --- | --- | ---: | ---: | --- |
-| [Stocks](./stocks.md) | `alpaca_data::stocks` | `StocksClient` | 16 | 12 | Public |
-| [Options](./options.md) | `alpaca_data::options` | `OptionsClient` | 7 | 8 | Public |
+| [Stocks](./stocks.md) | `alpaca_data::stocks` | `StocksClient` | 18 | 16 | Public |
+| [Options](./options.md) | `alpaca_data::options` | `OptionsClient` | 8 | 8 | Public |
 | [Crypto](./crypto.md) | `alpaca_data::crypto` | `CryptoClient` | 8 | 6 | Public |
 | [News](./news.md) | `alpaca_data::news` | `NewsClient` | 1 | 2 | Public |
 | [Corporate Actions](./corporate-actions.md) | `alpaca_data::corporate_actions` | `CorporateActionsClient` | 1 | 2 | Public |

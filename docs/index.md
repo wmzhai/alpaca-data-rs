@@ -22,7 +22,7 @@ sidebar_position: 1
 ## Root Entry Point
 
 - Crate: `alpaca-data`
-- Version: `v0.8.0`
+- Version: `v0.9.0`
 - Root client: `alpaca_data::Client`
 - Resource accessors: `stocks()`, `options()`, `crypto()`, `news()`, `corporate_actions()`
 - Documentation hosts:
@@ -34,9 +34,9 @@ sidebar_position: 1
 
 | Resource | Client | Mirror Methods | Convenience Methods | Examples | Tests |
 | --- | --- | ---: | ---: | ---: | ---: |
-| [Stocks](./reference/stocks.md) | `StocksClient` | 16 | 12 | 2 | 5 |
-| [Options](./reference/options.md) | `OptionsClient` | 7 | 8 | 1 | 4 |
-| [Crypto](./reference/crypto.md) | `CryptoClient` | 8 | 6 | 1 | 5 |
+| [Stocks](./reference/stocks.md) | `StocksClient` | 18 | 16 | 2 | 6 |
+| [Options](./reference/options.md) | `OptionsClient` | 8 | 8 | 1 | 5 |
+| [Crypto](./reference/crypto.md) | `CryptoClient` | 8 | 6 | 1 | 6 |
 | [News](./reference/news.md) | `NewsClient` | 1 | 2 | 1 | 2 |
 | [Corporate Actions](./reference/corporate-actions.md) | `CorporateActionsClient` | 1 | 2 | 1 | 2 |
 

@@ -2,11 +2,11 @@
 
 ## Current State
 
-`alpaca-data` is not published to crates.io yet. Depend on the repository directly for now.
+Install `alpaca-data` from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = { git = "https://github.com/wmzhai/alpaca-data-rs.git" }
+alpaca-data = "0.9.0"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
