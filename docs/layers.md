@@ -18,7 +18,7 @@ Examples:
 Mirror-layer rules:
 
 - endpoint semantics come from the official HTTP API
-- request and response field words stay aligned with the official API
+- request and response field words use the official API terms
 - wrapper shapes such as `next_page_token` are preserved
 
 ## Convenience Layer

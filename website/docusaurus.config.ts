@@ -3,7 +3,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'alpaca-data',
-  tagline: 'High-performance Rust client for the Alpaca Market Data HTTP API',
+  tagline: 'High-Performance Rust Client for Alpaca Market Data API',
   favicon: 'img/logo.svg',
   url: 'https://wmzhai.github.io',
   baseUrl: '/alpaca-data-rs/',

@@ -26,9 +26,10 @@
 
 .title {
   margin: 0;
-  max-width: 14ch;
-  font-size: clamp(2.6rem, 6vw, 4.4rem);
-  line-height: 0.98;
+  max-width: 17ch;
+  font-size: clamp(2.45rem, 5.35vw, 4.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
 }
 
 .subtitle {
@@ -127,6 +128,35 @@
   margin: 0;
   color: var(--ifm-color-emphasis-700);
   line-height: 1.65;
+}
+
+html[data-theme='dark'] .resourceSection {
+  background:
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 32%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
+}
+
+html[data-theme='dark'] .sectionHeader p {
+  color: rgba(226, 232, 240, 0.78);
+}
+
+html[data-theme='dark'] .card {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: rgba(148, 163, 184, 0.22);
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.32);
+}
+
+html[data-theme='dark'] .card:hover {
+  border-color: rgba(56, 189, 248, 0.46);
+  box-shadow: 0 30px 68px rgba(14, 165, 233, 0.18);
+}
+
+html[data-theme='dark'] .card h3 {
+  color: #f8fafc;
+}
+
+html[data-theme='dark'] .card p {
+  color: rgba(226, 232, 240, 0.82);
 }
 
 @media (min-width: 996px) {

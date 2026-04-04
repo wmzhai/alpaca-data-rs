@@ -36,7 +36,7 @@ fn generate_doc_site_writes_expected_public_artifacts() {
     );
 
     let docs_index = read_to_string(&fixture_root.join("docs/index.md"));
-    assert!(docs_index.contains("# Documentation Home"));
+    assert!(docs_index.contains("# Documentation"));
     assert!(docs_index.contains("API Reference"));
 
     let project_structure = read_to_string(&fixture_root.join("docs/project-structure.md"));

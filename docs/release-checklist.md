@@ -10,7 +10,7 @@ The current branch baseline is `v0.8.0`.
 - public docs under `docs/` are in English
 - the GitHub Pages site under `website/` builds from the committed docs tree without broken links
 - `docs.rs` is treated as the primary API-reference host
-- GitHub Pages hosts the narrative docs plus the rustdoc bundle under `/api/`
+- GitHub Pages hosts the public docs and the rustdoc bundle under `/api/`
 - `Cargo.toml` carries release metadata for repository, documentation, keywords, categories, and license
 - `Cargo.toml` carries the GitHub Pages `homepage`
 - `Cargo.toml` intentionally omits `rust-version` until the project adopts an audited MSRV policy

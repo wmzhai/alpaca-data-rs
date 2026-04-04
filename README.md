@@ -5,7 +5,7 @@
 The crate is built around two constraints:
 
 - The official Alpaca Market Data HTTP API is the only semantic source of truth.
-- Public Rust naming is idiomatic Rust, while request and response field words stay aligned with the official API.
+- Public Rust naming is idiomatic Rust, while request and response field words use the official API terms.
 
 ## Status
 
@@ -14,7 +14,7 @@ The crate is built around two constraints:
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
 - The crate has not been published to crates.io yet
-- Public docs, generated API reference pages, Docusaurus sources, rustdoc, API coverage docs, and tag-triggered release CI are in place
+- Public docs include a GitHub Pages site, generated API reference pages, rustdoc links, API coverage docs, and tag-triggered release CI
 
 Release CI is intentionally tag-triggered only and follows GitHub-hosted `stable`. Documentation deployment is handled separately by GitHub Pages on `main`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
 
@@ -181,7 +181,7 @@ See [docs/authentication.md](docs/authentication.md) for the current auth contra
 - Local site start: `npm run start --prefix website`
 - Local site build: `npm run build --prefix website`
 - API reference sections:
-  - [Documentation Home](docs/index.md)
+  - [Documentation](docs/index.md)
   - [Getting Started](docs/getting-started.md)
   - [Authentication](docs/authentication.md)
   - [Layers](docs/layers.md)

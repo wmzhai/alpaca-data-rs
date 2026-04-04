@@ -1,21 +1,21 @@
 ---
-title: "Documentation Home"
-description: "Public documentation home for the alpaca-data Rust client."
+title: "Documentation"
+description: "Documentation for the alpaca-data Rust client."
 sidebar_position: 1
 ---
 
-# Documentation Home
+# Documentation
 
-`alpaca-data` is an async Rust client for the Alpaca Market Data HTTP API. This site is the public narrative companion to the crate, while API deep links point to both `docs.rs` and the project-hosted rustdoc bundle.
+`alpaca-data` is a high-performance async Rust client for the Alpaca Market Data HTTP API. This site covers crate usage, endpoint coverage, repository layout, examples, and rustdoc links.
 
-## Site Map
+## Start Here
 
 - Start with [Getting Started](./getting-started.md) for install, client construction, and the two-layer API model.
 - Use [Authentication](./authentication.md) for current credential behavior and live-test environment setup.
 - Read [Layers](./layers.md) for the mirror-versus-convenience contract.
-- Browse [Project Structure](./project-structure.md) for the repository layout and generated structure inventory.
+- Browse [Project Structure](./project-structure.md) for the repository layout.
 - Use [API Reference](./reference/index.md) for module-level public API pages with rustdoc deep links.
-- Use [API Coverage](./api-coverage.md) for the strict endpoint-to-method parity ledger.
+- Use [API Coverage](./api-coverage.md) for the endpoint-to-method coverage table.
 - Use [Examples](./examples.md) for runnable entry points.
 - Use [Release Checklist](./release-checklist.md) for release-readiness validation.
 
@@ -44,11 +44,11 @@ sidebar_position: 1
 
 - Mirror layer methods preserve the official HTTP endpoint shape and field words.
 - Convenience helpers only add `*_all` and `*_stream` pagination flows.
-- Request and response field words stay aligned with Alpaca's official API.
+- Request and response field words use Alpaca's official API terms.
 - Public Rust naming stays idiomatic: modules lowercase, types `PascalCase`, methods and fields `snake_case`.
 
 ## Documentation Generation
 
-The generated pages under `docs/reference/`, `docs/project-structure.md`, `docs/generated/`, and `website/sidebars.ts` are produced by `./tools/docs/generate-doc-site`.
+`./tools/docs/generate-doc-site` regenerates `docs/reference/`, `docs/project-structure.md`, `docs/generated/`, and `website/sidebars.ts`.
 
-The generated site is designed for GitHub Pages project hosting at `https://wmzhai.github.io/alpaca-data-rs/`.
+The published site lives at `https://wmzhai.github.io/alpaca-data-rs/`.
