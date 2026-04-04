@@ -8,6 +8,24 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.6.1
+
+### Changed
+
+- Removed the manifest-level `rust-version` declaration until the crate adopts an audited MSRV policy, while keeping the project on Rust 2024 edition
+- Pinned the fault-injection-only `wiremock` dev-dependency to `0.6.4` so the test matrix stays compatible with the current repository toolchain policy
+- Changed `.github/workflows/ci.yml` to a tag-triggered release guardrail that runs only on pushed `vX.Y.Z` tags and installs GitHub-hosted `stable` Rust instead of a hardcoded older toolchain
+- Updated `README.md`, `AGENTS.md`, `memory/README.md`, `memory/api/README.md`, `memory/core/invariants.md`, `memory/core/system-map.md`, `memory/core/workflows.md`, `docs/release-checklist.md`, the roadmap, and the `Phase 6` spec/plan so they all describe the same `v0.6.1` branch policy
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `cargo check --examples`
+- `cargo test --doc`
+- `cargo package --allow-dirty`
+- `git diff --check`
+
 ## v0.6.0
 
 ### Changed

@@ -18,7 +18,7 @@
 - **Phase 3: Options**，已完成（`v0.3.0`）
 - **Phase 4: Crypto**，已完成（`v0.4.0`）
 - **Phase 5: News + Corporate Actions**，已完成（`v0.5.0`）
-- **Phase 6: Release Hardening**，当前分支已完成（`v0.6.0` phase-close candidate）
+- **Phase 6: Release Hardening**，当前分支已完成（`v0.6.1` phase-close candidate）
 - **Phase 7: Release**
 
 横向持续轨道：
@@ -296,7 +296,7 @@
 
 - 两个资源域的官方字段映射完成
 - list / list_all / list_stream 的统一行为完成
-- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在 `v0.5.0` 完成；当前分支已把 `Phase 6: Release Hardening` 收敛到 `v0.6.0` 的收尾版本候选
+- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在 `v0.5.0` 完成；当前分支已把 `Phase 6: Release Hardening` 收敛到 `v0.6.1` 的收尾版本候选
 
 **Exit Criteria:**
 
@@ -305,7 +305,7 @@
 
 ## Phase 6: Release Hardening
 
-**Status:** Done on the current branch in `v0.6.0` as a phase-close candidate awaiting merge approval
+**Status:** Done on the current branch in `v0.6.1` as a phase-close candidate awaiting merge approval
 
 **Goal:** 在不移除内部工作文档、也不自动发布 crates.io 的前提下，把项目从“功能可用”推进到“release-prepared”。
 

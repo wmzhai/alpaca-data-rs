@@ -231,6 +231,7 @@ Coverage contract 必须能回答：
 - `cargo package`
 
 CI 在这一 phase 的职责是帮助防回归，不承担自动发布。
+当前约定为只在用户推送 `vX.Y.Z` tag 时触发，并跟随 GitHub 上的浮动 `stable` Rust；如果未来需要声明 MSRV，必须先单独审计并获批。
 
 ## Verification Contract
 

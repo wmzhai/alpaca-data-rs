@@ -43,7 +43,9 @@
 - phase 收尾时，最终版本提交必须先在开发分支上整理完成；不要把任何文档补丁或状态修正留到合并 `main` 之后再补。
 - `Phase 6` 的 package 需要排除 `.agents/`、`.github/`、`AGENTS.md`、`docs/superpowers/` 与 `memory/`，但这些目录本身仍继续保留在 git 中；真正的目录移除与 `.gitignore` 收口属于 `Phase 7`。
 - release/API sync 工作默认先做 official-vs-local drift audit；只有 mirror layer 无漂移时，才允许把 convenience layer 判定为兼容。
-- `Phase 6` 收尾后的 `v0.6.0` 只是当前分支上的 release-prepared 候选；在用户批准前，不执行 fast-forward merge、push 或 branch cleanup。
+- 如果没有经过审计并明确承诺的 MSRV，就不要在 `Cargo.toml` 里声明 `rust-version`；仓库默认只验证本地当前 stable/toolchain 与 GitHub 上的浮动 `stable`。
+- GitHub CI 默认只保留 tag-triggered release guardrail：仅在用户推送 `vX.Y.Z` tag 时触发，不在普通提交、分支 push 或 PR 上自动跑。
+- `Phase 6` 收尾后的 `v0.6.1` 只是当前分支上的 release-prepared 候选；在用户批准前，不执行 fast-forward merge、push 或 branch cleanup。
 
 ## commit 默认要求
 

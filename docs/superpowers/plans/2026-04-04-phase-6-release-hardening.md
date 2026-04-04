@@ -6,7 +6,7 @@
 
 **Architecture:** 这一 phase 不再新增资源域，而是把“对外公开面”和“发布产物边界”做实。执行顺序按 `public docs -> examples + rustdoc -> API coverage contract -> API sync skill -> metadata + package boundary + CI -> pre-release verification` 推进，确保内部工作文档继续保留在 git 中，但不会污染 published crate。
 
-**Tech Stack:** Rust 2024 edition, Cargo library crate, `reqwest` async HTTP client, `tokio`, `serde`/`serde_json`, real Alpaca Market Data API live tests, limited `wiremock` for fault injection only, docs.rs-compatible rustdoc, optional GitHub Actions CI
+**Tech Stack:** Rust 2024 edition, Cargo library crate, `reqwest` async HTTP client, `tokio`, `serde`/`serde_json`, real Alpaca Market Data API live tests, limited `wiremock` for fault injection only, docs.rs-compatible rustdoc, tag-triggered GitHub Actions CI on floating `stable`
 
 ---
 
@@ -185,7 +185,7 @@
 - [x] Add the missing release metadata to `Cargo.toml`: `repository`, `documentation`, valid crates.io `keywords`, valid crates.io `categories`, and package boundary controls
 - [x] Exclude `docs/superpowers/**` and `memory/**` from the published crate while keeping both directories tracked in git for `Phase 6`
 - [x] Only add docs.rs-specific package metadata if the doc build actually needs it; avoid cargo manifest noise otherwise
-- [x] Add a minimal CI workflow that verifies format, tests, example compilation, docs build, and package creation without attempting publication
+- [x] Add a minimal tag-triggered CI workflow that verifies format, tests, example compilation, docs build, and package creation without attempting publication
 - [x] If no explicit license decision exists by this point, stop and ask the user before finalizing publish metadata
 - [x] Run `cargo package --list` and verify that the package boundary matches the approved design
 - [x] Prepare the patch version commit for the metadata and CI task

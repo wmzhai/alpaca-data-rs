@@ -16,7 +16,7 @@
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
 - 当前已经落地共享基础层，以及五个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`；以及 `news` / `corporate_actions` 的 `list` / `list_all` / `list_stream`、happy-path、fault coverage 与 benchmark baseline。
-- 当前 `Phase 5` 已在 `v0.5.0` 完成并落到 `main`；当前分支已把 `Phase 6: Release Hardening` 收敛到 `v0.6.0` 的 release-prepared 收尾版本候选，在得到用户确认前，不合并 `main`、不推送、也不删除分支；随后由 `Phase 7: Release` 负责 internal docs 的 git 清理与最终发布决策。
+- 当前 `Phase 5` 已在 `v0.5.0` 完成并落到 `main`；当前分支已把 `Phase 6: Release Hardening` 收敛到 `v0.6.1` 的 release-prepared 收尾版本候选，在得到用户确认前，不合并 `main`、不推送、也不删除分支；随后由 `Phase 7: Release` 负责 internal docs 的 git 清理与最终发布决策。
 
 ## 最高优先级规则
 
@@ -32,6 +32,9 @@
 - commit message 必须使用 Conventional Commits 风格：`<type>: <summary>`。
 - 当前允许并优先使用的 `type`：`feat`、`fix`、`chore`、`refactor`、`docs`。
 - 如果需要使用子代理，模型固定只允许使用 `gpt-5.4`，不要使用其他模型。
+- 如果没有经过审计并明确承诺的 MSRV，就不要在 `Cargo.toml` 里声明 `rust-version`。
+- GitHub CI 使用浮动 `stable` 工具链，不要在 workflow 里硬编码旧 Rust 版本号。
+- GitHub CI 只允许由用户推送 release tag 触发；普通提交、分支 push 和 PR 默认都不触发仓库 CI。
 - 如果需要补充说明，优先在 commit body 里用一小段英文说明本次提交包含什么。
 - 每完成一个明确的开发 task，都要做一次带版本号更新的提交，不能把多个已完成 task 长时间堆在工作区里不提交。
 - 每个 task 完成后的提交前，都必须先同步版本号、`CHANGELOG.md` 和所有受影响文档，再进行提交。

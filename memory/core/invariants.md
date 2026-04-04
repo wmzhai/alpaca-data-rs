@@ -36,6 +36,9 @@
 - commit 标题必须使用 Conventional Commits 风格：`<type>: <summary>`。
 - 当前允许并优先使用的 `type`：`feat`、`fix`、`chore`、`refactor`、`docs`。
 - 如果需要使用子代理，模型固定只允许使用 `gpt-5.4`，不要使用其他模型。
+- 如果没有经过审计并明确承诺的 MSRV，不要在 `Cargo.toml` 里声明 `rust-version`。
+- GitHub CI 必须跟随浮动 `stable`，不要在 workflow 里硬编码旧 Rust 版本号。
+- GitHub CI 默认只允许由用户推送 `vX.Y.Z` release tag 触发；普通提交、分支 push 和 PR 不应触发仓库 CI。
 - 如需补充说明，优先在 commit body 中追加一小段英文说明本次提交包含什么。
 - 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先修正，再提交。
 - 每完成一个明确 task，默认做一次带版本号更新的提交，不长时间堆积多个已完成 task。

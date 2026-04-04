@@ -2,14 +2,14 @@
 
 ## 当前仓库结构
 
-当前仓库已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options`、`Phase 4: Crypto` 与 `Phase 5: News + Corporate Actions`；`stocks`、`options`、`crypto`、`news` 与 `corporate_actions` 现在已组成五个完整资源模板模块。当前分支已将 `Phase 6: Release Hardening` 收敛到 `v0.6.0` 的收尾版本候选，核心文件和目录如下：
+当前仓库已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options`、`Phase 4: Crypto` 与 `Phase 5: News + Corporate Actions`；`stocks`、`options`、`crypto`、`news` 与 `corporate_actions` 现在已组成五个完整资源模板模块。当前分支已将 `Phase 6: Release Hardening` 收敛到 `v0.6.1` 的收尾版本候选，核心文件和目录如下：
 
 - `README.md`：最终设计方案与公开 API 契约
 - `CHANGELOG.md`：版本提交的变化记录
 - `AGENTS.md`：新会话必须先遵守的高优先级规则
 - `Cargo.toml`：crate manifest，包名约定为 `alpaca-data`
 - `.gitignore`：Rust 库仓库的最小忽略规则
-- `.github/workflows/ci.yml`：`Phase 6 / Task 5` 新增的最小 CI guardrail，验证格式、测试、examples、docs 与 package 创建
+- `.github/workflows/ci.yml`：`Phase 6 / Task 5` 的最小 CI guardrail，当前只在用户推送 `vX.Y.Z` tag 时触发，使用 GitHub 上的浮动 `stable` Rust 验证格式、测试、examples、docs 与 package 创建
 - `src/lib.rs`：根模块导出，公开 `Client`、`Error` 和五个资源模块
 - `src/client.rs`：`Client`、`ClientBuilder`、共享 `Inner`，以及最小运行时配置（`base_url`、`timeout`、`max_retries`、`max_in_flight`）
 - `src/auth.rs`：认证配置与 `api_key` / `secret_key` 成对校验
@@ -78,6 +78,6 @@
 - 现在已经存在的是“共享基础层 + 部分真实资源实现”，还不是完整 API 实现。
 - 当前真正落地的真实能力已覆盖共享层、完整 `crypto` 模块、完整 `stocks` 模块、完整 `options` 模块与其对应 convenience 层，以及 `news` 与 `corporate_actions` 的 list/filter/pagination 资源域。
 - 当前五个资源模板都已完成 phase 级收尾，`Phase 5` 已在 `v0.5.0` 落到 `main`。
-- 当前分支主线已完成 `Phase 6: Release Hardening`：对外英文文档、examples、rustdoc、API coverage、API sync skill、package metadata、package boundary、CI guardrails 与预发布验证都已收敛到 `v0.6.0` 候选状态。
+- 当前分支主线已完成 `Phase 6: Release Hardening`：对外英文文档、examples、rustdoc、API coverage、API sync skill、package metadata、package boundary、CI guardrails 与预发布验证都已收敛到 `v0.6.1` 候选状态。
 - `docs/superpowers/` 与 `memory/` 在 `Phase 6` 继续保留在 git 中；它们的 git 移除、`.gitignore` 收口和最终发布决策属于 `Phase 7: Release`。
 - 后续代码真正补齐后，这份文档需要继续从“部分真实目录图”更新为更细的完整实现图。
