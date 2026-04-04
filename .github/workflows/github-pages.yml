@@ -57,17 +57,10 @@ jobs:
       - name: Build Docusaurus site
         run: npm run build --prefix website
 
-      - name: Package Pages artifact
-        run: |
-          COPYFILE_DISABLE=1 tar --create --directory website/build --file - . | gzip --no-name > github-pages.tar.gz
-
       - name: Upload Pages artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-pages-artifact@v4
         with:
-          name: github-pages
-          path: github-pages.tar.gz
-          if-no-files-found: error
-          compression-level: 0
+          path: website/build
 
   deploy:
     environment:
