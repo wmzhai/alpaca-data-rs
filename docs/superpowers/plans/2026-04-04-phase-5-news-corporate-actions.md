@@ -168,7 +168,7 @@
 - Modify: `memory/core/workflows.md`
 - Modify: `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
 
-- [ ] Run full phase verification: format, full test suite, required live tests, benchmark compile
-- [ ] Sync all docs to the final `Phase 5` state
-- [ ] Bump MINOR version for phase completion and create the phase closing release commit
+- [x] Run full phase verification: format, full test suite, required live tests, benchmark compile
+- [x] Sync all docs to the final `Phase 5` state
+- [x] Bump MINOR version for phase completion and create the phase closing release commit
 - [ ] Stop and wait for user approval before any fast-forward merge to `main`, push, or branch deletion

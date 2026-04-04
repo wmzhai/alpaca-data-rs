@@ -16,7 +16,7 @@
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
 - 当前已经落地共享基础层，以及三个完整资源模板：`stocks` 的历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 的 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层；`crypto` 的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots`，以及对应真实 API happy-path、异常路径 mock 与本地 benchmark baseline。
-- 当前 `Phase 4: Crypto` 已完成；`Phase 5` 已完成 `news.list` / `list_all` / `list_stream`、`corporate_actions.list` / `list_all` / `list_stream`、`tests/mock_news_corporate_actions_errors.rs` 与 `benches/news_corporate_actions.rs`，下一步只剩 phase completion candidate 的完整验证、文档总对齐与 MINOR 收尾版本。
+- 当前 `Phase 4: Crypto` 已完成；`Phase 5` 的收尾版本候选 `v0.5.0` 已在当前分支准备完成，覆盖 `news` / `corporate_actions` 的 happy-path、fault coverage 与 benchmark baseline；在得到用户确认前，不执行 merge / push / 删分支，下一步默认进入 `Phase 6: Release Hardening`。
 
 ## 最高优先级规则
 

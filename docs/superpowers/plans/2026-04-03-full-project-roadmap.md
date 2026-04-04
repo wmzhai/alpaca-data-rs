@@ -251,7 +251,7 @@
 
 ## Phase 5: News + Corporate Actions
 
-**Status:** In progress (`v0.4.1` delivered `news`, `v0.4.2` delivered `corporate_actions`, `v0.4.3` delivered fault coverage + benchmark)
+**Status:** Completion candidate prepared (`v0.5.0`, awaiting merge approval)
 
 **Delivered so far:**
 
@@ -295,7 +295,7 @@
 
 - 两个资源域的官方字段映射完成
 - list / list_all / list_stream 的统一行为完成
-- 下一步只剩 Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本
+- Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本已在当前分支准备完成；下一步只等待 merge approval，然后进入 Phase 6
 
 **Exit Criteria:**
 
@@ -368,11 +368,11 @@
 - [x] Then execute **Phase 2: Stocks** as the first real resource implementation
 - [x] Then execute **Phase 3: Options**
 - [x] Then execute **Phase 4: Crypto**
-- [ ] Then execute **Phase 5: News + Corporate Actions**
+- [x] Then execute **Phase 5: News + Corporate Actions**
 - [ ] Finish with **Phase 6: Release Hardening**
 
 ## Next Planning Step
 
 This roadmap is the master plan. Each phase should now get its own focused implementation plan before coding starts. The recommended next detailed plan is:
 
-- `Phase 5: News + Corporate Actions`
+- `Phase 6: Release Hardening`

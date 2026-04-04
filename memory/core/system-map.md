@@ -2,7 +2,7 @@
 
 ## 当前仓库结构
 
-当前仓库已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`；`stocks`、`options` 与 `crypto` 现已成为前三个完整资源模板模块，`news` 与 `corporate_actions` 已完成 `Phase 5` 的前三个 task，核心文件和目录如下：
+当前仓库已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`；`stocks`、`options`、`crypto`、`news` 与 `corporate_actions` 现在已组成五个完整资源模板模块，当前分支承载的是 `Phase 5` 的收尾版本候选，核心文件和目录如下：
 
 - `README.md`：最终设计方案与公开 API 契约
 - `CHANGELOG.md`：版本提交的变化记录
@@ -72,5 +72,5 @@
 
 - 现在已经存在的是“共享基础层 + 部分真实资源实现”，还不是完整 API 实现。
 - 当前真正落地的真实能力已覆盖共享层、完整 `crypto` 模块、完整 `stocks` 模块、完整 `options` 模块与其对应 convenience 层，以及 `news` 与 `corporate_actions` 的 list/filter/pagination 资源域。
-- 当前 `stocks`、`options` 与 `crypto` 都已完成 phase 级收尾；`Phase 5` 已完成 `news` 和 `corporate_actions` 的 happy-path、fault coverage 与 benchmark baseline，下一步进入最终 phase 收尾。
+- 当前 `stocks`、`options` 与 `crypto` 都已完成 phase 级收尾；`Phase 5` 的收尾版本候选也已准备完成，下一步在 merge 获批前不再修改 phase 5 事实，只等待 fast-forward 合并，并把后续工作切到 `Phase 6: Release Hardening`。
 - 后续代码真正补齐后，这份文档需要继续从“部分真实目录图”更新为更细的完整实现图。

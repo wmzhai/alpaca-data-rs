@@ -8,6 +8,20 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.5.0
+
+### Changed
+
+- `Phase 5: News + Corporate Actions` 现在已形成收尾版本候选：`news` 与 `corporate_actions` 已作为第四、第五个完整资源模板进入 phase-complete 状态，覆盖官方 mirror endpoint、convenience layer、真实 API happy-path、mock fault coverage 与本地 benchmark baseline
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-5-news-corporate-actions-design.md`、`docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 与 Phase 5 plan 现在都已同步到 `v0.5.0` 的 phase-close candidate 状态，并把后续主线推进到 `Phase 6: Release Hardening`
+- 将 crate 版本提升到 `0.5.0`，作为 `Phase 5` 的 MINOR 收尾版本候选；在得到用户确认前，不执行 merge / push / 删分支
+
+### Verification
+
+- `cargo fmt --check`
+- `set -a && source .env >/dev/null 2>&1 && set +a && export APCA_API_KEY_ID=\"$ALPACA_DATA_API_KEY\" APCA_API_SECRET_KEY=\"$ALPACA_DATA_SECRET_KEY\" ALPACA_LIVE_TESTS=1 && cargo test`
+- `cargo bench --no-run`
+
 ## v0.4.3
 
 ### Added

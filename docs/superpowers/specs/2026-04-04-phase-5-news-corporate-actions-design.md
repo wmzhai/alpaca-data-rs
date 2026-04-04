@@ -1,7 +1,7 @@
 # Phase 5 News and Corporate Actions Design
 
 **Date:** 2026-04-04
-**Status:** Approved (`news` shipped in `v0.4.1`; `corporate_actions` shipped in `v0.4.2`; fault coverage + benchmark shipped in `v0.4.3`; Task 4 pending)
+**Status:** Implemented (`news` shipped in `v0.4.1`; `corporate_actions` shipped in `v0.4.2`; fault coverage + benchmark shipped in `v0.4.3`; phase-close candidate prepared in `v0.5.0`, awaiting merge approval)
 **Target Phase:** `Phase 5: News + Corporate Actions`
 
 ## Goal
@@ -15,7 +15,7 @@
 
 ## Current Baseline
 
-截至 `v0.4.3`：
+截至 `v0.5.0`：
 
 - `news.list`、`news.list_all`、`news.list_stream` 已在 `v0.4.1` 落地并提交
 - `tests/live_news.rs` 已验证 `news` happy path
@@ -24,6 +24,7 @@
 - 共享 pagination helper 已补上重复 `next_page_token` 防护
 - `tests/mock_news_corporate_actions_errors.rs` 已覆盖 `news` / `corporate_actions` 的损坏 JSON、分页 merge 与重复 `next_page_token` 回归
 - `benches/news_corporate_actions.rs` 已为 `news.list` 与 `corporate_actions.list` 建立本地 benchmark baseline
+- `Phase 5` 的 MINOR 收尾版本候选已提升到 `v0.5.0`，当前只等待 merge approval
 
 ## Scope
 
