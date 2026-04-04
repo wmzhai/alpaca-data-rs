@@ -251,7 +251,7 @@
 
 ## Phase 5: News + Corporate Actions
 
-**Status:** In progress (`v0.4.1` delivered `news`, `v0.4.2` delivered `corporate_actions`)
+**Status:** In progress (`v0.4.1` delivered `news`, `v0.4.2` delivered `corporate_actions`, `v0.4.3` delivered fault coverage + benchmark)
 
 **Delivered so far:**
 
@@ -262,6 +262,8 @@
 - `corporate_actions.list`、`corporate_actions.list_all` 与 `corporate_actions.list_stream` 已具备真实 HTTP 行为
 - `corporate_actions::CorporateActionType` 现已覆盖真实 API 接受的 15 个 query 值，`CorporateActions` 现已保留官方 bucketed wrapper、13 个 documented family typed model、`contract_adjustments` / `partial_calls` fallback 与 `other` unknown bucket
 - `tests/live_corporate_actions.rs` 已用真实 Alpaca API 验证 `corporate_actions` happy path；共享 pagination helper 现已拒绝重复 `next_page_token`
+- `tests/mock_news_corporate_actions_errors.rs` 现已覆盖 `news` / `corporate_actions` 的损坏 JSON、分页 merge 与重复 `next_page_token` 回归
+- `benches/news_corporate_actions.rs` 现已为 `news.list` 与 `corporate_actions.list` 补齐本地 benchmark baseline
 
 **Goal:** 完成两个 list/filter/pagination 型资源域。
 
@@ -293,7 +295,7 @@
 
 - 两个资源域的官方字段映射完成
 - list / list_all / list_stream 的统一行为完成
-- 下一步只剩 `news` / `corporate_actions` 的 fault coverage 与 benchmark baseline
+- 下一步只剩 Phase 5 的完整验证、文档总对齐与 MINOR 收尾版本
 
 **Exit Criteria:**
 

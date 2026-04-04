@@ -8,6 +8,26 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.4.3
+
+### Added
+
+- 新建 `tests/mock_news_corporate_actions_errors.rs`，覆盖 `news` / `corporate_actions` 的损坏 JSON、分页 merge 与重复 `next_page_token` 回归
+- 新建 `benches/news_corporate_actions.rs`，为 `news.list` 与 `corporate_actions.list` 建立本地 `criterion` micro-benchmark baseline
+- `Cargo.toml` 现在新增 `news_corporate_actions` bench target，可直接用 `cargo bench --bench news_corporate_actions --no-run` 验证 benchmark 编译链路
+
+### Changed
+
+- `news` 与 `corporate_actions` 现在都具备 mock fault coverage：既能验证损坏 JSON -> `Error::Deserialize`，也能验证 pagination helper 在 merge 和重复 `next_page_token` 场景下的真实客户端行为
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-5-news-corporate-actions-design.md`、`docs/superpowers/plans/2026-04-04-phase-5-news-corporate-actions.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 5 / Task 3` 完成后的真实状态，并把下一步收敛到 phase completion candidate
+- 将 crate 版本提升到 `0.4.3`，对齐 `Phase 5 / Task 3` 的版本提交要求
+
+### Verification
+
+- `cargo test --test mock_news_corporate_actions_errors -- --nocapture`
+- `cargo bench --bench news_corporate_actions --no-run`
+- `cargo test`
+
 ## v0.4.2
 
 ### Added

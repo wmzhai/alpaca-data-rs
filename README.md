@@ -21,16 +21,16 @@
 
 ## 当前实现状态
 
-- 当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`，并已完成 `Phase 5 / Task 1: News` 与 `Task 2: Corporate Actions`；当前工作版本是 `v0.4.2`
+- 当前已完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`，并已完成 `Phase 5 / Task 1: News`、`Task 2: Corporate Actions` 与 `Task 3: Fault Coverage + Benchmark`；当前工作版本是 `v0.4.3`
 - 已落地共享 `ClientBuilder` 运行时配置、认证配对校验与 header 注入、query 构造、endpoint 路由、async HTTP transport、错误映射和分页 helper
 - 当前真实打通的 endpoint 包括完整 `stocks` 模块、完整 `options` 模块，以及现在已经完整覆盖 mirror scope 的 `crypto`：historical `bars` / `quotes` / `trades`、historical convenience `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`、latest family `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、以及 `snapshots`
 - `stocks` 的历史 convenience 层现在已经同时覆盖 batch + single：`bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`，以及 `bars_single_all` / `bars_single_stream`、`quotes_single_all` / `quotes_single_stream`、`trades_single_all` / `trades_single_stream`
 - `options` 的 convenience 层现在已经覆盖完整 options 范围：`bars_all` / `bars_stream`、`trades_all` / `trades_stream`、`snapshots_all` / `snapshots_stream`、`chain_all` / `chain_stream` 都已可用
 - `stocks`、`options` 与 `crypto` 现在已经成为前三个完整资源模板，覆盖 official mirror endpoint、historical convenience、真实 API happy-path、异常路径 mock 与本地 benchmark baseline
-- `news` 现在已接通 `list`、`list_all`、`list_stream`，并补齐 `NewsItem` / `NewsImage` typed model、真实 API happy-path 与分页便利层；`corporate_actions` 现在也已接通 `list`、`list_all`、`list_stream`，保留官方 bucketed `corporate_actions` wrapper，并补齐 13 个 documented family typed model、`contract_adjustments` / `partial_calls` fallback 与未来未知 bucket 保留
+- `news` 现在已接通 `list`、`list_all`、`list_stream`，并补齐 `NewsItem` / `NewsImage` typed model、真实 API happy-path、mock fault coverage 与 benchmark baseline；`corporate_actions` 现在也已接通 `list`、`list_all`、`list_stream`，保留官方 bucketed `corporate_actions` wrapper，并补齐 13 个 documented family typed model、`contract_adjustments` / `partial_calls` fallback、重复 `next_page_token` 防护、mock fault coverage 与 benchmark baseline
 - 真实 happy-path 测试已覆盖完整 `crypto` 模块的 historical / latest / snapshots、`stocks` 历史 batch / single、latest / snapshot / metadata、完整 `options` 模块的 historical / latest / snapshot / chain / metadata，以及 `news` 和 `corporate_actions` 的 list/filter/pagination 端点
-- 当前本地 micro-benchmark baseline 位于 `benches/shared_core.rs`、`benches/stocks.rs`、`benches/options.rs` 与 `benches/crypto.rs`
-- 当前 `Phase 5: News + Corporate Actions` 已完成前两个 task，下一步继续补 `news` / `corporate_actions` 的 fault coverage 与 benchmark baseline
+- 当前本地 micro-benchmark baseline 位于 `benches/shared_core.rs`、`benches/stocks.rs`、`benches/options.rs`、`benches/crypto.rs` 与 `benches/news_corporate_actions.rs`
+- 当前 `Phase 5: News + Corporate Actions` 只剩最后的 phase completion task：完整验证、文档总对齐与 MINOR 收尾版本
 
 ## 设计原则
 
@@ -673,6 +673,7 @@ cargo bench --bench shared_core
 cargo bench --bench stocks
 cargo bench --bench options
 cargo bench --bench crypto
+cargo bench --bench news_corporate_actions
 ```
 
 不使用 mock 得出主性能结论。

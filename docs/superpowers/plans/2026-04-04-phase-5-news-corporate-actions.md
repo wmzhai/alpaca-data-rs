@@ -149,11 +149,11 @@
 - Modify: `memory/core/workflows.md`
 - Modify: `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
 
-- [ ] Add mock-only fault coverage for malformed JSON and pagination merge behavior in `news` / `corporate_actions`
-- [ ] Add a mock regression for repeated `next_page_token` so the shared guard stays covered
-- [ ] Add `news_corporate_actions` benchmark baseline and verify it compiles with `cargo bench --bench news_corporate_actions --no-run`
-- [ ] Run targeted tests and benchmark compile verification
-- [ ] Sync docs and prepare patch version commit
+- [x] Add mock-only fault coverage for malformed JSON and pagination merge behavior in `news` / `corporate_actions`
+- [x] Add a mock regression for repeated `next_page_token` so the shared guard stays covered
+- [x] Add `news_corporate_actions` benchmark baseline and verify it compiles with `cargo bench --bench news_corporate_actions --no-run`
+- [x] Run targeted tests and benchmark compile verification
+- [x] Sync docs and prepare patch version commit
 
 ### Task 4: Phase Completion Candidate
 

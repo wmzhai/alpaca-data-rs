@@ -18,8 +18,8 @@
 
 ## 当前状态说明
 
-- 这是一个新项目，当前已经完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`，并已完成 `Phase 5 / Task 1: News` 与 `Task 2: Corporate Actions`，当前工作版本是 `v0.4.2`。
+- 这是一个新项目，当前已经完成 `Phase 1: Shared Core`、`Phase 2: Stocks`、`Phase 3: Options` 与 `Phase 4: Crypto`，并已完成 `Phase 5 / Task 1: News`、`Task 2: Corporate Actions` 与 `Task 3: Fault Coverage + Benchmark`，当前工作版本是 `v0.4.3`。
 - 当前已经落下最小 Rust crate 骨架：`Cargo.toml`、`src/`、`tests/`、`.gitignore`。
 - 已完成的真实代码落地包括：共享 `ClientBuilder` 运行时配置、认证配对校验、共享 `QueryWriter` / `Endpoint`、共享 `HttpClient`、异常路径 mock 测试、共享分页 helper、完整 `crypto` 模块的 historical `bars` / `quotes` / `trades`、historical `*_all` / `*_stream`、latest `latest_bars` / `latest_quotes` / `latest_trades` / `latest_orderbooks`、`snapshots` 与对应 live/mock baseline；完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 端点、batch + single 的 `*_all` / `*_stream` 便利层；`options` 现已完整打通 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes`，以及全部 `*_all` / `*_stream` 便利层。
-- 当前 `Phase 5: News + Corporate Actions` 已进入后半段：`news` 已具备真实 HTTP 行为、分页便利层与 `tests/live_news.rs`，`corporate_actions` 也已具备 bucketed typed model、分页便利层与 `tests/live_corporate_actions.rs`；下一步继续沿用 `stocks` / `options` / `crypto` 已定型的资源模板补 fault coverage 与 benchmark 收尾结构。
+- 当前 `Phase 5: News + Corporate Actions` 只剩最后的 phase completion candidate：`news` 与 `corporate_actions` 现在都已具备真实 HTTP 行为、分页便利层、fault injection baseline 与本地 benchmark baseline；下一步进入完整验证、文档总对齐与 MINOR 收尾版本。
 - `memory/` 现在既记录设计约束，也要记录已经落地的真实代码入口，后续随着 transport、分页和资源实现补齐继续同步更新。
