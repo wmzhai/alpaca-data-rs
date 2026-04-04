@@ -174,7 +174,10 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
 
 #[cfg(test)]
 mod tests {
-    use super::{BarsRequest, Sort, TimeFrame, TradesRequest};
+    use super::{
+        BarsRequest, LatestQuotesRequest, LatestTradesRequest, OptionsFeed, Sort, TimeFrame,
+        TradesRequest,
+    };
 
     #[test]
     fn bars_request_serializes_official_query_words() {
@@ -227,6 +230,38 @@ mod tests {
                 ("limit".to_string(), "1".to_string()),
                 ("page_token".to_string(), "page-3".to_string()),
                 ("sort".to_string(), "desc".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn latest_requests_serialize_official_query_words() {
+        let quotes_query = LatestQuotesRequest {
+            symbols: vec!["AAPL260406C00180000".into()],
+            feed: Some(OptionsFeed::Indicative),
+        }
+        .to_query();
+        assert_eq!(
+            quotes_query,
+            vec![
+                ("symbols".to_string(), "AAPL260406C00180000".to_string()),
+                ("feed".to_string(), "indicative".to_string()),
+            ]
+        );
+
+        let trades_query = LatestTradesRequest {
+            symbols: vec!["AAPL260406C00180000".into(), "AAPL260406C00185000".into()],
+            feed: Some(OptionsFeed::Opra),
+        }
+        .to_query();
+        assert_eq!(
+            trades_query,
+            vec![
+                (
+                    "symbols".to_string(),
+                    "AAPL260406C00180000,AAPL260406C00185000".to_string(),
+                ),
+                ("feed".to_string(), "opra".to_string()),
             ]
         );
     }

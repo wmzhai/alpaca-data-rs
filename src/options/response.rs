@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{Error, transport::pagination::PaginatedResponse};
 
-use super::{Bar, ExchangeCode, Quote, Snapshot, Trade};
+use super::{Bar, Quote, Snapshot, Trade};
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct BarsResponse {
@@ -16,12 +16,12 @@ pub struct TradesResponse {
     pub next_page_token: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestQuotesResponse {
     pub quotes: HashMap<String, Quote>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestTradesResponse {
     pub trades: HashMap<String, Trade>,
 }
@@ -38,10 +38,7 @@ pub struct ChainResponse {
     pub next_page_token: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct ExchangeCodesResponse {
-    pub exchange_codes: Vec<ExchangeCode>,
-}
+pub type ExchangeCodesResponse = HashMap<String, String>;
 
 fn merge_batch_page<Item>(
     current: &mut HashMap<String, Vec<Item>>,
@@ -88,7 +85,10 @@ impl PaginatedResponse for TradesResponse {
 mod tests {
     use std::collections::HashMap;
 
-    use super::{Bar, BarsResponse, Trade, TradesResponse};
+    use super::{
+        Bar, BarsResponse, ExchangeCodesResponse, LatestQuotesResponse, LatestTradesResponse,
+        Trade, TradesResponse,
+    };
     use crate::transport::pagination::PaginatedResponse;
 
     #[test]
@@ -187,6 +187,37 @@ mod tests {
                 .map(Vec::len)
                 .unwrap_or_default(),
             2
+        );
+    }
+
+    #[test]
+    fn latest_responses_deserialize_official_wrapper_shapes() {
+        let quotes: LatestQuotesResponse = serde_json::from_str(
+            r#"{"quotes":{"AAPL260406C00180000":{"ap":77.75,"as":5,"ax":"A","bp":73.95,"bs":3,"bx":"N","c":" ","t":"2026-04-02T19:59:59.792862244Z"}}}"#,
+        )
+        .expect("latest quotes response should deserialize");
+        assert!(quotes.quotes.contains_key("AAPL260406C00180000"));
+
+        let trades: LatestTradesResponse = serde_json::from_str(
+            r#"{"trades":{"AAPL260406C00180000":{"c":"n","p":70.97,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"}}}"#,
+        )
+        .expect("latest trades response should deserialize");
+        assert!(trades.trades.contains_key("AAPL260406C00180000"));
+    }
+
+    #[test]
+    fn exchange_codes_response_deserializes_official_map_shape() {
+        let exchange_codes: ExchangeCodesResponse = serde_json::from_str(
+            r#"{"A":"AMEX - NYSE American","O":"OPRA - Options Price Reporting Authority"}"#,
+        )
+        .expect("exchange codes response should deserialize");
+        assert_eq!(
+            exchange_codes.get("A").map(String::as_str),
+            Some("AMEX - NYSE American")
+        );
+        assert_eq!(
+            exchange_codes.get("O").map(String::as_str),
+            Some("OPRA - Options Price Reporting Authority")
         );
     }
 }

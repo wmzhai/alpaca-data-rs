@@ -8,6 +8,9 @@ pub(crate) enum Endpoint {
     CryptoLatestQuotes { loc: Loc },
     OptionsBars,
     OptionsTrades,
+    OptionsLatestQuotes,
+    OptionsLatestTrades,
+    OptionsExchangeCodes,
     StocksBars,
     StocksQuotes,
     StocksTrades,
@@ -38,6 +41,18 @@ impl Endpoint {
 
     pub(crate) fn options_trades() -> Self {
         Self::OptionsTrades
+    }
+
+    pub(crate) fn options_latest_quotes() -> Self {
+        Self::OptionsLatestQuotes
+    }
+
+    pub(crate) fn options_latest_trades() -> Self {
+        Self::OptionsLatestTrades
+    }
+
+    pub(crate) fn options_exchange_codes() -> Self {
+        Self::OptionsExchangeCodes
     }
 
     pub(crate) fn stocks_bars() -> Self {
@@ -72,6 +87,9 @@ impl Endpoint {
             }
             Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
+            Self::OptionsLatestQuotes => Cow::Borrowed("/v1beta1/options/quotes/latest"),
+            Self::OptionsLatestTrades => Cow::Borrowed("/v1beta1/options/trades/latest"),
+            Self::OptionsExchangeCodes => Cow::Borrowed("/v1beta1/options/meta/exchanges"),
             Self::StocksBars => Cow::Borrowed("/v2/stocks/bars"),
             Self::StocksQuotes => Cow::Borrowed("/v2/stocks/quotes"),
             Self::StocksTrades => Cow::Borrowed("/v2/stocks/trades"),
@@ -108,6 +126,9 @@ impl Endpoint {
             Self::CryptoLatestQuotes { .. } => false,
             Self::OptionsBars
             | Self::OptionsTrades
+            | Self::OptionsLatestQuotes
+            | Self::OptionsLatestTrades
+            | Self::OptionsExchangeCodes
             | Self::StocksBars
             | Self::StocksQuotes
             | Self::StocksTrades
@@ -164,6 +185,18 @@ mod tests {
     fn endpoint_routes_options_historical_paths() {
         assert_eq!(Endpoint::options_bars().path(), "/v1beta1/options/bars");
         assert_eq!(Endpoint::options_trades().path(), "/v1beta1/options/trades");
+        assert_eq!(
+            Endpoint::options_latest_quotes().path(),
+            "/v1beta1/options/quotes/latest"
+        );
+        assert_eq!(
+            Endpoint::options_latest_trades().path(),
+            "/v1beta1/options/trades/latest"
+        );
+        assert_eq!(
+            Endpoint::options_exchange_codes().path(),
+            "/v1beta1/options/meta/exchanges"
+        );
     }
 
     #[test]
@@ -286,7 +319,13 @@ mod tests {
 
     #[test]
     fn endpoint_requires_auth_for_options_historical_routes() {
-        let cases = [Endpoint::OptionsBars, Endpoint::OptionsTrades];
+        let cases = [
+            Endpoint::OptionsBars,
+            Endpoint::OptionsTrades,
+            Endpoint::OptionsLatestQuotes,
+            Endpoint::OptionsLatestTrades,
+            Endpoint::OptionsExchangeCodes,
+        ];
 
         for endpoint in cases {
             assert!(endpoint.requires_auth());

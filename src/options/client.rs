@@ -101,22 +101,34 @@ impl OptionsClient {
 
     pub async fn latest_quotes(
         &self,
-        _request: LatestQuotesRequest,
+        request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.latest_quotes",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::OptionsLatestQuotes,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn latest_trades(
         &self,
-        _request: LatestTradesRequest,
+        request: LatestTradesRequest,
     ) -> Result<LatestTradesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.latest_trades",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::OptionsLatestTrades,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn snapshots(&self, _request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
@@ -166,9 +178,15 @@ impl OptionsClient {
 
     pub async fn exchange_codes(&self) -> Result<ExchangeCodesResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.exchange_codes",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::OptionsExchangeCodes,
+                &self.inner.auth,
+                Vec::new(),
+            )
+            .await
     }
 
     fn ensure_credentials(&self) -> Result<(), Error> {

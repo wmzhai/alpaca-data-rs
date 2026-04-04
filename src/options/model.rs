@@ -44,9 +44,3 @@ pub struct Snapshot {
     pub prevDailyBar: Option<Bar>,
     pub impliedVolatility: Option<f64>,
 }
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct ExchangeCode {
-    pub code: String,
-    pub name: String,
-}

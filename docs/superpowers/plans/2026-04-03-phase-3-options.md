@@ -104,9 +104,9 @@
 - Create: `tests/live_options_latest_metadata.rs`
 - Modify: `tests/public_api.rs`
 
-- [ ] Add failing tests for `latest_quotes`, `latest_trades`, and `exchange_codes`
-- [ ] Implement routes, requests, typed quote model, typed latest responses, and top-level metadata map shape
-- [ ] Verify with real API and sync docs/version
+- [x] Add failing tests for `latest_quotes`, `latest_trades`, and `exchange_codes`
+- [x] Implement routes, requests, typed quote model, typed latest responses, and top-level metadata map shape
+- [x] Verify with real API and sync docs/version
 
 ### Task 3: Snapshots, Chain, and Convenience Layer
 

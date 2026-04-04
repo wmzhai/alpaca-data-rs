@@ -8,6 +8,27 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.2.3
+
+### Added
+
+- 新建 `tests/live_options_latest_metadata.rs`，使用真实 Alpaca API 覆盖 `options.latest_quotes`、`options.latest_trades` 与 `options.exchange_codes`
+- 为 `options` latest + metadata 新增 request/response/route 单元测试，覆盖 `feed` query、latest wrapper shape 与 metadata 顶层 map shape
+
+### Changed
+
+- `OptionsClient` 现在已接通 `GET /v1beta1/options/quotes/latest`、`GET /v1beta1/options/trades/latest` 与 `GET /v1beta1/options/meta/exchanges`
+- `src/transport/endpoint.rs` 现在已补齐 `options` latest 与 metadata route：`/v1beta1/options/quotes/latest`、`/v1beta1/options/trades/latest`、`/v1beta1/options/meta/exchanges`
+- `LatestQuotesResponse` 与 `LatestTradesResponse` 现在忠实反序列化官方顶层 `quotes` / `trades` map；`ExchangeCodesResponse` 现在改为顶层 `HashMap<String, String>`，不再发明 `exchange_codes` wrapper
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/plans/2026-04-03-phase-3-options.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 3 / Task 2` 完成后的真实状态
+- 将 crate 版本提升到 `0.2.3`，对齐 `Phase 3 / Task 2` 的版本提交要求
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `set -a && source .env && set +a && cargo test --test live_options_latest_metadata -- --nocapture`
+
 ## v0.2.2
 
 ### Added
