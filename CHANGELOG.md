@@ -8,6 +8,32 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.3.1
+
+### Added
+
+- 新建 `docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md` 与 `docs/superpowers/plans/2026-04-04-phase-4-crypto.md`，将 `Phase 4: Crypto` 的官方 HTTP 设计约束、真实 API 观察与任务拆分落成仓库文档
+- 新建 `tests/live_crypto_historical.rs`，使用真实 Alpaca API 覆盖 `crypto.bars`、`crypto.quotes`、`crypto.trades` 与 `crypto.bars_all`
+- 为 `crypto` historical 新增 route、request、response 与 pagination 单元测试，覆盖官方 query 单词、`loc` path word、response wrapper shape 与跨页 merge
+
+### Changed
+
+- `CryptoClient` 现在已接通 `GET /v1beta3/crypto/{loc}/bars`、`/quotes` 与 `/trades`，并同时打通 `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`
+- `crypto::Loc` 现在按官方 path word 序列化为 `us`、`us-1`、`eu-1`；历史 `loc` 继续只参与 path 路由，不进入 query
+- `crypto::TimeFrame` 现在改为与 `stocks` / `options` 一致的官方字符串封装；`crypto::Bar`、`crypto::Quote`、`crypto::Trade` 现已补齐真实 typed 字段，并保留 crypto 小数 size / volume 形状
+- `src/transport/endpoint.rs` 现在修正了 `us1` 伪 path，crypto historical 与 existing latest quote route 都已统一到官方连字符 location word
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4 / Task 1` 完成后的真实状态
+- 将 crate 版本提升到 `0.3.1`，对齐 `Phase 4 / Task 1` 的版本提交要求
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test --lib crypto -- --nocapture`
+- `cargo test --test public_api resource_clients_expose_core_method_names -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_historical -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
+- `cargo test`
+
 ## v0.3.0
 
 ### Added

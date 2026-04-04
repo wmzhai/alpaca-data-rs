@@ -5,7 +5,7 @@ mod request;
 mod response;
 
 pub use client::CryptoClient;
-pub use enums::{CryptoFeed, Loc, Sort, TimeFrame};
+pub use enums::{Loc, Sort, TimeFrame};
 pub use model::{Bar, Orderbook, Quote, Snapshot, Trade};
 pub use request::{
     BarsRequest, LatestBarsRequest, LatestOrderbooksRequest, LatestQuotesRequest,

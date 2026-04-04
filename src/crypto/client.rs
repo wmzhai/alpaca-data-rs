@@ -3,11 +3,9 @@ use std::sync::Arc;
 use crate::{
     Error,
     client::Inner,
-    common::{
-        query::QueryWriter,
-        response::{ResponseStream, empty_stream},
-    },
+    common::response::ResponseStream,
     transport::endpoint::Endpoint,
+    transport::pagination::{collect_all, stream_pages},
 };
 
 use super::{
@@ -27,67 +25,103 @@ impl CryptoClient {
         Self { inner }
     }
 
-    pub async fn bars(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.bars",
+    pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
+        let endpoint = Endpoint::crypto_bars(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn bars_all(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.bars(request).await }
+        })
+        .await
+    }
+
+    pub fn bars_stream(&self, request: BarsRequest) -> ResponseStream<Result<BarsResponse, Error>> {
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.bars(request).await }
         })
     }
 
-    pub async fn bars_all(&self, _request: BarsRequest) -> Result<BarsResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.bars_all",
-        })
+    pub async fn quotes(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
+        let endpoint = Endpoint::crypto_quotes(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
-    pub fn bars_stream(
-        &self,
-        _request: BarsRequest,
-    ) -> ResponseStream<Result<BarsResponse, Error>> {
-        empty_stream()
-    }
+    pub async fn quotes_all(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
+        let client = self.clone();
 
-    pub async fn quotes(&self, _request: QuotesRequest) -> Result<QuotesResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.quotes",
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.quotes(request).await }
         })
-    }
-
-    pub async fn quotes_all(&self, _request: QuotesRequest) -> Result<QuotesResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.quotes_all",
-        })
+        .await
     }
 
     pub fn quotes_stream(
         &self,
-        _request: QuotesRequest,
+        request: QuotesRequest,
     ) -> ResponseStream<Result<QuotesResponse, Error>> {
-        empty_stream()
-    }
-
-    pub async fn trades(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.trades",
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.quotes(request).await }
         })
     }
 
-    pub async fn trades_all(&self, _request: TradesRequest) -> Result<TradesResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.trades_all",
+    pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
+        let endpoint = Endpoint::crypto_trades(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn trades_all(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.trades(request).await }
         })
+        .await
     }
 
     pub fn trades_stream(
         &self,
-        _request: TradesRequest,
+        request: TradesRequest,
     ) -> ResponseStream<Result<TradesResponse, Error>> {
-        empty_stream()
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.trades(request).await }
+        })
     }
 
     pub async fn latest_bars(
@@ -105,8 +139,6 @@ impl CryptoClient {
         request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
         let endpoint = Endpoint::crypto_latest_quotes(request.loc.unwrap_or_default());
-        let mut query = QueryWriter::default();
-        query.push_csv("symbols", &request.symbols);
 
         self.inner
             .http
@@ -114,7 +146,7 @@ impl CryptoClient {
                 &self.inner.base_url,
                 endpoint,
                 &self.inner.auth,
-                query.finish(),
+                vec![("symbols".to_string(), request.symbols.join(","))],
             )
             .await
     }
