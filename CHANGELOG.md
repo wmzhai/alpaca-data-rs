@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.9.2
+
+### Changed
+
+- Restricted both the Rust CI workflow and the GitHub Pages documentation workflow to pushed release tags such as `vX.Y.Z`.
+- Updated the retained repository docs to describe the tag-only release automation policy.
+
 ## v0.9.1
 
 ### Fixed
