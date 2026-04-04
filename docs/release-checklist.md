@@ -17,6 +17,7 @@ This checklist describes the release-preparation bar for the repository.
 - README reflects the real public API
 - public docs under `docs/` are in English
 - `docs.rs` is treated as the primary API-reference host
+- `Cargo.toml` carries release metadata for repository, documentation, keywords, categories, and license
 - examples and rustdoc point to the same API shape
 - API coverage documentation matches the codebase
 - `docs/api-coverage.md` matches `tools/api-coverage/market-data-api.json`
@@ -34,6 +35,7 @@ cargo check --examples
 cargo test --doc
 cargo doc --no-deps
 cargo bench --no-run
+cargo package --list
 cargo package
 cargo publish --dry-run
 ```
@@ -46,5 +48,6 @@ The published crate should be clean:
 
 - public docs are present
 - internal working directories are not shipped in the package artifact
+- `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/` are excluded from the package contents
 
 In `Phase 6`, this is achieved through package-boundary configuration rather than by deleting the internal directories from git.

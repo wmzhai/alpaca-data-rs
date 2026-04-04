@@ -41,7 +41,7 @@
 - 没有真实代码事实时，明确写为“当前约定”或“待落地”。
 - phase 收尾时，先完成验证、文档对齐、MINOR 版本升级和 phase 收尾提交，再在合并 `main` / 推送 / 删分支前停下来等待用户确认。
 - phase 收尾时，最终版本提交必须先在开发分支上整理完成；不要把任何文档补丁或状态修正留到合并 `main` 之后再补。
-- `Phase 6` 的 package 需要排除 `docs/superpowers/` 与 `memory/`，但这两个目录本身仍继续保留在 git 中；真正的目录移除与 `.gitignore` 收口属于 `Phase 7`。
+- `Phase 6` 的 package 需要排除 `.agents/`、`.github/`、`AGENTS.md`、`docs/superpowers/` 与 `memory/`，但这些目录本身仍继续保留在 git 中；真正的目录移除与 `.gitignore` 收口属于 `Phase 7`。
 - release/API sync 工作默认先做 official-vs-local drift audit；只有 mirror layer 无漂移时，才允许把 convenience layer 判定为兼容。
 
 ## commit 默认要求

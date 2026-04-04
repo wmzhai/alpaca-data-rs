@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.5.4`
+- Current branch baseline: `v0.5.5`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - Current phase: `Phase 6: Release Hardening`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
@@ -173,6 +173,8 @@ See [docs/authentication.md](docs/authentication.md) for the current auth contra
 
 The intended API-reference host is `docs.rs` once the crate is published. Repository docs under `docs/` are the narrative companion.
 Runnable examples live under [`examples/`](examples/) and are indexed in [docs/examples.md](docs/examples.md).
+The package metadata targets the source repository at `https://github.com/wmzhai/alpaca-data-rs` and the published API docs at `https://docs.rs/alpaca-data`.
+The release metadata now uses the dual-license expression `MIT OR Apache-2.0`.
 
 - [Getting started](docs/getting-started.md)
 - [Authentication](docs/authentication.md)
@@ -228,5 +230,7 @@ cargo bench --no-run
 
 - `Phase 6: Release Hardening` prepares the crate for publication
 - `Phase 7: Release` handles internal-doc cleanup, final repository cleanup, and the final publication decision
+
+The published crate is expected to exclude internal workflow material such as `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/`, while CI verifies formatting, tests, examples, docs, and package creation.
 
 No automatic crates.io publication happens during `Phase 6`.

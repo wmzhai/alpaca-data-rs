@@ -51,6 +51,7 @@
 - 没有真实代码事实时，只能写“当前约定”或“设计约束”，不能伪装成已实现事实。
 - `Phase 6` 只做 release preparation，不移除 `docs/superpowers/` 或 `memory/`，也不自动发布 crates.io。
 - `docs/superpowers/` 与 `memory/` 在 `Phase 6` 继续保留在 git 中驱动工作；如果需要保持发布产物干净，优先通过 package boundary 排除，而不是提前从 git 删除。
+- `Phase 6` 的 published crate 应通过 package boundary 排除 `.agents/`、`.github/`、`AGENTS.md`、`docs/superpowers/` 与 `memory/`，而不是提前从 git 删除这些目录。
 - `Phase 7` 才负责 `docs/superpowers/` / `memory/` 的 git 移除、`.gitignore` 收口，以及是否真正发布 crates.io 的最终决策。
 
 ## 当前默认工作方式

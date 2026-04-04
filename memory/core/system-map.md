@@ -9,6 +9,7 @@
 - `AGENTS.md`：新会话必须先遵守的高优先级规则
 - `Cargo.toml`：crate manifest，包名约定为 `alpaca-data`
 - `.gitignore`：Rust 库仓库的最小忽略规则
+- `.github/workflows/ci.yml`：`Phase 6 / Task 5` 新增的最小 CI guardrail，验证格式、测试、examples、docs 与 package 创建
 - `src/lib.rs`：根模块导出，公开 `Client`、`Error` 和五个资源模块
 - `src/client.rs`：`Client`、`ClientBuilder`、共享 `Inner`，以及最小运行时配置（`base_url`、`timeout`、`max_retries`、`max_in_flight`）
 - `src/auth.rs`：认证配置与 `api_key` / `secret_key` 成对校验

@@ -8,6 +8,27 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.5.5
+
+### Added
+
+- Added `.github/workflows/ci.yml` as the minimal release-hardening CI workflow for format, tests, examples, docs, and package creation
+
+### Changed
+
+- Added release metadata to `Cargo.toml`: `repository`, `documentation`, `license = "MIT OR Apache-2.0"`, crates.io `keywords`, and crates.io `categories`
+- Tightened the package boundary so `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/` are excluded from published crate artifacts
+- Updated `README.md`, `docs/release-checklist.md`, `AGENTS.md`, `memory/core/system-map.md`, and `memory/core/workflows.md` to reflect the release metadata, package-boundary rules, and CI guardrails
+- Bumped the crate version to `0.5.5` for the `Phase 6 / Task 5` metadata and CI commit
+
+### Verification
+
+- `cargo test`
+- `cargo package --list --allow-dirty`
+- `cargo package --allow-dirty`
+- `cargo publish --dry-run --allow-dirty`
+- `git diff --check`
+
 ## v0.5.4
 
 ### Added
