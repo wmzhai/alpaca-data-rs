@@ -8,7 +8,10 @@ pub(crate) enum Endpoint {
     CryptoBars { loc: Loc },
     CryptoQuotes { loc: Loc },
     CryptoTrades { loc: Loc },
+    CryptoLatestBars { loc: Loc },
     CryptoLatestQuotes { loc: Loc },
+    CryptoLatestTrades { loc: Loc },
+    CryptoLatestOrderbooks { loc: Loc },
     OptionsBars,
     OptionsTrades,
     OptionsLatestQuotes,
@@ -50,6 +53,18 @@ impl Endpoint {
 
     pub(crate) fn crypto_latest_quotes(loc: Loc) -> Self {
         Self::CryptoLatestQuotes { loc }
+    }
+
+    pub(crate) fn crypto_latest_bars(loc: Loc) -> Self {
+        Self::CryptoLatestBars { loc }
+    }
+
+    pub(crate) fn crypto_latest_trades(loc: Loc) -> Self {
+        Self::CryptoLatestTrades { loc }
+    }
+
+    pub(crate) fn crypto_latest_orderbooks(loc: Loc) -> Self {
+        Self::CryptoLatestOrderbooks { loc }
     }
 
     pub(crate) fn options_bars() -> Self {
@@ -109,6 +124,9 @@ impl Endpoint {
             Self::CryptoBars { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/bars")),
             Self::CryptoQuotes { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/quotes")),
             Self::CryptoTrades { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/trades")),
+            Self::CryptoLatestBars { loc } => {
+                Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/bars"))
+            }
             Self::CryptoLatestQuotes { loc: Loc::Us } => {
                 Cow::Borrowed("/v1beta3/crypto/us/latest/quotes")
             }
@@ -117,6 +135,12 @@ impl Endpoint {
             }
             Self::CryptoLatestQuotes { loc: Loc::Eu1 } => {
                 Cow::Borrowed("/v1beta3/crypto/eu-1/latest/quotes")
+            }
+            Self::CryptoLatestTrades { loc } => {
+                Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/trades"))
+            }
+            Self::CryptoLatestOrderbooks { loc } => {
+                Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/orderbooks"))
             }
             Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
@@ -163,7 +187,9 @@ impl Endpoint {
             Self::CryptoBars { .. }
             | Self::CryptoQuotes { .. }
             | Self::CryptoTrades { .. }
+            | Self::CryptoLatestBars { .. }
             | Self::CryptoLatestQuotes { .. } => false,
+            Self::CryptoLatestTrades { .. } | Self::CryptoLatestOrderbooks { .. } => false,
             Self::OptionsBars
             | Self::OptionsTrades
             | Self::OptionsLatestQuotes
@@ -221,6 +247,27 @@ mod tests {
             "/v1beta3/crypto/eu-1/trades"
         );
         assert!(!Endpoint::crypto_bars(Loc::Eu1).requires_auth());
+    }
+
+    #[test]
+    fn endpoint_routes_crypto_latest_paths_with_official_loc_words() {
+        assert_eq!(
+            Endpoint::crypto_latest_bars(Loc::Us).path(),
+            "/v1beta3/crypto/us/latest/bars"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_quotes(Loc::Us1).path(),
+            "/v1beta3/crypto/us-1/latest/quotes"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_trades(Loc::Eu1).path(),
+            "/v1beta3/crypto/eu-1/latest/trades"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_orderbooks(Loc::Us).path(),
+            "/v1beta3/crypto/us/latest/orderbooks"
+        );
+        assert!(!Endpoint::crypto_latest_orderbooks(Loc::Eu1).requires_auth());
     }
 
     #[test]

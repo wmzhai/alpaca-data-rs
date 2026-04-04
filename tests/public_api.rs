@@ -36,6 +36,7 @@ fn resource_modules_expose_short_type_names() {
     let _ = crypto::BarsResponse::default();
     let _ = crypto::QuotesRequest::default();
     let _ = crypto::QuotesResponse::default();
+    let _ = crypto::OrderbookLevel::default();
     let _ = crypto::TradesRequest::default();
     let _ = crypto::TradesResponse::default();
     let _ = crypto::LatestOrderbooksRequest::default();

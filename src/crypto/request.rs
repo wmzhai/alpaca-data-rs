@@ -107,6 +107,30 @@ impl TradesRequest {
     }
 }
 
+impl LatestBarsRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_query(self.symbols)
+    }
+}
+
+impl LatestQuotesRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_query(self.symbols)
+    }
+}
+
+impl LatestTradesRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_query(self.symbols)
+    }
+}
+
+impl LatestOrderbooksRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_query(self.symbols)
+    }
+}
+
 impl PaginatedRequest for BarsRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -131,11 +155,20 @@ impl PaginatedRequest for TradesRequest {
     }
 }
 
+fn latest_query(symbols: Vec<String>) -> Vec<(String, String)> {
+    let mut query = QueryWriter::default();
+    query.push_csv("symbols", symbols);
+    query.finish()
+}
+
 #[cfg(test)]
 mod tests {
     use crate::transport::pagination::PaginatedRequest;
 
-    use super::{BarsRequest, Loc, QuotesRequest, Sort, TimeFrame, TradesRequest};
+    use super::{
+        BarsRequest, LatestBarsRequest, LatestOrderbooksRequest, LatestQuotesRequest,
+        LatestTradesRequest, Loc, QuotesRequest, Sort, TimeFrame, TradesRequest,
+    };
 
     #[test]
     fn bars_request_serializes_official_query_words_without_loc() {
@@ -246,6 +279,49 @@ mod tests {
                 .page_token
                 .as_deref(),
             Some("page-7")
+        );
+    }
+
+    #[test]
+    fn latest_requests_serialize_symbols_only_without_loc() {
+        let bars_query = LatestBarsRequest {
+            symbols: vec!["BTC/USD".into(), "ETH/USD".into()],
+            loc: Some(Loc::Us1),
+        }
+        .to_query();
+        assert_eq!(
+            bars_query,
+            vec![("symbols".to_string(), "BTC/USD,ETH/USD".to_string())]
+        );
+
+        let quotes_query = LatestQuotesRequest {
+            symbols: vec!["BTC/USD".into()],
+            loc: Some(Loc::Eu1),
+        }
+        .to_query();
+        assert_eq!(
+            quotes_query,
+            vec![("symbols".to_string(), "BTC/USD".to_string())]
+        );
+
+        let trades_query = LatestTradesRequest {
+            symbols: vec!["BTC/USD".into()],
+            loc: Some(Loc::Us),
+        }
+        .to_query();
+        assert_eq!(
+            trades_query,
+            vec![("symbols".to_string(), "BTC/USD".to_string())]
+        );
+
+        let orderbooks_query = LatestOrderbooksRequest {
+            symbols: vec!["BTC/USD".into()],
+            loc: Some(Loc::Us1),
+        }
+        .to_query();
+        assert_eq!(
+            orderbooks_query,
+            vec![("symbols".to_string(), "BTC/USD".to_string())]
         );
     }
 }

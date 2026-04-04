@@ -22,7 +22,7 @@ pub struct TradesResponse {
     pub next_page_token: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestBarsResponse {
     pub bars: HashMap<String, Bar>,
 }
@@ -32,12 +32,12 @@ pub struct LatestQuotesResponse {
     pub quotes: HashMap<String, Quote>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestTradesResponse {
     pub trades: HashMap<String, Trade>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct LatestOrderbooksResponse {
     pub orderbooks: HashMap<String, Orderbook>,
 }
@@ -110,7 +110,10 @@ mod tests {
 
     use crate::transport::pagination::PaginatedResponse;
 
-    use super::{Bar, BarsResponse, QuotesResponse, TradesResponse};
+    use super::{
+        Bar, BarsResponse, LatestBarsResponse, LatestOrderbooksResponse, LatestTradesResponse,
+        QuotesResponse, TradesResponse,
+    };
 
     #[test]
     fn historical_responses_deserialize_official_wrapper_shapes() {
@@ -248,5 +251,26 @@ mod tests {
                 .unwrap_or_default(),
             2
         );
+    }
+
+    #[test]
+    fn latest_responses_deserialize_official_wrapper_shapes() {
+        let latest_bars: LatestBarsResponse = serde_json::from_str(
+            r#"{"bars":{"BTC/USD":{"c":66800.79,"h":66817.1675,"l":66800.79,"n":0,"o":66812.172,"t":"2026-04-04T04:13:00Z","v":0.0,"vw":66808.97875}}}"#,
+        )
+        .expect("latest bars response should deserialize");
+        assert!(latest_bars.bars.contains_key("BTC/USD"));
+
+        let latest_trades: LatestTradesResponse = serde_json::from_str(
+            r#"{"trades":{"BTC/USD":{"i":519366231866950988,"p":66842.8,"s":0.000828,"t":"2026-04-04T04:12:55.361347989Z","tks":"B"}}}"#,
+        )
+        .expect("latest trades response should deserialize");
+        assert!(latest_trades.trades.contains_key("BTC/USD"));
+
+        let latest_orderbooks: LatestOrderbooksResponse = serde_json::from_str(
+            r#"{"orderbooks":{"BTC/USD":{"a":[{"p":66819.4,"s":1.28052},{"p":66847.8,"s":2.5525}],"b":[{"p":66763.431,"s":1.272},{"p":66743.135,"s":2.5795}],"t":"2026-04-04T04:14:35.581059122Z"}}}"#,
+        )
+        .expect("latest orderbooks response should deserialize");
+        assert!(latest_orderbooks.orderbooks.contains_key("BTC/USD"));
     }
 }

@@ -104,14 +104,14 @@
 - Modify: `tests/public_api.rs`
 - Create: `tests/live_crypto_latest.rs`
 
-- [ ] Add failing tests for `latest_bars`, `latest_quotes`, `latest_trades`, and `latest_orderbooks`
-- [ ] Run the targeted tests and confirm they fail for the missing latest behavior
-- [ ] Implement latest endpoint routing and query serialization with `symbols` only
-- [ ] Implement typed latest response wrappers and `Orderbook` / `OrderbookLevel` models with official field words
-- [ ] Implement `CryptoClient::latest_bars`, `latest_quotes`, `latest_trades`, and `latest_orderbooks`
-- [ ] Add live happy-path coverage for all latest endpoints across multiple `loc` values
-- [ ] Run targeted tests, then `cargo test`
-- [ ] Sync docs and prepare patch version commit
+- [x] Add failing tests for `latest_bars`, `latest_quotes`, `latest_trades`, and `latest_orderbooks`
+- [x] Run the targeted tests and confirm they fail for the missing latest behavior
+- [x] Implement latest endpoint routing and query serialization with `symbols` only
+- [x] Implement typed latest response wrappers and `Orderbook` / `OrderbookLevel` models with official field words
+- [x] Implement `CryptoClient::latest_bars`, `latest_quotes`, `latest_trades`, and `latest_orderbooks`
+- [x] Add live happy-path coverage for all latest endpoints across multiple `loc` values
+- [x] Run targeted tests, then `cargo test`
+- [x] Sync docs and prepare patch version commit
 
 ### Task 3: Snapshots, No-Auth Guarantees, and Fault Coverage
 

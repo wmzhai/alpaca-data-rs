@@ -31,9 +31,17 @@ pub struct Trade {
     pub tks: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct OrderbookLevel {
+    pub p: Option<f64>,
+    pub s: Option<f64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Orderbook {
     pub t: Option<Timestamp>,
+    pub b: Option<Vec<OrderbookLevel>>,
+    pub a: Option<Vec<OrderbookLevel>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]

@@ -8,6 +8,27 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.3.2
+
+### Added
+
+- 新建 `tests/live_crypto_latest.rs`，使用真实 Alpaca API 覆盖 `crypto.latest_bars`、`crypto.latest_quotes`、`crypto.latest_trades` 与 `crypto.latest_orderbooks`
+- 为 `crypto` latest family 新增 route、request、response 与 public API 单元测试，覆盖官方 latest path、`symbols` query、latest wrapper shape 与 `OrderbookLevel` 公开类型
+
+### Changed
+
+- `CryptoClient` 现在已接通 `GET /v1beta3/crypto/{loc}/latest/bars`、`/latest/quotes`、`/latest/trades` 与 `/latest/orderbooks`
+- `LatestBarsResponse`、`LatestQuotesResponse`、`LatestTradesResponse` 与 `LatestOrderbooksResponse` 现在忠实反序列化官方顶层 `bars` / `quotes` / `trades` / `orderbooks` map
+- `crypto::Orderbook` 现在补齐官方 `a` / `b` / `t` 字段；`crypto::OrderbookLevel` 现作为公开 typed model 暴露
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4 / Task 2` 完成后的真实状态
+- 将 crate 版本提升到 `0.3.2`，对齐 `Phase 4 / Task 2` 的版本提交要求
+
+### Verification
+
+- `cargo test --lib crypto -- --nocapture`
+- `cargo test --test public_api -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_latest -- --nocapture`
+
 ## v0.3.1
 
 ### Added

@@ -126,12 +126,18 @@ impl CryptoClient {
 
     pub async fn latest_bars(
         &self,
-        _request: LatestBarsRequest,
+        request: LatestBarsRequest,
     ) -> Result<LatestBarsResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.latest_bars",
-        })
+        let endpoint = Endpoint::crypto_latest_bars(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn latest_quotes(
@@ -146,29 +152,41 @@ impl CryptoClient {
                 &self.inner.base_url,
                 endpoint,
                 &self.inner.auth,
-                vec![("symbols".to_string(), request.symbols.join(","))],
+                request.to_query(),
             )
             .await
     }
 
     pub async fn latest_trades(
         &self,
-        _request: LatestTradesRequest,
+        request: LatestTradesRequest,
     ) -> Result<LatestTradesResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.latest_trades",
-        })
+        let endpoint = Endpoint::crypto_latest_trades(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn latest_orderbooks(
         &self,
-        _request: LatestOrderbooksRequest,
+        request: LatestOrderbooksRequest,
     ) -> Result<LatestOrderbooksResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.latest_orderbooks",
-        })
+        let endpoint = Endpoint::crypto_latest_orderbooks(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn snapshots(&self, _request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
