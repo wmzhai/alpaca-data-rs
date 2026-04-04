@@ -8,6 +8,27 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.5.3
+
+### Added
+
+- Added `docs/api-coverage.md` as the public endpoint-to-method coverage contract
+- Added `tools/api-coverage/market-data-api.json` as the machine-readable coverage manifest for future API audits
+
+### Changed
+
+- Updated `README.md`, `docs/layers.md`, and `docs/release-checklist.md` to point at the new coverage contract
+- Updated `memory/api/README.md` and `memory/core/system-map.md` to record the new coverage artifacts in the internal navigation docs
+- Recorded the current adopted-family coverage gaps explicitly instead of hiding them: `StockAuctions`, `StockAuctionSingle`, and `OptionMetaConditions` remain unimplemented
+- Recorded the current crypto mirror parity gap explicitly: the official crypto `loc` enum includes `us-2` and `bs-1`, while local `crypto::Loc` currently exposes only `us`, `us-1`, and `eu-1`
+- Bumped the crate version to `0.5.3` for the `Phase 6 / Task 3` API coverage contract commit
+
+### Verification
+
+- `jq empty tools/api-coverage/market-data-api.json`
+- `cargo test`
+- `git diff --check`
+
 ## v0.5.2
 
 ### Added

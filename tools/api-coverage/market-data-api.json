@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-04-04",
+  "official": {
+    "title": "Market Data API",
+    "version": "1.1",
+    "reference_url": "https://docs.alpaca.markets/reference/api-references",
+    "openapi_url": "https://docs.alpaca.markets/openapi/market-data-api.json"
+  },
+  "local": {
+    "crate": "alpaca-data",
+    "module_root": "alpaca_data",
+    "adopted_resource_families": [
+      "stocks",
+      "options",
+      "crypto",
+      "news",
+      "corporate_actions"
+    ],
+    "mirror_layer_rule": "Mirror methods correspond to official HTTP endpoints.",
+    "convenience_layer_rule": "Convenience methods are additive pagination helpers only."
+  },
+  "summary": {
+    "official_total_paths": 47,
+    "adopted_family_total_paths": 36,
+    "implemented_mirror_paths": 33,
+    "adopted_family_open_gaps": 3
+  },
+  "mirror_layer": [
+    {"tag": "Stock", "operation_id": "StockBars", "path": "/v2/stocks/bars", "local_resource": "stocks", "mirror_method": "bars", "request_type": "stocks::BarsRequest", "response_type": "stocks::BarsResponse"},
+    {"tag": "Stock", "operation_id": "StockBarSingle", "path": "/v2/stocks/{symbol}/bars", "local_resource": "stocks", "mirror_method": "bars_single", "request_type": "stocks::BarsSingleRequest", "response_type": "stocks::BarsSingleResponse"},
+    {"tag": "Stock", "operation_id": "StockQuotes", "path": "/v2/stocks/quotes", "local_resource": "stocks", "mirror_method": "quotes", "request_type": "stocks::QuotesRequest", "response_type": "stocks::QuotesResponse"},
+    {"tag": "Stock", "operation_id": "StockQuoteSingle", "path": "/v2/stocks/{symbol}/quotes", "local_resource": "stocks", "mirror_method": "quotes_single", "request_type": "stocks::QuotesSingleRequest", "response_type": "stocks::QuotesSingleResponse"},
+    {"tag": "Stock", "operation_id": "StockTrades", "path": "/v2/stocks/trades", "local_resource": "stocks", "mirror_method": "trades", "request_type": "stocks::TradesRequest", "response_type": "stocks::TradesResponse"},
+    {"tag": "Stock", "operation_id": "StockTradeSingle", "path": "/v2/stocks/{symbol}/trades", "local_resource": "stocks", "mirror_method": "trades_single", "request_type": "stocks::TradesSingleRequest", "response_type": "stocks::TradesSingleResponse"},
+    {"tag": "Stock", "operation_id": "StockLatestBars", "path": "/v2/stocks/bars/latest", "local_resource": "stocks", "mirror_method": "latest_bars", "request_type": "stocks::LatestBarsRequest", "response_type": "stocks::LatestBarsResponse"},
+    {"tag": "Stock", "operation_id": "StockLatestBarSingle", "path": "/v2/stocks/{symbol}/bars/latest", "local_resource": "stocks", "mirror_method": "latest_bar", "request_type": "stocks::LatestBarRequest", "response_type": "stocks::LatestBarResponse"},
+    {"tag": "Stock", "operation_id": "StockLatestQuotes", "path": "/v2/stocks/quotes/latest", "local_resource": "stocks", "mirror_method": "latest_quotes", "request_type": "stocks::LatestQuotesRequest", "response_type": "stocks::LatestQuotesResponse"},
+    {"tag": "Stock", "operation_id": "StockLatestQuoteSingle", "path": "/v2/stocks/{symbol}/quotes/latest", "local_resource": "stocks", "mirror_method": "latest_quote", "request_type": "stocks::LatestQuoteRequest", "response_type": "stocks::LatestQuoteResponse"},
+    {"tag": "Stock", "operation_id": "StockLatestTrades", "path": "/v2/stocks/trades/latest", "local_resource": "stocks", "mirror_method": "latest_trades", "request_type": "stocks::LatestTradesRequest", "response_type": "stocks::LatestTradesResponse"},
+    {"tag": "Stock", "operation_id": "StockLatestTradeSingle", "path": "/v2/stocks/{symbol}/trades/latest", "local_resource": "stocks", "mirror_method": "latest_trade", "request_type": "stocks::LatestTradeRequest", "response_type": "stocks::LatestTradeResponse"},
+    {"tag": "Stock", "operation_id": "StockSnapshots", "path": "/v2/stocks/snapshots", "local_resource": "stocks", "mirror_method": "snapshots", "request_type": "stocks::SnapshotsRequest", "response_type": "stocks::SnapshotsResponse"},
+    {"tag": "Stock", "operation_id": "StockSnapshotSingle", "path": "/v2/stocks/{symbol}/snapshot", "local_resource": "stocks", "mirror_method": "snapshot", "request_type": "stocks::SnapshotRequest", "response_type": "stocks::SnapshotResponse"},
+    {"tag": "Stock", "operation_id": "StockMetaConditions", "path": "/v2/stocks/meta/conditions/{ticktype}", "local_resource": "stocks", "mirror_method": "condition_codes", "request_type": "stocks::ConditionCodesRequest", "response_type": "stocks::ConditionCodesResponse"},
+    {"tag": "Stock", "operation_id": "StockMetaExchanges", "path": "/v2/stocks/meta/exchanges", "local_resource": "stocks", "mirror_method": "exchange_codes", "request_type": null, "response_type": "stocks::ExchangeCodesResponse"},
+    {"tag": "Option", "operation_id": "optionBars", "path": "/v1beta1/options/bars", "local_resource": "options", "mirror_method": "bars", "request_type": "options::BarsRequest", "response_type": "options::BarsResponse"},
+    {"tag": "Option", "operation_id": "OptionTrades", "path": "/v1beta1/options/trades", "local_resource": "options", "mirror_method": "trades", "request_type": "options::TradesRequest", "response_type": "options::TradesResponse"},
+    {"tag": "Option", "operation_id": "OptionLatestQuotes", "path": "/v1beta1/options/quotes/latest", "local_resource": "options", "mirror_method": "latest_quotes", "request_type": "options::LatestQuotesRequest", "response_type": "options::LatestQuotesResponse"},
+    {"tag": "Option", "operation_id": "OptionLatestTrades", "path": "/v1beta1/options/trades/latest", "local_resource": "options", "mirror_method": "latest_trades", "request_type": "options::LatestTradesRequest", "response_type": "options::LatestTradesResponse"},
+    {"tag": "Option", "operation_id": "OptionSnapshots", "path": "/v1beta1/options/snapshots", "local_resource": "options", "mirror_method": "snapshots", "request_type": "options::SnapshotsRequest", "response_type": "options::SnapshotsResponse"},
+    {"tag": "Option", "operation_id": "OptionChain", "path": "/v1beta1/options/snapshots/{underlying_symbol}", "local_resource": "options", "mirror_method": "chain", "request_type": "options::ChainRequest", "response_type": "options::ChainResponse"},
+    {"tag": "Option", "operation_id": "OptionMetaExchanges", "path": "/v1beta1/options/meta/exchanges", "local_resource": "options", "mirror_method": "exchange_codes", "request_type": null, "response_type": "options::ExchangeCodesResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoBars", "path": "/v1beta3/crypto/{loc}/bars", "local_resource": "crypto", "mirror_method": "bars", "request_type": "crypto::BarsRequest", "response_type": "crypto::BarsResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoQuotes", "path": "/v1beta3/crypto/{loc}/quotes", "local_resource": "crypto", "mirror_method": "quotes", "request_type": "crypto::QuotesRequest", "response_type": "crypto::QuotesResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoTrades", "path": "/v1beta3/crypto/{loc}/trades", "local_resource": "crypto", "mirror_method": "trades", "request_type": "crypto::TradesRequest", "response_type": "crypto::TradesResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoLatestBars", "path": "/v1beta3/crypto/{loc}/latest/bars", "local_resource": "crypto", "mirror_method": "latest_bars", "request_type": "crypto::LatestBarsRequest", "response_type": "crypto::LatestBarsResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoLatestQuotes", "path": "/v1beta3/crypto/{loc}/latest/quotes", "local_resource": "crypto", "mirror_method": "latest_quotes", "request_type": "crypto::LatestQuotesRequest", "response_type": "crypto::LatestQuotesResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoLatestTrades", "path": "/v1beta3/crypto/{loc}/latest/trades", "local_resource": "crypto", "mirror_method": "latest_trades", "request_type": "crypto::LatestTradesRequest", "response_type": "crypto::LatestTradesResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoLatestOrderbooks", "path": "/v1beta3/crypto/{loc}/latest/orderbooks", "local_resource": "crypto", "mirror_method": "latest_orderbooks", "request_type": "crypto::LatestOrderbooksRequest", "response_type": "crypto::LatestOrderbooksResponse"},
+    {"tag": "Crypto", "operation_id": "CryptoSnapshots", "path": "/v1beta3/crypto/{loc}/snapshots", "local_resource": "crypto", "mirror_method": "snapshots", "request_type": "crypto::SnapshotsRequest", "response_type": "crypto::SnapshotsResponse"},
+    {"tag": "News", "operation_id": "News", "path": "/v1beta1/news", "local_resource": "news", "mirror_method": "list", "request_type": "news::ListRequest", "response_type": "news::ListResponse"},
+    {"tag": "Corporate actions", "operation_id": "CorporateActions", "path": "/v1/corporate-actions", "local_resource": "corporate_actions", "mirror_method": "list", "request_type": "corporate_actions::ListRequest", "response_type": "corporate_actions::ListResponse"}
+  ],
+  "convenience_layer": [
+    {"resource": "stocks", "base_mirror_method": "bars", "helpers": ["bars_all", "bars_stream"]},
+    {"resource": "stocks", "base_mirror_method": "bars_single", "helpers": ["bars_single_all", "bars_single_stream"]},
+    {"resource": "stocks", "base_mirror_method": "quotes", "helpers": ["quotes_all", "quotes_stream"]},
+    {"resource": "stocks", "base_mirror_method": "quotes_single", "helpers": ["quotes_single_all", "quotes_single_stream"]},
+    {"resource": "stocks", "base_mirror_method": "trades", "helpers": ["trades_all", "trades_stream"]},
+    {"resource": "stocks", "base_mirror_method": "trades_single", "helpers": ["trades_single_all", "trades_single_stream"]},
+    {"resource": "options", "base_mirror_method": "bars", "helpers": ["bars_all", "bars_stream"]},
+    {"resource": "options", "base_mirror_method": "trades", "helpers": ["trades_all", "trades_stream"]},
+    {"resource": "options", "base_mirror_method": "snapshots", "helpers": ["snapshots_all", "snapshots_stream"]},
+    {"resource": "options", "base_mirror_method": "chain", "helpers": ["chain_all", "chain_stream"]},
+    {"resource": "crypto", "base_mirror_method": "bars", "helpers": ["bars_all", "bars_stream"]},
+    {"resource": "crypto", "base_mirror_method": "quotes", "helpers": ["quotes_all", "quotes_stream"]},
+    {"resource": "crypto", "base_mirror_method": "trades", "helpers": ["trades_all", "trades_stream"]},
+    {"resource": "news", "base_mirror_method": "list", "helpers": ["list_all", "list_stream"]},
+    {"resource": "corporate_actions", "base_mirror_method": "list", "helpers": ["list_all", "list_stream"]}
+  ],
+  "gaps_in_adopted_families": [
+    {"tag": "Stock", "operation_id": "StockAuctions", "path": "/v2/stocks/auctions", "reason": "Official stock endpoint in an adopted family, but no local mirror method exists yet."},
+    {"tag": "Stock", "operation_id": "StockAuctionSingle", "path": "/v2/stocks/{symbol}/auctions", "reason": "Official stock endpoint in an adopted family, but no local mirror method exists yet."},
+    {"tag": "Option", "operation_id": "OptionMetaConditions", "path": "/v1beta1/options/meta/conditions/{ticktype}", "reason": "Official option endpoint in an adopted family, but no local mirror method exists yet."}
+  ],
+  "not_adopted_resource_families": [
+    {"tag": "Fixed income", "paths": ["/v1beta1/fixed_income/latest/prices"]},
+    {"tag": "Forex", "paths": ["/v1beta1/forex/latest/rates", "/v1beta1/forex/rates"]},
+    {"tag": "Logos", "paths": ["/v1beta1/logos/{symbol}"]},
+    {"tag": "Screener", "paths": ["/v1beta1/screener/stocks/most-actives", "/v1beta1/screener/{market_type}/movers"]},
+    {"tag": "Crypto perpetual futures", "paths": ["/v1beta1/crypto-perps/{loc}/latest/bars", "/v1beta1/crypto-perps/{loc}/latest/pricing", "/v1beta1/crypto-perps/{loc}/latest/orderbooks", "/v1beta1/crypto-perps/{loc}/latest/quotes", "/v1beta1/crypto-perps/{loc}/latest/trades"]}
+  ],
+  "known_parity_gaps": [
+    {
+      "kind": "parameter_enum",
+      "resource": "crypto",
+      "subject": "crypto::Loc",
+      "official_parameter": "loc",
+      "affected_paths": [
+        "/v1beta3/crypto/{loc}/bars",
+        "/v1beta3/crypto/{loc}/quotes",
+        "/v1beta3/crypto/{loc}/trades",
+        "/v1beta3/crypto/{loc}/latest/bars",
+        "/v1beta3/crypto/{loc}/latest/quotes",
+        "/v1beta3/crypto/{loc}/latest/trades",
+        "/v1beta3/crypto/{loc}/latest/orderbooks",
+        "/v1beta3/crypto/{loc}/snapshots"
+      ],
+      "official_values": ["us", "us-1", "us-2", "eu-1", "bs-1"],
+      "local_values": ["us", "us-1", "eu-1"],
+      "status": "open"
+    }
+  ]
+}

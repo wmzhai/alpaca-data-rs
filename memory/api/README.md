@@ -77,3 +77,4 @@
 - `corporate_actions::CorporateActionType` 现在覆盖当前真实 API 接受的全部 15 个 query 值；共享 pagination helper 也已补上重复 `next_page_token` 防护，避免 `list_all` / `list_stream` 卡死
 - `tests/mock_news_corporate_actions_errors.rs` 现在覆盖 `news` / `corporate_actions` 的损坏 JSON、分页 merge 与重复 `next_page_token` 回归；`benches/news_corporate_actions.rs` 则为两个资源域补齐本地 benchmark baseline
 - `news` 与 `corporate_actions` 现在已成为第四、第五个完整资源模板；`Phase 5` 已在 `v0.5.0` 完成，下一步主线是 `Phase 6: Release Hardening`，随后由 `Phase 7: Release` 负责 internal docs 的 git 清理与最终发布决策
+- `Phase 6 / Task 3` 新增 coverage contract：对外文档位于 `docs/api-coverage.md`，机器清单位于 `tools/api-coverage/market-data-api.json`，其中 mirror layer、convenience layer、adopted-family gaps 和未采纳官方资源族都已明确拆开记录

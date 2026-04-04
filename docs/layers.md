@@ -52,3 +52,5 @@ This split keeps two goals compatible:
 - ergonomic Rust helpers for common pagination workflows
 
 The mirror layer remains the semantic source of truth inside the crate.
+
+For the current endpoint-by-endpoint mapping, see [api-coverage.md](api-coverage.md).

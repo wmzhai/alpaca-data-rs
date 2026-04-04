@@ -19,6 +19,7 @@ This checklist describes the release-preparation bar for the repository.
 - `docs.rs` is treated as the primary API-reference host
 - examples and rustdoc point to the same API shape
 - API coverage documentation matches the codebase
+- `docs/api-coverage.md` matches `tools/api-coverage/market-data-api.json`
 
 ## Verification Targets
 

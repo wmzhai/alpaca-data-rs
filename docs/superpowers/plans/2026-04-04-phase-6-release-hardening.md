@@ -144,14 +144,15 @@
 - Modify: `docs/layers.md`
 - Modify: `docs/release-checklist.md`
 - Modify: `memory/api/README.md`
+- Modify: `memory/core/system-map.md`
 
-- [ ] Enumerate the in-scope official Market Data HTTP endpoints from the current official docs/OpenAPI and map each mirror endpoint to its Rust method
-- [ ] Separate the mirror layer table from the convenience layer additions so `*_all` / `*_stream` are documented as additive helpers, not official endpoints
-- [ ] Record explicit out-of-scope official resources such as Trading API, Broker API, WebSocket/SSE, and any Market Data resource families not yet adopted
-- [ ] Store the human-readable mapping in `docs/api-coverage.md`
-- [ ] Store the machine-readable mapping in `tools/api-coverage/market-data-api.json`
-- [ ] Cross-check the manifest against the current codebase and fix any documentation-side mismatch before freezing the contract
-- [ ] Prepare the patch version commit for the API coverage contract task
+- [x] Enumerate the in-scope official Market Data HTTP endpoints from the current official docs/OpenAPI and map each mirror endpoint to its Rust method
+- [x] Separate the mirror layer table from the convenience layer additions so `*_all` / `*_stream` are documented as additive helpers, not official endpoints
+- [x] Record explicit out-of-scope official resources such as Trading API, Broker API, WebSocket/SSE, and any Market Data resource families not yet adopted
+- [x] Store the human-readable mapping in `docs/api-coverage.md`
+- [x] Store the machine-readable mapping in `tools/api-coverage/market-data-api.json`
+- [x] Cross-check the manifest against the current codebase and fix any documentation-side mismatch before freezing the contract
+- [x] Prepare the patch version commit for the API coverage contract task
 
 ### Task 4: API Sync Skill
 

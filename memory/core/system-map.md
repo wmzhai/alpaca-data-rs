@@ -52,6 +52,7 @@
 - `benches/news_corporate_actions.rs`：本地 `criterion` benchmark baseline，当前覆盖 `news.list` 与 `corporate_actions.list` 的本地 hot path
 - `examples/`：`Phase 6 / Task 2` 新增的对外 runnable examples 目录，当前包含 `client_builder`、`stocks_latest_bar`、`stocks_bars_all`、`options_chain`、`crypto_latest_quotes`、`news_list` 与 `corporate_actions_list`
 - `docs/`：`Phase 6` 起承载对外公开英文文档的主目录
+- `tools/api-coverage/`：`Phase 6 / Task 3` 新增的 API coverage 工具目录，当前包含对外 coverage contract 对应的机器清单 `market-data-api.json`
 - `memory/`：项目导航、约束和后续扩展落点；在 `Phase 6` 继续保留在 git 中驱动工作，`Phase 7` 才会处理其 git 清理
 
 ## 当前还没有的结构

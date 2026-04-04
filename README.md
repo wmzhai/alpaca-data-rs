@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.5.2`
+- Current branch baseline: `v0.5.3`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - Current phase: `Phase 6: Release Hardening`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
@@ -177,10 +177,11 @@ Runnable examples live under [`examples/`](examples/) and are indexed in [docs/e
 - [Getting started](docs/getting-started.md)
 - [Authentication](docs/authentication.md)
 - [Layers](docs/layers.md)
+- [API coverage](docs/api-coverage.md)
 - [Examples](docs/examples.md)
 - [Release checklist](docs/release-checklist.md)
 
-The formal endpoint-to-method mapping is added later in `Phase 6` as part of the API coverage contract.
+The formal endpoint-to-method mapping lives in [docs/api-coverage.md](docs/api-coverage.md).
 
 ## Testing
 
