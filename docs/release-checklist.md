@@ -20,8 +20,8 @@ The current branch baseline is `v0.9.2`.
 - `docs/index.md`, `docs/project-structure.md`, `docs/reference/`, `docs/generated/`, `website/sidebars.ts`, and the README docs block match the latest `./tools/docs/generate-doc-site` output
 - `./scripts/api-sync-audit` has been run against the intended release baseline and reports no blocking drift
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
-- release CI is a tag-triggered guardrail and runs only when a `vX.Y.Z` tag is pushed
-- GitHub Pages deployment is a separate workflow that builds and deploys only when a `vX.Y.Z` tag is pushed
+- the `github-pages` release workflow is the tag-triggered guardrail and runs only when a `vX.Y.Z` tag is pushed
+- the `github-pages` workflow covers Rust validation, packaging, docs-site build, and GitHub Pages deployment
 
 ## Verification Targets
 

@@ -14,9 +14,9 @@ The crate is built around two constraints:
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
 - crates.io package: `alpaca-data`
-- Public docs include a GitHub Pages site, generated API reference pages, rustdoc links, API coverage docs, and tag-triggered release automation
+- Public docs include a GitHub Pages site, generated API reference pages, rustdoc links, API coverage docs, and a tag-triggered release workflow
 
-Release automation is intentionally tag-triggered only and follows GitHub-hosted `stable`. The Rust CI workflow and the GitHub Pages documentation workflow both run on pushed release tags such as `vX.Y.Z`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
+Release automation is intentionally tag-triggered only and follows GitHub-hosted `stable`. The `github-pages` workflow runs the standard Rust validation steps and the documentation build only on pushed release tags such as `vX.Y.Z`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
 
 ## Design Contract
 
@@ -255,7 +255,7 @@ cargo bench --no-run
 
 ## Publication Notes
 
-The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while tag-triggered release automation verifies formatting, tests, examples, docs, package creation, and documentation-site builds on pushed release tags.
+The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while the tag-triggered release workflow verifies formatting, tests, examples, docs, package creation, and documentation-site builds on pushed release tags.
 
 The public documentation site is published at `https://wmzhai.github.io/alpaca-data-rs/`. `docs.rs` remains the primary rustdoc host, and the repository docs under `docs/` remain the narrative documentation surface.
 

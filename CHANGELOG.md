@@ -6,7 +6,9 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
-- Restricted both the Rust CI workflow and the GitHub Pages documentation workflow to pushed release tags such as `vX.Y.Z`.
+- Consolidated release verification and documentation deployment into the `github-pages` workflow.
+- Restricted release automation to pushed release tags such as `vX.Y.Z`.
+- Updated the `github-pages` environment policy to allow only `v*.*.*` tags to deploy.
 - Updated the retained repository docs to describe the tag-only release automation policy.
 
 ## v0.9.1

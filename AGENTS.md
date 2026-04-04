@@ -49,9 +49,10 @@ Start new sessions with:
 - Do not use `.worktrees/` or git worktrees for this repository.
 - If sub-agents are used, they must use `gpt-5.4` only.
 - If no audited MSRV is maintained, do not declare `rust-version` in `Cargo.toml`.
-- GitHub CI must use the floating `stable` toolchain.
-- Release CI must only run on pushed release tags such as `vX.Y.Z`.
-- GitHub Pages documentation deployment must only run on pushed release tags such as `vX.Y.Z`.
+- GitHub release automation must use the floating `stable` toolchain.
+- The `github-pages` workflow must be the only retained release workflow.
+- The `github-pages` workflow must include the standard validation steps before documentation deployment.
+- Release automation must only run on pushed release tags such as `vX.Y.Z`.
 - Keep internal workflow material out of the published crate artifact.
 - Before release-readiness or API-parity work, run `.agents/skills/alpaca-market-data-sync/SKILL.md`.
 - If the audit finds mirror drift, fix the mirror layer before re-validating convenience helpers.

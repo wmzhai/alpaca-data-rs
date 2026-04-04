@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*.*.*"
-  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -34,6 +33,21 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+      - name: cargo test
+        run: cargo test
+
+      - name: cargo check --examples
+        run: cargo check --examples
+
+      - name: cargo test --doc
+        run: cargo test --doc
+
+      - name: cargo package
+        run: cargo package
 
       - name: Setup Node
         uses: actions/setup-node@v6
