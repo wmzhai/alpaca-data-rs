@@ -1,7 +1,7 @@
 # Phase 4 Crypto Design
 
 **Date:** 2026-04-04
-**Status:** Historical + latest implemented in `v0.3.2`; phase still in progress
+**Status:** Historical + latest + snapshots implemented in `v0.3.3`; phase close still pending
 **Target Phase:** `Phase 4: Crypto`
 
 ## Goal

@@ -41,6 +41,7 @@ fn resource_modules_expose_short_type_names() {
     let _ = crypto::TradesResponse::default();
     let _ = crypto::LatestOrderbooksRequest::default();
     let _ = crypto::LatestOrderbooksResponse::default();
+    let _ = crypto::SnapshotsResponse::default();
     let _ = news::ListRequest::default();
     let _ = news::ListResponse::default();
     let _ = corporate_actions::ListRequest::default();

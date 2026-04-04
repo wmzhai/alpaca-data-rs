@@ -131,6 +131,12 @@ impl LatestOrderbooksRequest {
     }
 }
 
+impl SnapshotsRequest {
+    pub(crate) fn to_query(self) -> Vec<(String, String)> {
+        latest_query(self.symbols)
+    }
+}
+
 impl PaginatedRequest for BarsRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -167,7 +173,7 @@ mod tests {
 
     use super::{
         BarsRequest, LatestBarsRequest, LatestOrderbooksRequest, LatestQuotesRequest,
-        LatestTradesRequest, Loc, QuotesRequest, Sort, TimeFrame, TradesRequest,
+        LatestTradesRequest, Loc, QuotesRequest, SnapshotsRequest, Sort, TimeFrame, TradesRequest,
     };
 
     #[test]
@@ -322,6 +328,20 @@ mod tests {
         assert_eq!(
             orderbooks_query,
             vec![("symbols".to_string(), "BTC/USD".to_string())]
+        );
+    }
+
+    #[test]
+    fn snapshots_request_serializes_symbols_only_without_loc() {
+        let query = SnapshotsRequest {
+            symbols: vec!["BTC/USD".into(), "ETH/USD".into()],
+            loc: Some(Loc::Eu1),
+        }
+        .to_query();
+
+        assert_eq!(
+            query,
+            vec![("symbols".to_string(), "BTC/USD,ETH/USD".to_string())]
         );
     }
 }

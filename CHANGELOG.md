@@ -8,6 +8,29 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.3.3
+
+### Added
+
+- 新建 `tests/live_crypto_snapshots.rs`，使用真实 Alpaca API 覆盖 `crypto.snapshots`
+- 新建 `tests/mock_crypto_errors.rs`，覆盖 `crypto.snapshots` 与 `crypto.latest_orderbooks` 的损坏 JSON -> `Error::Deserialize`
+- 为 `crypto.snapshots` 新增 route、request、response 与 public API 单元测试，覆盖 official path、`symbols` query 与 snapshot wrapper shape
+
+### Changed
+
+- `CryptoClient` 现在已接通 `GET /v1beta3/crypto/{loc}/snapshots`
+- `crypto::Snapshot` 现在改为忠实对齐官方 camelCase 字段：`latestTrade`、`latestQuote`、`minuteBar`、`dailyBar`、`prevDailyBar`
+- `SnapshotsResponse` 现在忠实反序列化官方顶层 `snapshots` map，不再保留 placeholder snake_case snapshot shape
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4 / Task 3` 完成后的真实状态
+- 将 crate 版本提升到 `0.3.3`，对齐 `Phase 4 / Task 3` 的版本提交要求
+
+### Verification
+
+- `cargo test --lib crypto -- --nocapture`
+- `cargo test --test public_api -- --nocapture`
+- `cargo test --test mock_crypto_errors -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_snapshots -- --nocapture`
+
 ## v0.3.2
 
 ### Added

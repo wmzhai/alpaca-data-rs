@@ -44,9 +44,12 @@ pub struct Orderbook {
     pub a: Option<Vec<OrderbookLevel>>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[allow(non_snake_case)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Snapshot {
-    pub latest_trade: Option<Trade>,
-    pub latest_quote: Option<Quote>,
-    pub latest_bar: Option<Bar>,
+    pub latestTrade: Option<Trade>,
+    pub latestQuote: Option<Quote>,
+    pub minuteBar: Option<Bar>,
+    pub dailyBar: Option<Bar>,
+    pub prevDailyBar: Option<Bar>,
 }

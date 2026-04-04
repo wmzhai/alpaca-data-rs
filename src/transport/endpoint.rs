@@ -12,6 +12,7 @@ pub(crate) enum Endpoint {
     CryptoLatestQuotes { loc: Loc },
     CryptoLatestTrades { loc: Loc },
     CryptoLatestOrderbooks { loc: Loc },
+    CryptoSnapshots { loc: Loc },
     OptionsBars,
     OptionsTrades,
     OptionsLatestQuotes,
@@ -65,6 +66,10 @@ impl Endpoint {
 
     pub(crate) fn crypto_latest_orderbooks(loc: Loc) -> Self {
         Self::CryptoLatestOrderbooks { loc }
+    }
+
+    pub(crate) fn crypto_snapshots(loc: Loc) -> Self {
+        Self::CryptoSnapshots { loc }
     }
 
     pub(crate) fn options_bars() -> Self {
@@ -142,6 +147,7 @@ impl Endpoint {
             Self::CryptoLatestOrderbooks { loc } => {
                 Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/orderbooks"))
             }
+            Self::CryptoSnapshots { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/snapshots")),
             Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
             Self::OptionsLatestQuotes => Cow::Borrowed("/v1beta1/options/quotes/latest"),
@@ -189,7 +195,9 @@ impl Endpoint {
             | Self::CryptoTrades { .. }
             | Self::CryptoLatestBars { .. }
             | Self::CryptoLatestQuotes { .. } => false,
-            Self::CryptoLatestTrades { .. } | Self::CryptoLatestOrderbooks { .. } => false,
+            Self::CryptoLatestTrades { .. }
+            | Self::CryptoLatestOrderbooks { .. }
+            | Self::CryptoSnapshots { .. } => false,
             Self::OptionsBars
             | Self::OptionsTrades
             | Self::OptionsLatestQuotes
@@ -268,6 +276,23 @@ mod tests {
             "/v1beta3/crypto/us/latest/orderbooks"
         );
         assert!(!Endpoint::crypto_latest_orderbooks(Loc::Eu1).requires_auth());
+    }
+
+    #[test]
+    fn endpoint_routes_crypto_snapshots_with_official_loc_words() {
+        assert_eq!(
+            Endpoint::crypto_snapshots(Loc::Us).path(),
+            "/v1beta3/crypto/us/snapshots"
+        );
+        assert_eq!(
+            Endpoint::crypto_snapshots(Loc::Us1).path(),
+            "/v1beta3/crypto/us-1/snapshots"
+        );
+        assert_eq!(
+            Endpoint::crypto_snapshots(Loc::Eu1).path(),
+            "/v1beta3/crypto/eu-1/snapshots"
+        );
+        assert!(!Endpoint::crypto_snapshots(Loc::Eu1).requires_auth());
     }
 
     #[test]

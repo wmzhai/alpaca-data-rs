@@ -189,10 +189,16 @@ impl CryptoClient {
             .await
     }
 
-    pub async fn snapshots(&self, _request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
-        let _ = &self.inner;
-        Err(Error::NotImplemented {
-            operation: "crypto.snapshots",
-        })
+    pub async fn snapshots(&self, request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
+        let endpoint = Endpoint::crypto_snapshots(request.loc.unwrap_or_default());
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 }

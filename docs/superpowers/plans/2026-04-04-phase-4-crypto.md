@@ -125,13 +125,13 @@
 - Create: `tests/live_crypto_snapshots.rs`
 - Create: `tests/mock_crypto_errors.rs`
 
-- [ ] Add failing tests for `snapshots`, no-auth client behavior, and crypto fault cases
-- [ ] Run the targeted tests and confirm they fail for the missing snapshot behavior
-- [ ] Implement `snapshots` routing, query serialization, typed `Snapshot` response/model, and official wrapper shape without pagination fields
-- [ ] Add live coverage for `Client::builder().build()?.crypto()` success paths and explicit `Loc::Us1` / `Loc::Eu1` routing
-- [ ] Add mock fault tests only for malformed JSON / invalid transport responses and any crypto-specific pagination error path still worth preserving
-- [ ] Run targeted tests, then `cargo test`
-- [ ] Sync docs and prepare patch version commit
+- [x] Add failing tests for `snapshots`, no-auth client behavior, and crypto fault cases
+- [x] Run the targeted tests and confirm they fail for the missing snapshot behavior
+- [x] Implement `snapshots` routing, query serialization, typed `Snapshot` response/model, and official wrapper shape without pagination fields
+- [x] Add live coverage for `Client::builder().build()?.crypto()` success paths and explicit `Loc::Us1` / `Loc::Eu1` routing
+- [x] Add mock fault tests only for malformed JSON / invalid transport responses and any crypto-specific pagination error path still worth preserving
+- [x] Run targeted tests, then `cargo test`
+- [x] Sync docs and prepare patch version commit
 
 ### Task 4: Benchmark and Phase Completion
 

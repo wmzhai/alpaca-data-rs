@@ -16,7 +16,7 @@
 - **Phase 1: Shared Core**，已完成（`v0.1.0`）
 - **Phase 2: Stocks**，已完成（`v0.2.0`）
 - **Phase 3: Options**，已完成（`v0.3.0`）
-- **Phase 4: Crypto**，进行中（historical + latest done in `v0.3.2`）
+- **Phase 4: Crypto**，进行中（historical + latest + snapshots done in `v0.3.3`）
 - **Phase 5: News + Corporate Actions**
 - **Phase 6: Release Hardening**
 
@@ -61,11 +61,11 @@
 - 顶层 `Error` 已具备 `InvalidConfiguration`、`RateLimited`、`HttpStatus`、`Deserialize` 等共享错误变体
 - `tests/client_builder.rs` 已覆盖 builder/runtime config 与认证校验
 - `src/common/query.rs` 已提供最小 query 参数构造能力
-- `src/transport/endpoint.rs` 已提供 crypto historical `bars` / `quotes` / `trades` 与完整 latest family 的官方路径路由
+- `src/transport/endpoint.rs` 已提供完整 crypto HTTP 路由：historical、latest family 与 snapshots
 - `src/transport/http.rs`、`src/transport/retry.rs`、`src/transport/rate_limit.rs` 已具备最小实际行为
 - `tests/mock_transport_errors.rs` 已覆盖共享 transport 的异常路径
 - `src/transport/pagination.rs` 已提供最小分页聚合与按页 stream helper
-- `tests/live_crypto_latest_quotes_smoke.rs`、`tests/live_crypto_historical.rs` 与 `tests/live_crypto_latest.rs` 已验证 crypto historical 与 latest happy path
+- `tests/live_crypto_latest_quotes_smoke.rs`、`tests/live_crypto_historical.rs`、`tests/live_crypto_latest.rs` 与 `tests/live_crypto_snapshots.rs` 已验证完整 crypto happy path
 - `benches/shared_core.rs` 已建立本地 benchmark baseline
 
 **Primary Scope:**
@@ -239,6 +239,7 @@
 - 无凭证 crypto historical 请求通路
 - `loc` 参数序列化与 historical endpoint 路由完成
 - `latest_orderbooks` 真实行为完成
+- `snapshots` 真实行为完成
 
 **Exit Criteria:**
 

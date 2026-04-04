@@ -42,7 +42,7 @@ pub struct LatestOrderbooksResponse {
     pub orderbooks: HashMap<String, Orderbook>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct SnapshotsResponse {
     pub snapshots: HashMap<String, Snapshot>,
 }
@@ -112,7 +112,7 @@ mod tests {
 
     use super::{
         Bar, BarsResponse, LatestBarsResponse, LatestOrderbooksResponse, LatestTradesResponse,
-        QuotesResponse, TradesResponse,
+        QuotesResponse, SnapshotsResponse, TradesResponse,
     };
 
     #[test]
@@ -272,5 +272,23 @@ mod tests {
         )
         .expect("latest orderbooks response should deserialize");
         assert!(latest_orderbooks.orderbooks.contains_key("BTC/USD"));
+    }
+
+    #[test]
+    fn snapshots_response_deserializes_official_wrapper_shape() {
+        let snapshots: SnapshotsResponse = serde_json::from_str(
+            r#"{"snapshots":{"BTC/USD":{"dailyBar":{"c":66800.79,"h":66975.1,"l":66772.66,"n":87,"o":66942.46,"t":"2026-04-04T00:00:00Z","v":0.029938953,"vw":66854.9651939408},"latestQuote":{"ap":66819.4,"as":1.28052,"bp":66763.431,"bs":1.272,"t":"2026-04-04T04:14:35.580241652Z"},"latestTrade":{"i":7456836641300628344,"p":66832.6,"s":0.000946,"t":"2026-04-04T04:14:32.161121311Z","tks":"B"},"minuteBar":{"c":66800.79,"h":66817.1675,"l":66800.79,"n":0,"o":66812.172,"t":"2026-04-04T04:13:00Z","v":0.0,"vw":66808.97875},"prevDailyBar":{"c":66961.45,"h":67293.2523,"l":66252.479,"n":549,"o":66887.805,"t":"2026-04-03T00:00:00Z","v":1.117036142,"vw":66779.3688392417}}}}"#,
+        )
+        .expect("snapshots response should deserialize");
+
+        let snapshot = snapshots
+            .snapshots
+            .get("BTC/USD")
+            .expect("snapshot response should include the symbol");
+        assert!(snapshot.latestTrade.is_some());
+        assert!(snapshot.latestQuote.is_some());
+        assert!(snapshot.minuteBar.is_some());
+        assert!(snapshot.dailyBar.is_some());
+        assert!(snapshot.prevDailyBar.is_some());
     }
 }
