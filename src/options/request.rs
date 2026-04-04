@@ -175,8 +175,8 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
 #[cfg(test)]
 mod tests {
     use super::{
-        BarsRequest, LatestQuotesRequest, LatestTradesRequest, OptionsFeed, Sort, TimeFrame,
-        TradesRequest,
+        BarsRequest, ChainRequest, ContractType, LatestQuotesRequest, LatestTradesRequest,
+        OptionsFeed, SnapshotsRequest, Sort, TimeFrame, TradesRequest,
     };
 
     #[test]
@@ -262,6 +262,69 @@ mod tests {
                     "AAPL260406C00180000,AAPL260406C00185000".to_string(),
                 ),
                 ("feed".to_string(), "opra".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn snapshot_requests_serialize_official_query_words() {
+        let query = SnapshotsRequest {
+            symbols: vec!["AAPL260406C00180000".into(), "AAPL260406C00185000".into()],
+            feed: Some(OptionsFeed::Indicative),
+            limit: Some(2),
+            page_token: Some("page-2".into()),
+        }
+        .to_query();
+
+        assert_eq!(
+            query,
+            vec![
+                (
+                    "symbols".to_string(),
+                    "AAPL260406C00180000,AAPL260406C00185000".to_string(),
+                ),
+                ("feed".to_string(), "indicative".to_string()),
+                ("limit".to_string(), "2".to_string()),
+                ("page_token".to_string(), "page-2".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn chain_request_serializes_official_query_words() {
+        let query = ChainRequest {
+            underlying_symbol: "AAPL".into(),
+            feed: Some(OptionsFeed::Indicative),
+            r#type: Some(ContractType::Call),
+            strike_price_gte: Some(180.0),
+            strike_price_lte: Some(200.0),
+            expiration_date: Some("2026-04-06".into()),
+            expiration_date_gte: Some("2026-04-06".into()),
+            expiration_date_lte: Some("2026-04-13".into()),
+            root_symbol: Some("AAPL".into()),
+            updated_since: Some("2026-04-02T19:30:00Z".into()),
+            limit: Some(3),
+            page_token: Some("page-3".into()),
+        }
+        .to_query();
+
+        assert_eq!(
+            query,
+            vec![
+                ("feed".to_string(), "indicative".to_string()),
+                ("type".to_string(), "call".to_string()),
+                ("strike_price_gte".to_string(), "180".to_string()),
+                ("strike_price_lte".to_string(), "200".to_string()),
+                ("expiration_date".to_string(), "2026-04-06".to_string()),
+                ("expiration_date_gte".to_string(), "2026-04-06".to_string()),
+                ("expiration_date_lte".to_string(), "2026-04-13".to_string()),
+                ("root_symbol".to_string(), "AAPL".to_string()),
+                (
+                    "updated_since".to_string(),
+                    "2026-04-02T19:30:00Z".to_string()
+                ),
+                ("limit".to_string(), "3".to_string()),
+                ("page_token".to_string(), "page-3".to_string()),
             ]
         );
     }

@@ -8,6 +8,32 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.2.4
+
+### Added
+
+- 新建 `tests/live_options_snapshots_chain.rs`，使用真实 Alpaca API 覆盖 `options.snapshots`、`options.chain`、`snapshots_all` / `snapshots_stream`、`chain_all` / `chain_stream`
+- 新建 `tests/mock_options_errors.rs`，覆盖 `options` snapshots/chain 的损坏 JSON -> `Error::Deserialize` 与跨页重复 symbol -> `Error::Pagination`
+- 为 `options` snapshot / chain 新增 request/response/route/public API 单元测试，覆盖官方 query 单词、route path、response wrapper shape、`greeks` / `impliedVolatility` 字段和分页 merge
+
+### Changed
+
+- `OptionsClient` 现在已接通 `GET /v1beta1/options/snapshots` 与 `GET /v1beta1/options/snapshots/{underlying_symbol}`，并同时打通 `snapshots_all` / `snapshots_stream` 与 `chain_all` / `chain_stream`
+- `src/transport/endpoint.rs` 现在已补齐 `options` snapshot / chain route：`/v1beta1/options/snapshots` 与 `/v1beta1/options/snapshots/{underlying_symbol}`
+- `options::Snapshot` 现在补齐官方 `greeks` 与 `impliedVolatility` 字段；`options::Greeks` 现作为公开 typed model 暴露
+- `SnapshotsResponse` 与 `ChainResponse` 现在忠实反序列化官方顶层 `snapshots` + `next_page_token` wrapper，并在 `*_all` / `*_stream` 聚合时拒绝跨页重复 symbol
+- `tests/live_options_snapshots_chain.rs` 现在使用更窄但仍保留分页的官方 chain filter 组合，避免真实 API happy-path 因全链路抓取过重而超时
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/plans/2026-04-03-phase-3-options.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 3 / Task 3` 完成后的真实状态
+- 将 crate 版本提升到 `0.2.4`，对齐 `Phase 3 / Task 3` 的版本提交要求
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `set -a && source .env && set +a && cargo test --test live_options_historical -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_options_latest_metadata -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_options_snapshots_chain -- --nocapture`
+
 ## v0.2.3
 
 ### Added

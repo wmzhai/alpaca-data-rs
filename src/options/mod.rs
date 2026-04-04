@@ -6,7 +6,7 @@ mod response;
 
 pub use client::OptionsClient;
 pub use enums::{ContractType, OptionsFeed, Sort, TimeFrame};
-pub use model::{Bar, Quote, Snapshot, Trade};
+pub use model::{Bar, Greeks, Quote, Snapshot, Trade};
 pub use request::{
     BarsRequest, ChainRequest, LatestQuotesRequest, LatestTradesRequest, SnapshotsRequest,
     TradesRequest,

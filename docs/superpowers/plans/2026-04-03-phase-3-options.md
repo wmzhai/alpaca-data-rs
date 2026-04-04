@@ -120,11 +120,11 @@
 - Create: `tests/live_options_snapshots_chain.rs`
 - Create: `tests/mock_options_errors.rs`
 
-- [ ] Add failing tests for `snapshots`, `chain`, `*_all`, and `*_stream`
-- [ ] Implement official path/query handling, including `underlying_symbol`, `r#type`, `updated_since`, and pagination
-- [ ] Implement `Snapshot` / `Greeks` typed model with official field words
-- [ ] Implement pagination merge logic for `snapshots` and `chain`
-- [ ] Verify with real API plus targeted mock fault tests, then sync docs/version
+- [x] Add failing tests for `snapshots`, `chain`, `*_all`, and `*_stream`
+- [x] Implement official path/query handling, including `underlying_symbol`, `r#type`, `updated_since`, and pagination
+- [x] Implement `Snapshot` / `Greeks` typed model with official field words
+- [x] Implement pagination merge logic for `snapshots` and `chain`
+- [x] Verify with real API plus targeted mock fault tests, then sync docs/version
 
 ### Task 4: Benchmark and Phase Completion
 

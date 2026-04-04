@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     Error,
     client::Inner,
-    common::response::{ResponseStream, empty_stream},
+    common::response::ResponseStream,
     transport::endpoint::Endpoint,
     transport::pagination::{collect_all, stream_pages},
 };
@@ -131,49 +131,88 @@ impl OptionsClient {
             .await
     }
 
-    pub async fn snapshots(&self, _request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
+    pub async fn snapshots(&self, request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.snapshots",
-        })
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                Endpoint::OptionsSnapshots,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
     }
 
     pub async fn snapshots_all(
         &self,
-        _request: SnapshotsRequest,
+        request: SnapshotsRequest,
     ) -> Result<SnapshotsResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.snapshots_all",
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.snapshots(request).await }
         })
+        .await
     }
 
     pub fn snapshots_stream(
         &self,
-        _request: SnapshotsRequest,
+        request: SnapshotsRequest,
     ) -> ResponseStream<Result<SnapshotsResponse, Error>> {
-        empty_stream()
-    }
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
 
-    pub async fn chain(&self, _request: ChainRequest) -> Result<ChainResponse, Error> {
-        self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.chain",
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.snapshots(request).await }
         })
     }
 
-    pub async fn chain_all(&self, _request: ChainRequest) -> Result<ChainResponse, Error> {
+    pub async fn chain(&self, request: ChainRequest) -> Result<ChainResponse, Error> {
         self.ensure_credentials()?;
-        Err(Error::NotImplemented {
-            operation: "options.chain_all",
+        let endpoint = Endpoint::OptionsChain {
+            underlying_symbol: request.underlying_symbol.clone(),
+        };
+        self.inner
+            .http
+            .get_json(
+                &self.inner.base_url,
+                endpoint,
+                &self.inner.auth,
+                request.to_query(),
+            )
+            .await
+    }
+
+    pub async fn chain_all(&self, request: ChainRequest) -> Result<ChainResponse, Error> {
+        self.ensure_credentials()?;
+        let client = self.clone();
+
+        collect_all(request, move |request| {
+            let client = client.clone();
+            async move { client.chain(request).await }
         })
+        .await
     }
 
     pub fn chain_stream(
         &self,
-        _request: ChainRequest,
+        request: ChainRequest,
     ) -> ResponseStream<Result<ChainResponse, Error>> {
-        empty_stream()
+        if let Err(error) = self.ensure_credentials() {
+            return Self::error_stream(error);
+        }
+
+        let client = self.clone();
+        stream_pages(request, move |request| {
+            let client = client.clone();
+            async move { client.chain(request).await }
+        })
     }
 
     pub async fn exchange_codes(&self) -> Result<ExchangeCodesResponse, Error> {

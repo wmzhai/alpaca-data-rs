@@ -160,6 +160,15 @@ fn resource_clients_expose_core_method_names() {
         .options()
         .latest_trades(options::LatestTradesRequest::default());
     let _ = client.options().exchange_codes();
+    let _ = client
+        .options()
+        .snapshots(options::SnapshotsRequest::default());
+    let _ = client
+        .options()
+        .snapshots_all(options::SnapshotsRequest::default());
+    let _ = client
+        .options()
+        .snapshots_stream(options::SnapshotsRequest::default());
     let _ = client.options().chain(options::ChainRequest::default());
     let _ = client.options().chain_all(options::ChainRequest::default());
     let _ = client
@@ -188,5 +197,8 @@ fn options_module_exposes_historical_type_names() {
     let _ = options::LatestTradesRequest::default();
     let _ = options::LatestQuotesResponse::default();
     let _ = options::LatestTradesResponse::default();
+    let _ = options::SnapshotsRequest::default();
+    let _ = options::SnapshotsResponse::default();
+    let _ = options::Greeks::default();
     let _ = options::ExchangeCodesResponse::default();
 }

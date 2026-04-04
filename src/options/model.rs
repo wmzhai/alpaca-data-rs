@@ -35,6 +35,15 @@ pub struct Trade {
 }
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+pub struct Greeks {
+    pub delta: Option<f64>,
+    pub gamma: Option<f64>,
+    pub rho: Option<f64>,
+    pub theta: Option<f64>,
+    pub vega: Option<f64>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 #[allow(non_snake_case)]
 pub struct Snapshot {
     pub latestTrade: Option<Trade>,
@@ -42,5 +51,6 @@ pub struct Snapshot {
     pub minuteBar: Option<Bar>,
     pub dailyBar: Option<Bar>,
     pub prevDailyBar: Option<Bar>,
+    pub greeks: Option<Greeks>,
     pub impliedVolatility: Option<f64>,
 }

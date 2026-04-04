@@ -21,15 +21,15 @@
 
 ## 当前实现状态
 
-- 当前已完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`；`Phase 3: Options` 已进入进行中状态，当前已落地到 `v0.2.3`
+- 当前已完成 `Phase 1: Shared Core` 与 `Phase 2: Stocks`；`Phase 3: Options` 已进入收尾阶段，当前已落地到 `v0.2.4`
 - 已落地共享 `ClientBuilder` 运行时配置、认证配对校验与 header 注入、query 构造、endpoint 路由、async HTTP transport、错误映射和分页 helper
-- 当前真实打通的 endpoint 包括 `crypto.latest_quotes`，完整 `stocks` 模块，以及 `options` 的历史 batch `bars` / `trades`、latest `latest_quotes` / `latest_trades`，以及 metadata `exchange_codes`
+- 当前真实打通的 endpoint 包括 `crypto.latest_quotes`、完整 `stocks` 模块，以及完整 `options` 模块：历史 batch `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes`
 - `stocks` 的历史 convenience 层现在已经同时覆盖 batch + single：`bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`，以及 `bars_single_all` / `bars_single_stream`、`quotes_single_all` / `quotes_single_stream`、`trades_single_all` / `trades_single_stream`
-- `options` 的历史 convenience 层现在已经开始落地：`bars_all` / `bars_stream` 与 `trades_all` / `trades_stream` 已可用
+- `options` 的 convenience 层现在已经覆盖完整 options 范围：`bars_all` / `bars_stream`、`trades_all` / `trades_stream`、`snapshots_all` / `snapshots_stream`、`chain_all` / `chain_stream` 都已可用
 - `stocks` 现在已经成为第一个完整资源模板：官方 mirror endpoint、batch + single convenience layer、真实 API happy-path、异常路径 mock 与本地 benchmark baseline 都已落地
-- 真实 happy-path 测试已覆盖 `crypto.latest_quotes`、`stocks` 历史 batch / single、latest / snapshot、metadata，以及 `options` 历史 batch、latest 与 metadata 端点
+- 真实 happy-path 测试已覆盖 `crypto.latest_quotes`、`stocks` 历史 batch / single、latest / snapshot、metadata，以及完整 `options` 模块的 historical / latest / snapshot / chain / metadata 端点
 - 当前本地 micro-benchmark baseline 位于 `benches/shared_core.rs` 与 `benches/stocks.rs`
-- 当前下一步继续推进 `Phase 3: Options` 的 snapshot / chain 与 `*_all` / `*_stream`
+- 当前下一步进入 `Phase 3: Options` 的 benchmark 与 phase completion
 
 ## 设计原则
 
@@ -348,6 +348,7 @@ alpaca_data::corporate_actions
 - `options::LatestTradesResponse`
 - `options::SnapshotsResponse`
 - `options::ChainResponse`
+- `options::Greeks`
 
 - `crypto::BarsResponse`
 - `crypto::QuotesResponse`
@@ -631,6 +632,7 @@ ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_latest_snapshot -- --nocapture
 ALPACA_LIVE_TESTS=1 cargo test --test live_stocks_metadata -- --nocapture
 ALPACA_LIVE_TESTS=1 cargo test --test live_options_historical -- --nocapture
 ALPACA_LIVE_TESTS=1 cargo test --test live_options_latest_metadata -- --nocapture
+ALPACA_LIVE_TESTS=1 cargo test --test live_options_snapshots_chain -- --nocapture
 ```
 
 ### mock 的使用边界

@@ -69,3 +69,4 @@
 - Rust 关键字冲突时，只做最小适配，例如 `r#type`
 - metadata 请求也不例外：`stocks::ConditionCodesRequest` 继续使用 `ticktype` 和 `tape`，对应 Rust enum 为 `stocks::TickType` 和 `stocks::Tape`
 - 对于官方直接返回顶层动态 key JSON object 的 endpoint，不额外发明 wrapper；响应类型保持 map 形状，例如 `stocks::SnapshotsResponse`、`stocks::ConditionCodesResponse`、`stocks::ExchangeCodesResponse`、`options::ExchangeCodesResponse`
+- 对于官方同时返回 `next_page_token` 和动态 key map 的 endpoint，继续保留官方 wrapper 结构，例如 `options::SnapshotsResponse` 和 `options::ChainResponse` 继续公开顶层 `snapshots` + `next_page_token`

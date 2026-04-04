@@ -15,8 +15,8 @@
 - 项目目标是构建一个高性能的 Alpaca Market Data API HTTP Rust 客户端。
 - 当前范围只包含 Market Data API，不包含 Trading API、Broker API、WebSocket / SSE。
 - crates.io 包名约定为 `alpaca-data`，代码导入路径约定为 `alpaca_data`。
-- 当前已经落地共享基础层、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 现已打通历史 batch `bars` / `trades`、latest `latest_quotes` / `latest_trades`、metadata `exchange_codes`，以及 `bars_all` / `bars_stream`、`trades_all` / `trades_stream`，并补齐 `tests/live_options_historical.rs` 与 `tests/live_options_latest_metadata.rs`。
-- 当前 `Phase 3: Options` 已启动；下一步继续推进 snapshot / chain 与 `*_all` / `*_stream`。
+- 当前已经落地共享基础层、真实 API 的 `crypto.latest_quotes` smoke test，以及完整的 `stocks` 历史 batch / single、latest、snapshot、metadata 与历史 batch / single `*_all` / `*_stream` 便利层；`options` 现已完整打通 historical `bars` / `trades`、latest `latest_quotes` / `latest_trades`、snapshot family `snapshots` / `chain`、metadata `exchange_codes` 与全部 `*_all` / `*_stream` 便利层，并补齐 `tests/live_options_historical.rs`、`tests/live_options_latest_metadata.rs`、`tests/live_options_snapshots_chain.rs` 与 `tests/mock_options_errors.rs`。
+- 当前 `Phase 3: Options` 已完成 historical、latest、snapshot / chain、metadata 与全部 `*_all` / `*_stream` 便利层；下一步进入 options benchmark 与 phase 收尾。
 
 ## 最高优先级规则
 
@@ -38,6 +38,7 @@
 - 每个 task 完成后的版本提交标题统一使用英文格式：`<type>: <summary> (vX.Y.Z)`。
 - 每个 phase 完成后，必须先全面跑完该 phase 的格式检查、单元测试、集成测试、所需 live tests 和 benchmark 验证，并对齐 `README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md`。
 - 每个 phase 完成后的收尾版本必须自动执行一次 MINOR 递增（`X.Y.Z -> X.(Y+1).0`），然后合并到 `main`、推送远端，并删除当前开发分支。
+- 每个 phase 一旦计划拍板，默认一次性连续执行到该 phase 完成；除非遇到 blocker、官方 API 事实不确定、需求冲突或用户明确要求暂停，否则每个 task 完成后直接进入下一个 task，不再逐 task 询问用户。
 - 每次提交前，都必须全面检查代码、测试、`README.md`、`AGENTS.md`、`memory/`、相关 plan/spec 文档与 `CHANGELOG.md` 是否彼此对齐；发现不一致时先直接修正，再提交。
 - 每次新版本提交都必须同步更新 `CHANGELOG.md`。
 - `CHANGELOG.md` 不只记录结构变化，也要记录各种新变化，包括对外接口、文档、测试、工程配置和内部实现上的重要变化。

@@ -10,6 +10,8 @@ pub(crate) enum Endpoint {
     OptionsTrades,
     OptionsLatestQuotes,
     OptionsLatestTrades,
+    OptionsSnapshots,
+    OptionsChain { underlying_symbol: String },
     OptionsExchangeCodes,
     StocksBars,
     StocksQuotes,
@@ -51,6 +53,16 @@ impl Endpoint {
         Self::OptionsLatestTrades
     }
 
+    pub(crate) fn options_snapshots() -> Self {
+        Self::OptionsSnapshots
+    }
+
+    pub(crate) fn options_chain(underlying_symbol: impl Into<String>) -> Self {
+        Self::OptionsChain {
+            underlying_symbol: underlying_symbol.into(),
+        }
+    }
+
     pub(crate) fn options_exchange_codes() -> Self {
         Self::OptionsExchangeCodes
     }
@@ -89,6 +101,10 @@ impl Endpoint {
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
             Self::OptionsLatestQuotes => Cow::Borrowed("/v1beta1/options/quotes/latest"),
             Self::OptionsLatestTrades => Cow::Borrowed("/v1beta1/options/trades/latest"),
+            Self::OptionsSnapshots => Cow::Borrowed("/v1beta1/options/snapshots"),
+            Self::OptionsChain { underlying_symbol } => {
+                Cow::Owned(format!("/v1beta1/options/snapshots/{underlying_symbol}"))
+            }
             Self::OptionsExchangeCodes => Cow::Borrowed("/v1beta1/options/meta/exchanges"),
             Self::StocksBars => Cow::Borrowed("/v2/stocks/bars"),
             Self::StocksQuotes => Cow::Borrowed("/v2/stocks/quotes"),
@@ -128,6 +144,8 @@ impl Endpoint {
             | Self::OptionsTrades
             | Self::OptionsLatestQuotes
             | Self::OptionsLatestTrades
+            | Self::OptionsSnapshots
+            | Self::OptionsChain { .. }
             | Self::OptionsExchangeCodes
             | Self::StocksBars
             | Self::StocksQuotes
@@ -192,6 +210,14 @@ mod tests {
         assert_eq!(
             Endpoint::options_latest_trades().path(),
             "/v1beta1/options/trades/latest"
+        );
+        assert_eq!(
+            Endpoint::options_snapshots().path(),
+            "/v1beta1/options/snapshots"
+        );
+        assert_eq!(
+            Endpoint::options_chain("AAPL").path(),
+            "/v1beta1/options/snapshots/AAPL"
         );
         assert_eq!(
             Endpoint::options_exchange_codes().path(),
@@ -324,6 +350,7 @@ mod tests {
             Endpoint::OptionsTrades,
             Endpoint::OptionsLatestQuotes,
             Endpoint::OptionsLatestTrades,
+            Endpoint::OptionsSnapshots,
             Endpoint::OptionsExchangeCodes,
         ];
 
@@ -331,5 +358,9 @@ mod tests {
             assert!(endpoint.requires_auth());
             assert!(matches!(endpoint.path(), Cow::Borrowed(_)));
         }
+
+        let endpoint = Endpoint::options_chain("AAPL");
+        assert!(endpoint.requires_auth());
+        assert!(matches!(endpoint.path(), Cow::Owned(_)));
     }
 }

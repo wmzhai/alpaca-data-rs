@@ -15,7 +15,7 @@
 - **Phase 0: Bootstrap**，已完成
 - **Phase 1: Shared Core**，已完成（`v0.1.0`）
 - **Phase 2: Stocks**，已完成（`v0.2.0`）
-- **Phase 3: Options**，进行中（`v0.2.3`，Task 2 已完成）
+- **Phase 3: Options**，进行中（`v0.2.4`，Task 3 已完成）
 - **Phase 4: Crypto**
 - **Phase 5: News + Corporate Actions**
 - **Phase 6: Release Hardening**
@@ -156,7 +156,7 @@
 
 ## Phase 3: Options
 
-**Status:** In progress in `v0.2.3` (Task 2 complete)
+**Status:** In progress in `v0.2.4` (Task 3 complete)
 
 **Delivered so far:**
 
@@ -167,6 +167,9 @@
 - `docs/superpowers/specs/2026-04-03-phase-3-options-design.md` 与 `docs/superpowers/plans/2026-04-03-phase-3-options.md` 已建立 phase 设计与执行文档
 - `options.latest_quotes`、`options.latest_trades` 与 `options.exchange_codes` 已具备真实 HTTP 行为
 - `tests/live_options_latest_metadata.rs` 已用真实 Alpaca API 验证 `options` latest + metadata happy path
+- `options.snapshots` 与 `options.chain` 已具备真实 HTTP 行为，并已接通 `snapshots_all` / `snapshots_stream` / `chain_all` / `chain_stream`
+- `options::Snapshot` 现已包含官方 `greeks` 与 `impliedVolatility` 字段，`SnapshotsResponse` / `ChainResponse` 现已具备 serde 与分页 merge 行为
+- `tests/live_options_snapshots_chain.rs` 与 `tests/mock_options_errors.rs` 已分别覆盖 `options` snapshot/chain happy path 和异常分页/损坏 JSON 故障场景
 
 **Goal:** 完成最复杂的资源域，锁定 option chain 和 snapshots 的正式实现方式。
 
