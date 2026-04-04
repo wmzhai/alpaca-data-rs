@@ -140,7 +140,7 @@
 - Modify: `AGENTS.md`
 - Modify: `docs/superpowers/plans/2026-04-03-full-project-roadmap.md`
 
-- [ ] Add `options` benchmark baseline
-- [ ] Run full phase verification: format, unit/integration/live tests, benchmark compile
-- [ ] Sync all docs to the final `Phase 3` state
-- [ ] Bump MINOR version for phase completion and finish branch per repo rules
+- [x] Add `options` benchmark baseline
+- [x] Run full phase verification: format, unit/integration/live tests, benchmark compile
+- [x] Sync all docs to the final `Phase 3` state
+- [x] Bump MINOR version for phase completion and finish branch per repo rules

@@ -1,7 +1,7 @@
 # Phase 3 Options Design
 
 **Date:** 2026-04-03
-**Status:** Approved for planning
+**Status:** Implemented in `v0.3.0`
 **Target Phase:** `Phase 3: Options`
 
 ## Goal
