@@ -14,13 +14,15 @@ Examples in this repository follow these rules:
 
 ## Example Set
 
-- [`client_builder.rs`](../examples/client_builder.rs)
-- [`stocks_latest_bar.rs`](../examples/stocks_latest_bar.rs)
-- [`stocks_bars_all.rs`](../examples/stocks_bars_all.rs)
-- [`options_chain.rs`](../examples/options_chain.rs)
-- [`crypto_latest_quotes.rs`](../examples/crypto_latest_quotes.rs)
-- [`news_list.rs`](../examples/news_list.rs)
-- [`corporate_actions_list.rs`](../examples/corporate_actions_list.rs)
+| Example | Focus | Auth |
+| --- | --- | --- |
+| [`client_builder.rs`](../examples/client_builder.rs) | client construction and runtime tuning | optional |
+| [`stocks_latest_bar.rs`](../examples/stocks_latest_bar.rs) | authenticated stock latest data | required |
+| [`stocks_bars_all.rs`](../examples/stocks_bars_all.rs) | authenticated stock pagination helper | required |
+| [`options_chain.rs`](../examples/options_chain.rs) | authenticated options chain snapshots | required |
+| [`crypto_latest_quotes.rs`](../examples/crypto_latest_quotes.rs) | public crypto latest quotes | optional |
+| [`news_list.rs`](../examples/news_list.rs) | authenticated news listing | required |
+| [`corporate_actions_list.rs`](../examples/corporate_actions_list.rs) | authenticated corporate actions listing | required |
 
 ## Run Examples
 

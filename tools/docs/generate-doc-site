@@ -1,0 +1,1307 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import textwrap
+import tomllib
+from collections import defaultdict
+from dataclasses import dataclass, field, asdict
+from pathlib import Path
+from typing import Iterable
+
+ROOT = Path(os.environ.get("ALPACA_DOC_SITE_ROOT", Path.cwd())).resolve()
+DOCS_SITE_URL = "https://wmzhai.github.io/alpaca-data-rs/"
+DOCS_RS_BASE = "https://docs.rs/alpaca-data/latest"
+LOCAL_RUSTDOC_BASE = DOCS_SITE_URL.rstrip("/") + "/api"
+README_BLOCK_START = "<!-- docs-site:start -->"
+README_BLOCK_END = "<!-- docs-site:end -->"
+RESOURCE_ORDER = ["stocks", "options", "crypto", "news", "corporate_actions"]
+INTERNAL_REFERENCE_ORDER = ["common", "transport"]
+TOP_LEVEL_ROLES = {
+    ".github": "GitHub workflows for release and site automation",
+    ".agents": "local automation and audit skills",
+    "benches": "Criterion micro-benchmarks",
+    "docs": "public narrative and generated documentation",
+    "examples": "runnable usage examples",
+    "scripts": "public shell entry points",
+    "src": "crate source code",
+    "tests": "integration, live, and mock fault-injection tests",
+    "tools": "public maintenance assets and doc generators",
+    "website": "Docusaurus site shell for GitHub Pages",
+}
+MODULE_SUMMARIES = {
+    "stocks": "Stock market data mirror endpoints, single-symbol variants, latest data, snapshots, and metadata.",
+    "options": "Options market data mirror endpoints, snapshots, chain queries, and exchange metadata.",
+    "crypto": "Crypto historical, latest, orderbook, and snapshot endpoints with public-access support for the implemented routes.",
+    "news": "News listing endpoints with pagination helpers.",
+    "corporate_actions": "Corporate actions listing endpoints with pagination helpers.",
+    "common": "Shared query, response, enum, and timestamp primitives used across resource modules.",
+    "transport": "Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infrastructure.",
+}
+RESOURCE_TITLES = {
+    "corporate_actions": "Corporate Actions",
+}
+STATIC_SIDEBAR = [
+    ("Overview", ["index"]),
+    ("Guide", ["getting-started", "authentication", "layers"]),
+    ("Architecture", ["project-structure"]),
+    (
+        "API Reference",
+        [
+            "reference/index",
+            "reference/client",
+            "reference/stocks",
+            "reference/options",
+            "reference/crypto",
+            "reference/news",
+            "reference/corporate-actions",
+            "reference/common",
+            "reference/transport",
+        ],
+    ),
+    ("Coverage", ["api-coverage"]),
+    ("Examples", ["examples"]),
+    ("Release", ["release-checklist"]),
+]
+
+
+@dataclass
+class PackageInfo:
+    name: str
+    version: str
+    edition: str
+    repository: str
+    documentation: str
+    homepage: str | None
+    license: str
+    keywords: list[str]
+    categories: list[str]
+
+
+@dataclass
+class FieldInfo:
+    name: str
+    official_name: str
+    type_name: str
+    docs: str | None = None
+
+
+@dataclass
+class VariantInfo:
+    name: str
+    official_value: str | None = None
+
+
+@dataclass
+class TypeInfo:
+    name: str
+    kind: str
+    visibility: str
+    summary: str | None
+    fields: list[FieldInfo] = field(default_factory=list)
+    variants: list[VariantInfo] = field(default_factory=list)
+    aliases_to: str | None = None
+    wrapper_examples: list[str] = field(default_factory=list)
+    rustdoc_kind: str = "struct"
+
+    def docs_rs_url(self, module_path: str) -> str:
+        rustdoc_name = self.rustdoc_kind
+        module_url = module_path.replace("::", "/")
+        return f"{DOCS_RS_BASE}/{module_url}/{rustdoc_name}.{self.name}.html"
+
+    def local_rustdoc_url(self, module_path: str) -> str:
+        rustdoc_name = self.rustdoc_kind
+        module_url = module_path.replace("::", "/")
+        return f"{LOCAL_RUSTDOC_BASE}/{module_url}/{rustdoc_name}.{self.name}.html"
+
+
+@dataclass
+class MethodInfo:
+    name: str
+    kind: str
+    owner: str
+    is_async: bool
+    params: list[tuple[str, str]]
+    request_type: str | None
+    return_type: str | None
+    summary: str | None
+
+    def docs_rs_url(self, module_path: str) -> str:
+        module_url = module_path.replace("::", "/")
+        return f"{DOCS_RS_BASE}/{module_url}/struct.{self.owner}.html#method.{self.name}"
+
+    def local_rustdoc_url(self, module_path: str) -> str:
+        module_url = module_path.replace("::", "/")
+        return f"{LOCAL_RUSTDOC_BASE}/{module_url}/struct.{self.owner}.html#method.{self.name}"
+
+
+@dataclass
+class ModuleDoc:
+    slug: str
+    title: str
+    summary: str
+    module_path: str
+    client_type: str | None
+    accessors: list[str]
+    methods: list[MethodInfo]
+    requests: list[TypeInfo]
+    responses: list[TypeInfo]
+    models: list[TypeInfo]
+    enums: list[TypeInfo]
+    shared: list[TypeInfo]
+    examples: list[str]
+    tests: list[str]
+    benches: list[str]
+    doc_slug: str
+    internal_only: bool = False
+
+
+def main() -> int:
+    ensure_directories()
+    package = load_package_info(ROOT)
+    type_index = build_type_index(ROOT / "src")
+    root_client = parse_root_client(type_index)
+    modules = build_module_docs(type_index)
+    generated = build_generated_payload(package, root_client, modules)
+
+    write_json(ROOT / "docs/generated/api-index.json", generated["api_index"])
+    write_json(ROOT / "docs/generated/project-structure.json", generated["project_structure"])
+    write_json(ROOT / "docs/generated/sidebar-schema.json", generated["sidebar_schema"])
+
+    write_text(ROOT / "docs/index.md", render_docs_home(package, modules, root_client))
+    write_text(ROOT / "docs/project-structure.md", render_project_structure(modules))
+    write_text(ROOT / "docs/reference/index.md", render_reference_index(root_client, modules))
+    write_text(ROOT / "docs/reference/client.md", render_client_reference(package, root_client))
+    for module in modules:
+        write_text(ROOT / "docs/reference" / f"{module.doc_slug}.md", render_module_reference(module))
+
+    write_text(ROOT / "website/sidebars.ts", render_sidebars(generated["sidebar_schema"]))
+    update_readme(ROOT / "README.md", package, modules)
+    return 0
+
+
+def ensure_directories() -> None:
+    for path in [
+        ROOT / "docs/reference",
+        ROOT / "docs/generated",
+        ROOT / "website",
+    ]:
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def load_package_info(root: Path) -> PackageInfo:
+    cargo_toml = tomllib.loads((root / "Cargo.toml").read_text())
+    package_data = cargo_toml["package"]
+    version = package_data["version"]
+
+    try:
+        metadata = subprocess.run(
+            ["cargo", "metadata", "--format-version", "1", "--no-deps"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        metadata_json = json.loads(metadata.stdout)
+        package_lookup = {pkg["name"]: pkg for pkg in metadata_json["packages"]}
+        version = package_lookup.get(package_data["name"], {}).get("version", version)
+    except Exception:
+        pass
+
+    return PackageInfo(
+        name=package_data["name"],
+        version=version,
+        edition=str(package_data["edition"]),
+        repository=package_data["repository"],
+        documentation=package_data["documentation"],
+        homepage=package_data.get("homepage"),
+        license=package_data["license"],
+        keywords=list(package_data.get("keywords", [])),
+        categories=list(package_data.get("categories", [])),
+    )
+
+
+def build_type_index(src_root: Path) -> dict[str, dict[str, TypeInfo]]:
+    index: dict[str, dict[str, TypeInfo]] = {}
+    for path in src_root.rglob("*.rs"):
+        relative = path.relative_to(ROOT).as_posix()
+        index[relative] = parse_types(path)
+    return index
+
+
+def parse_types(path: Path) -> dict[str, TypeInfo]:
+    text = path.read_text()
+    lines = text.splitlines()
+    items: dict[str, TypeInfo] = {}
+    i = 0
+    docs: list[str] = []
+    attrs: list[str] = []
+
+    while i < len(lines):
+        stripped = lines[i].strip()
+        if stripped.startswith("///"):
+            docs.append(stripped[3:].strip())
+            i += 1
+            continue
+        if stripped.startswith("#["):
+            attrs.append(stripped)
+            i += 1
+            continue
+
+        struct_match = re.match(r"(pub(?:\([^)]*\))?)\s+struct\s+([A-Za-z0-9_]+)", stripped)
+        enum_match = re.match(r"(pub(?:\([^)]*\))?)\s+enum\s+([A-Za-z0-9_]+)", stripped)
+        type_match = re.match(r"(pub(?:\([^)]*\))?)\s+type\s+([A-Za-z0-9_]+)\s*=\s*(.+);", stripped)
+
+        if struct_match:
+            visibility, name = struct_match.groups()
+            block_lines, next_index = collect_item_block(lines, i)
+            block_text = "\n".join(block_lines)
+            summary = summarize_doc_lines(docs)
+            fields = parse_struct_fields(block_lines)
+            wrappers = parse_wrapper_examples(text, name)
+            kind = "struct"
+            rustdoc_kind = "struct"
+            items[name] = TypeInfo(
+                name=name,
+                kind=kind,
+                visibility=visibility,
+                summary=summary,
+                fields=fields,
+                wrapper_examples=wrappers,
+                rustdoc_kind=rustdoc_kind,
+            )
+            docs = []
+            attrs = []
+            i = next_index
+            continue
+
+        if enum_match:
+            visibility, name = enum_match.groups()
+            block_lines, next_index = collect_item_block(lines, i)
+            summary = summarize_doc_lines(docs)
+            variants = parse_enum_variants(block_lines, text, name)
+            items[name] = TypeInfo(
+                name=name,
+                kind="enum",
+                visibility=visibility,
+                summary=summary,
+                variants=variants,
+                rustdoc_kind="enum",
+            )
+            docs = []
+            attrs = []
+            i = next_index
+            continue
+
+        if type_match:
+            visibility, name, alias_target = type_match.groups()
+            summary = summarize_doc_lines(docs)
+            items[name] = TypeInfo(
+                name=name,
+                kind="type",
+                visibility=visibility,
+                summary=summary,
+                aliases_to=alias_target.strip(),
+                rustdoc_kind="type",
+            )
+            docs = []
+            attrs = []
+            i += 1
+            continue
+
+        if stripped and not stripped.startswith("//"):
+            docs = []
+            attrs = []
+        i += 1
+
+    return items
+
+
+def collect_item_block(lines: list[str], start_index: int) -> tuple[list[str], int]:
+    collected: list[str] = []
+    depth = 0
+    started = False
+    index = start_index
+    while index < len(lines):
+        line = lines[index]
+        collected.append(line)
+        depth += line.count("{")
+        depth -= line.count("}")
+        if "{" in line:
+            started = True
+        if started and depth <= 0:
+            return collected, index + 1
+        if not started and line.strip().endswith(";"):
+            return collected, index + 1
+        index += 1
+    return collected, len(lines)
+
+
+def parse_struct_fields(block_lines: list[str]) -> list[FieldInfo]:
+    fields: list[FieldInfo] = []
+    pending_docs: list[str] = []
+    pending_rename: str | None = None
+
+    for line in block_lines[1:-1]:
+        stripped = line.strip()
+        if stripped.startswith("///"):
+            pending_docs.append(stripped[3:].strip())
+            continue
+        rename_match = re.search(r"rename\s*=\s*\"([^\"]+)\"", stripped)
+        if rename_match:
+            pending_rename = rename_match.group(1)
+            continue
+        field_match = re.match(r"pub\s+([A-Za-z0-9_#]+)\s*:\s*(.+),", stripped)
+        if not field_match:
+            continue
+        field_name, field_type = field_match.groups()
+        official_name = pending_rename or field_name.removeprefix("r#")
+        fields.append(
+            FieldInfo(
+                name=field_name,
+                official_name=official_name,
+                type_name=field_type.strip(),
+                docs=summarize_doc_lines(pending_docs),
+            )
+        )
+        pending_docs = []
+        pending_rename = None
+
+    return fields
+
+
+def parse_enum_variants(block_lines: list[str], text: str, enum_name: str) -> list[VariantInfo]:
+    official_values = parse_enum_official_values(text, enum_name)
+    variants: list[VariantInfo] = []
+    for line in block_lines[1:-1]:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or stripped.startswith("///"):
+            continue
+        stripped = stripped.rstrip(",")
+        if "(" in stripped or "{" in stripped:
+            continue
+        name = stripped.split("=")[0].strip()
+        if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", name):
+            continue
+        variants.append(VariantInfo(name=name, official_value=official_values.get(name)))
+    return variants
+
+
+def parse_enum_official_values(text: str, enum_name: str) -> dict[str, str]:
+    block = extract_impl_block(text, enum_name)
+    if not block:
+        display_block = extract_display_impl_block(text, enum_name)
+        block = display_block or ""
+    mapping = {}
+    for match in re.finditer(r"Self::([A-Za-z0-9_]+)\s*=>\s*\"([^\"]+)\"", block):
+        mapping[match.group(1)] = match.group(2)
+    if not mapping:
+        display_block = extract_display_impl_block(text, enum_name) or ""
+        for match in re.finditer(r"Self::([A-Za-z0-9_]+)\s*=>\s*\"([^\"]+)\"", display_block):
+            mapping[match.group(1)] = match.group(2)
+    return mapping
+
+
+def parse_wrapper_examples(text: str, type_name: str) -> list[str]:
+    block = extract_impl_block(text, type_name)
+    if not block:
+        return []
+    examples = []
+    for match in re.finditer(
+        r"pub\s+fn\s+([A-Za-z0-9_]+)\s*\([^)]*\)\s*->\s*Self\s*\{\s*Self::from\(\"([^\"]+)\"\)",
+        squash_whitespace(block),
+    ):
+        examples.append(f"{match.group(1)} -> {match.group(2)}")
+    return examples
+
+
+def extract_impl_block(text: str, type_name: str) -> str | None:
+    pattern = re.compile(rf"impl\s+{re.escape(type_name)}\s*\{{")
+    match = pattern.search(text)
+    if not match:
+        return None
+    return slice_braced_block(text, match.end() - 1)
+
+
+def extract_display_impl_block(text: str, type_name: str) -> str | None:
+    pattern = re.compile(rf"impl\s+Display\s+for\s+{re.escape(type_name)}\s*\{{")
+    match = pattern.search(text)
+    if not match:
+        return None
+    return slice_braced_block(text, match.end() - 1)
+
+
+def slice_braced_block(text: str, brace_index: int) -> str:
+    depth = 0
+    start = brace_index
+    for index in range(brace_index, len(text)):
+        char = text[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : index + 1]
+    return text[start:]
+
+
+def summarize_doc_lines(lines: list[str]) -> str | None:
+    cleaned = [line.strip() for line in lines if line.strip()]
+    if not cleaned:
+        return None
+    return " ".join(cleaned)
+
+
+def parse_module_reexports(mod_path: Path) -> dict[str, list[tuple[str, str]]]:
+    text = mod_path.read_text()
+    exports: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for statement in re.findall(r"pub use\s+(.+?);", text, re.S):
+        statement = squash_whitespace(statement.strip())
+        if "::{" in statement:
+            prefix, names_block = statement.split("::{", 1)
+            names = [name.strip() for name in names_block.rstrip("}").split(",") if name.strip()]
+        else:
+            prefix, name = statement.rsplit("::", 1)
+            names = [name.strip()]
+        category = reexport_category(prefix)
+        for name in names:
+            exports[category].append((prefix, name))
+    return exports
+
+
+def reexport_category(prefix: str) -> str:
+    if prefix.endswith("client"):
+        return "client"
+    if prefix.endswith("request"):
+        return "request"
+    if prefix.endswith("response"):
+        return "response"
+    if prefix.endswith("model"):
+        return "model"
+    if prefix.endswith("enums"):
+        return "enum"
+    if prefix.endswith("common::enums"):
+        return "enum"
+    return "shared"
+
+
+def parse_root_client(type_index: dict[str, dict[str, TypeInfo]]) -> dict[str, object]:
+    client_text = (ROOT / "src/client.rs").read_text()
+    client_methods = parse_impl_methods(client_text, "Client")
+    builder_methods = parse_impl_methods(client_text, "ClientBuilder")
+    client_types = type_index["src/client.rs"]
+
+    return {
+        "module": "alpaca_data",
+        "type": "Client",
+        "builder_type": "ClientBuilder",
+        "summary": "Root entry point that owns shared transport state and returns resource-specific clients.",
+        "resource_accessors": [method.name for method in client_methods if method.kind == "accessor"],
+        "client_methods": client_methods,
+        "builder_methods": builder_methods,
+        "types": [client_types["Client"], client_types["ClientBuilder"]],
+    }
+
+
+def parse_impl_methods(text: str, owner: str) -> list[MethodInfo]:
+    block = extract_impl_block(text, owner)
+    if not block:
+        return []
+    lines = block.splitlines()[1:-1]
+    methods: list[MethodInfo] = []
+    docs: list[str] = []
+    index = 0
+    while index < len(lines):
+        stripped = lines[index].strip()
+        if stripped.startswith("///"):
+            docs.append(stripped[3:].strip())
+            index += 1
+            continue
+        if re.match(r"pub\s+(async\s+)?fn\s+", stripped):
+            signature_lines = [stripped]
+            while "{" not in signature_lines[-1] and index + 1 < len(lines):
+                index += 1
+                signature_lines.append(lines[index].strip())
+            signature = squash_whitespace(" ".join(signature_lines))
+            method = parse_method_signature(signature, owner, summarize_doc_lines(docs))
+            if method is not None:
+                methods.append(method)
+            docs = []
+            index += 1
+            continue
+        if stripped and not stripped.startswith("#"):
+            docs = []
+        index += 1
+    return methods
+
+
+def parse_method_signature(signature: str, owner: str, summary: str | None) -> MethodInfo | None:
+    match = re.match(
+        r"pub\s+(async\s+)?fn\s+([A-Za-z0-9_]+)\s*\((.*?)\)\s*(?:->\s*(.+?))?\s*\{",
+        signature,
+    )
+    if not match:
+        return None
+    async_prefix, name, params_blob, return_type = match.groups()
+    params: list[tuple[str, str]] = []
+    request_type = None
+    for param in split_top_level(params_blob):
+        param = param.strip()
+        if not param or param in {"&self", "&mut self", "self", "mut self"}:
+            continue
+        if ":" not in param:
+            continue
+        param_name, param_type = [part.strip() for part in param.split(":", 1)]
+        params.append((param_name, param_type))
+        if request_type is None:
+            request_type = param_type
+    kind = classify_method(owner, name)
+    return MethodInfo(
+        name=name,
+        kind=kind,
+        owner=owner,
+        is_async=bool(async_prefix),
+        params=params,
+        request_type=request_type,
+        return_type=return_type.strip() if return_type else None,
+        summary=summary,
+    )
+
+
+def classify_method(owner: str, name: str) -> str:
+    if owner == "ClientBuilder":
+        return "builder"
+    if owner == "Client" and name in {"stocks", "options", "crypto", "news", "corporate_actions"}:
+        return "accessor"
+    if owner == "Client" and name in {"new", "builder"}:
+        return "builder"
+    if name.endswith("_all") or name.endswith("_stream"):
+        return "convenience"
+    return "mirror"
+
+
+def split_top_level(text: str) -> list[str]:
+    parts: list[str] = []
+    current: list[str] = []
+    depth = 0
+    for char in text:
+        if char in "<({[":
+            depth += 1
+        elif char in ">)}]" and depth > 0:
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append("".join(current))
+            current = []
+            continue
+        current.append(char)
+    if current:
+        parts.append("".join(current))
+    return parts
+
+
+def build_module_docs(type_index: dict[str, dict[str, TypeInfo]]) -> list[ModuleDoc]:
+    modules: list[ModuleDoc] = []
+    example_paths = sorted((ROOT / "examples").glob("*.rs"))
+    test_paths = sorted((ROOT / "tests").glob("*.rs"))
+    bench_paths = sorted((ROOT / "benches").glob("*.rs"))
+
+    for slug in RESOURCE_ORDER + INTERNAL_REFERENCE_ORDER:
+        module_path = ROOT / "src" / slug.replace("corporate_actions", "corporate_actions")
+        mod_file = module_path / "mod.rs"
+        mod_text = mod_file.read_text() if mod_file.exists() else ""
+        summary = module_doc_summary(slug, mod_text)
+        title = module_title(slug)
+        exports = parse_module_reexports(mod_file) if mod_file.exists() else defaultdict(list)
+        module_name = f"alpaca_data::{slug}"
+        doc_slug = slug.replace("_", "-")
+
+        requests = collect_exported_types(exports.get("request", []), slug, type_index)
+        responses = collect_exported_types(exports.get("response", []), slug, type_index)
+        models = collect_exported_types(exports.get("model", []), slug, type_index)
+        enums = collect_exported_types(exports.get("enum", []), slug, type_index)
+        shared = collect_exported_types(exports.get("shared", []), slug, type_index)
+        client_types = collect_exported_types(exports.get("client", []), slug, type_index)
+        client_type = client_types[0].name if client_types else None
+
+        if slug in INTERNAL_REFERENCE_ORDER:
+            requests = []
+            responses = []
+            models = []
+            enums = []
+            shared = collect_internal_types(slug, type_index)
+
+        methods = []
+        accessors: list[str] = []
+        if client_type:
+            methods = parse_impl_methods((ROOT / "src" / slug / "client.rs").read_text(), client_type)
+        if slug in RESOURCE_ORDER:
+            accessors = [slug]
+
+        examples = related_paths(example_paths, slug)
+        tests = related_paths(test_paths, slug)
+        benches = related_paths(bench_paths, slug)
+        if slug == "corporate_actions":
+            examples = related_paths(example_paths, slug, fallback_token="corporate_actions")
+            tests = related_paths(test_paths, slug, fallback_token="corporate_actions")
+            benches = related_paths(bench_paths, slug, fallback_token="corporate_actions")
+        if slug == "common":
+            examples = []
+            tests = [path.relative_to(ROOT).as_posix() for path in test_paths if "public_api" in path.name]
+            benches = []
+        if slug == "transport":
+            examples = []
+            tests = [path.relative_to(ROOT).as_posix() for path in test_paths if "transport" in path.name]
+            benches = [path.relative_to(ROOT).as_posix() for path in bench_paths if "shared_core" in path.name]
+
+        modules.append(
+            ModuleDoc(
+                slug=slug,
+                title=title,
+                summary=summary,
+                module_path=module_name,
+                client_type=client_type,
+                accessors=accessors,
+                methods=methods,
+                requests=requests,
+                responses=responses,
+                models=models,
+                enums=enums,
+                shared=shared,
+                examples=examples,
+                tests=tests,
+                benches=benches,
+                doc_slug=doc_slug,
+                internal_only=slug in INTERNAL_REFERENCE_ORDER,
+            )
+        )
+
+    return modules
+
+
+def collect_exported_types(
+    exports: list[tuple[str, str]], slug: str, type_index: dict[str, dict[str, TypeInfo]]
+) -> list[TypeInfo]:
+    collected: list[TypeInfo] = []
+    for source, name in exports:
+        file_path = resolve_source_file(slug, source)
+        if file_path is None:
+            continue
+        file_types = type_index.get(file_path, {})
+        type_info = file_types.get(name)
+        if type_info:
+            collected.append(type_info)
+    return sorted(collected, key=lambda item: item.name)
+
+
+def collect_internal_types(slug: str, type_index: dict[str, dict[str, TypeInfo]]) -> list[TypeInfo]:
+    base = f"src/{slug}/"
+    collected: list[TypeInfo] = []
+    for file_path, items in type_index.items():
+        if file_path.startswith(base):
+            collected.extend(items.values())
+    return sorted(collected, key=lambda item: item.name)
+
+
+def resolve_source_file(slug: str, source: str) -> str | None:
+    if source.startswith("crate::common::enums"):
+        return "src/common/enums.rs"
+    if source.startswith("crate::common::time"):
+        return "src/common/time.rs"
+    if source.startswith("crate::"):
+        remainder = source.removeprefix("crate::")
+        return f"src/{remainder.replace('::', '/')}.rs"
+    return f"src/{slug}/{source.replace('::', '/')}.rs"
+
+
+def module_doc_summary(slug: str, mod_text: str) -> str:
+    doc_lines = []
+    for line in mod_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("//!"):
+            content = stripped[3:].strip()
+            if content.startswith("-"):
+                break
+            doc_lines.append(content)
+            continue
+        if doc_lines:
+            break
+    summary = summarize_doc_lines(doc_lines)
+    return summary or MODULE_SUMMARIES[slug]
+
+
+def module_title(slug: str) -> str:
+    if slug in RESOURCE_TITLES:
+        return RESOURCE_TITLES[slug]
+    return slug.replace("_", " ").title()
+
+
+def related_paths(paths: Iterable[Path], slug: str, fallback_token: str | None = None) -> list[str]:
+    token = fallback_token or slug
+    token = token.replace("-", "_")
+    matches = []
+    for path in paths:
+        if token in path.name:
+            matches.append(path.relative_to(ROOT).as_posix())
+    return matches
+
+
+def build_generated_payload(
+    package: PackageInfo, root_client: dict[str, object], modules: list[ModuleDoc]
+) -> dict[str, object]:
+    api_index = {
+        "crate": asdict(package),
+        "root": {
+            "type": root_client["type"],
+            "builder_type": root_client["builder_type"],
+            "module": root_client["module"],
+            "resource_accessors": root_client["resource_accessors"],
+        },
+        "modules": [api_index_module(module) for module in modules],
+    }
+
+    project_structure = {
+        "top_level": [
+            {"path": name, "kind": "dir", "role": role}
+            for name, role in sorted(TOP_LEVEL_ROLES.items())
+            if (ROOT / name).exists()
+        ],
+        "modules": [
+            {
+                "name": module.slug,
+                "path": f"src/{module.slug}",
+                "files": source_files_for_module(module.slug),
+            }
+            for module in modules
+            if (ROOT / "src" / module.slug).exists()
+        ],
+        "examples": [
+            {
+                "path": path,
+                "resource": classify_related_resource(path),
+            }
+            for path in sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "examples").glob("*.rs"))
+        ],
+        "tests": [
+            {
+                "path": path,
+                "kind": classify_test_kind(path),
+                "resource": classify_related_resource(path),
+            }
+            for path in sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "tests").glob("*.rs"))
+        ],
+        "benches": [
+            {
+                "path": path,
+                "resource": classify_related_resource(path),
+            }
+            for path in sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "benches").glob("*.rs"))
+        ],
+    }
+
+    sidebar_schema = {
+        "sections": [
+            {"label": label, "items": items}
+            for label, items in STATIC_SIDEBAR
+        ]
+    }
+
+    return {
+        "api_index": api_index,
+        "project_structure": project_structure,
+        "sidebar_schema": sidebar_schema,
+    }
+
+
+def api_index_module(module: ModuleDoc) -> dict[str, object]:
+    return {
+        "slug": module.doc_slug,
+        "module": module.module_path,
+        "title": module.title,
+        "client_type": module.client_type,
+        "summary": module.summary,
+        "internal_only": module.internal_only,
+        "methods": [
+            {
+                "name": method.name,
+                "kind": method.kind,
+                "async": method.is_async,
+                "request_type": method.request_type,
+                "response_type": method.return_type,
+                "docs_rs_url": method.docs_rs_url(module.module_path),
+                "local_rustdoc_url": method.local_rustdoc_url(module.module_path),
+            }
+            for method in module.methods
+        ],
+        "types": {
+            "requests": [type_info.name for type_info in module.requests],
+            "responses": [type_info.name for type_info in module.responses],
+            "models": [type_info.name for type_info in module.models],
+            "enums": [type_info.name for type_info in module.enums],
+            "shared": [type_info.name for type_info in module.shared],
+        },
+        "convenience_methods": [method.name for method in module.methods if method.kind == "convenience"],
+        "examples": module.examples,
+        "tests": module.tests,
+        "benches": module.benches,
+    }
+
+
+def source_files_for_module(slug: str) -> list[str]:
+    path = ROOT / "src" / slug
+    if not path.exists():
+        return []
+    return sorted(file.name for file in path.glob("*.rs"))
+
+
+def classify_test_kind(path: str) -> str:
+    name = Path(path).name
+    if name.startswith("live_"):
+        return "live"
+    if name.startswith("mock_"):
+        return "mock"
+    return "integration"
+
+
+def classify_related_resource(path: str) -> str:
+    name = Path(path).name
+    for slug in RESOURCE_ORDER + INTERNAL_REFERENCE_ORDER:
+        token = slug.replace("corporate_actions", "corporate_actions")
+        if token in name:
+            return slug
+    if "client" in name or "public_api" in name or "doc_site" in name:
+        return "client"
+    if "shared_core" in name or "transport" in name:
+        return "transport"
+    return "shared"
+
+
+def render_docs_home(package: PackageInfo, modules: list[ModuleDoc], root_client: dict[str, object]) -> str:
+    resource_rows = []
+    for module in modules:
+        if module.internal_only:
+            continue
+        resource_rows.append(
+            f"| [{module.title}](./reference/{module.doc_slug}.md) | `{module.client_type}` | {count_kind(module.methods, 'mirror')} | {count_kind(module.methods, 'convenience')} | {len(module.examples)} | {len(module.tests)} |"
+        )
+
+    return clean_markdown(
+        f"""\
+        ---
+        title: "Documentation Home"
+        description: "Public documentation home for the alpaca-data Rust client."
+        sidebar_position: 1
+        ---
+
+        # Documentation Home
+
+        `alpaca-data` is an async Rust client for the Alpaca Market Data HTTP API. This site is the public narrative companion to the crate, while API deep links point to both `docs.rs` and the project-hosted rustdoc bundle.
+
+        ## Site Map
+
+        - Start with [Getting Started](./getting-started.md) for install, client construction, and the two-layer API model.
+        - Use [Authentication](./authentication.md) for current credential behavior and live-test environment setup.
+        - Read [Layers](./layers.md) for the mirror-versus-convenience contract.
+        - Browse [Project Structure](./project-structure.md) for the repository layout and generated structure inventory.
+        - Use [API Reference](./reference/index.md) for module-level public API pages with rustdoc deep links.
+        - Use [API Coverage](./api-coverage.md) for the strict endpoint-to-method parity ledger.
+        - Use [Examples](./examples.md) for runnable entry points.
+        - Use [Release Checklist](./release-checklist.md) for release-readiness validation.
+
+        ## Root Entry Point
+
+        - Crate: `{package.name}`
+        - Version: `v{package.version}`
+        - Root client: `alpaca_data::Client`
+        - Resource accessors: {", ".join(f"`{name}()`" for name in root_client['resource_accessors'])}
+        - Documentation hosts:
+          - Site: `{DOCS_SITE_URL}`
+          - docs.rs: `{package.documentation}`
+          - Repository: `{package.repository}`
+
+        ## Resource Families
+
+        | Resource | Client | Mirror Methods | Convenience Methods | Examples | Tests |
+        | --- | --- | ---: | ---: | ---: | ---: |
+        {chr(10).join(resource_rows)}
+
+        ## API Layers
+
+        - Mirror layer methods preserve the official HTTP endpoint shape and field words.
+        - Convenience helpers only add `*_all` and `*_stream` pagination flows.
+        - Request and response field words stay aligned with Alpaca's official API.
+        - Public Rust naming stays idiomatic: modules lowercase, types `PascalCase`, methods and fields `snake_case`.
+
+        ## Documentation Generation
+
+        The generated pages under `docs/reference/`, `docs/project-structure.md`, `docs/generated/`, and `website/sidebars.ts` are produced by `./tools/docs/generate-doc-site`.
+
+        The generated site is designed for GitHub Pages project hosting at `{DOCS_SITE_URL}`.
+        """
+    )
+
+
+def render_project_structure(modules: list[ModuleDoc]) -> str:
+    top_level_rows = [
+        f"| `{name}` | {role} |"
+        for name, role in sorted(TOP_LEVEL_ROLES.items())
+        if (ROOT / name).exists()
+    ]
+    source_tree = []
+    for module in modules:
+        if not (ROOT / "src" / module.slug).exists():
+            continue
+        source_tree.append(f"- `src/{module.slug}/`")
+        for file_name in source_files_for_module(module.slug):
+            source_tree.append(f"  - `{file_name}`")
+
+    example_rows = [f"| `{path.relative_to(ROOT).as_posix()}` | {classify_related_resource(path.relative_to(ROOT).as_posix())} |" for path in sorted((ROOT / 'examples').glob('*.rs'))]
+    test_rows = [f"| `{path.relative_to(ROOT).as_posix()}` | {classify_test_kind(path.relative_to(ROOT).as_posix())} | {classify_related_resource(path.relative_to(ROOT).as_posix())} |" for path in sorted((ROOT / 'tests').glob('*.rs'))]
+    bench_rows = [f"| `{path.relative_to(ROOT).as_posix()}` | {classify_related_resource(path.relative_to(ROOT).as_posix())} |" for path in sorted((ROOT / 'benches').glob('*.rs'))]
+
+    return clean_markdown(
+        f"""\
+        ---
+        title: "Project Structure"
+        description: "Repository layout, module boundaries, examples, tests, and benchmarks."
+        sidebar_position: 4
+        ---
+
+        # Project Structure
+
+        ## Top-Level Directories
+
+        | Path | Responsibility |
+        | --- | --- |
+        {chr(10).join(top_level_rows)}
+
+        ## Source Tree
+
+        {chr(10).join(source_tree)}
+
+        ## Examples
+
+        | Example | Resource |
+        | --- | --- |
+        {chr(10).join(example_rows)}
+
+        ## Tests
+
+        | Test | Kind | Resource |
+        | --- | --- | --- |
+        {chr(10).join(test_rows)}
+
+        ## Benchmarks
+
+        | Benchmark | Resource |
+        | --- | --- |
+        {chr(10).join(bench_rows)}
+
+        ## Documentation Pipeline
+
+        - `./tools/docs/generate-doc-site` regenerates the project structure page, API reference pages, sidebar schema, and the generated README documentation block.
+        - `website/` contains the Docusaurus site shell that consumes the committed docs under `docs/`.
+        - GitHub Pages builds the site and bundles fresh `cargo doc --no-deps` output under `/api/`.
+        """
+    )
+
+
+def render_reference_index(root_client: dict[str, object], modules: list[ModuleDoc]) -> str:
+    rows = []
+    for module in modules:
+        rows.append(
+            f"| [{module.title}](./{module.doc_slug}.md) | `{module.module_path}` | `{module.client_type or 'internal'}` | {count_kind(module.methods, 'mirror')} | {count_kind(module.methods, 'convenience')} | {'Internal only' if module.internal_only else 'Public'} |"
+        )
+    return clean_markdown(
+        f"""\
+        ---
+        title: "API Reference Index"
+        description: "Module-by-module reference index for alpaca-data."
+        sidebar_position: 1
+        ---
+
+        # API Reference
+
+        ## Root Client
+
+        - Type: `alpaca_data::Client`
+        - Builder: `alpaca_data::ClientBuilder`
+        - Accessors: {", ".join(f"`{name}()`" for name in root_client['resource_accessors'])}
+        - [Client reference](./client.md)
+
+        ## Module Index
+
+        | Module | Path | Client | Mirror Methods | Convenience Methods | Surface |
+        | --- | --- | --- | ---: | ---: | --- |
+        {chr(10).join(rows)}
+        """
+    )
+
+
+def render_client_reference(package: PackageInfo, root_client: dict[str, object]) -> str:
+    client_rows = [render_method_row(method, root_client["module"]) for method in root_client["client_methods"]]
+    builder_rows = [render_method_row(method, root_client["module"]) for method in root_client["builder_methods"]]
+    type_rows = [
+        f"| `{type_info.name}` | {type_info.kind} | {safe_summary(type_info.summary)} | [docs.rs]({type_info.docs_rs_url(root_client['module'])}) | [site]({type_info.local_rustdoc_url(root_client['module'])}) |"
+        for type_info in root_client["types"]
+    ]
+
+    return clean_markdown(
+        f"""\
+        ---
+        title: "Client"
+        description: "Root client and builder reference."
+        sidebar_position: 2
+        ---
+
+        # Client
+
+        - Module path: `alpaca_data`
+        - docs.rs: [{package.documentation}]({package.documentation})
+        - Site rustdoc root: [{DOCS_SITE_URL}api/]({DOCS_SITE_URL}api/)
+
+        ## Public Types
+
+        | Type | Kind | Summary | docs.rs | Site rustdoc |
+        | --- | --- | --- | --- | --- |
+        {chr(10).join(type_rows)}
+
+        ## `Client` Methods
+
+        | Method | Kind | Async | Request | Return | docs.rs | Site rustdoc |
+        | --- | --- | --- | --- | --- | --- | --- |
+        {chr(10).join(client_rows)}
+
+        ## `ClientBuilder` Methods
+
+        | Method | Kind | Async | Request | Return | docs.rs | Site rustdoc |
+        | --- | --- | --- | --- | --- | --- | --- |
+        {chr(10).join(builder_rows)}
+        """
+    )
+
+
+def render_module_reference(module: ModuleDoc) -> str:
+    methods = module.methods or []
+    method_rows = [render_method_row(method, module.module_path) for method in methods]
+    request_rows = [render_type_row(type_info, module.module_path) for type_info in module.requests]
+    response_rows = [render_type_row(type_info, module.module_path) for type_info in module.responses]
+    model_rows = [render_type_row(type_info, module.module_path) for type_info in module.models]
+    enum_rows = [render_type_row(type_info, module.module_path) for type_info in module.enums]
+    shared_rows = [render_type_row(type_info, module.module_path) for type_info in module.shared]
+
+    sections = [
+        "---",
+        f'title: "{module.title}"',
+        f'description: "{module.summary}"',
+        "---",
+        "",
+        f"# {module.title}",
+        "",
+        f"- Module path: `{module.module_path}`",
+        f"- Client type: `{module.client_type}`" if module.client_type else "- Client type: internal-only module",
+        f"- docs.rs module: [{DOCS_RS_BASE}/{module.module_path.replace('::', '/')}/]({DOCS_RS_BASE}/{module.module_path.replace('::', '/')}/)",
+        f"- Site rustdoc module: [{DOCS_SITE_URL}api/{module.module_path.replace('::', '/')}/]({DOCS_SITE_URL}api/{module.module_path.replace('::', '/')}/)",
+        f"- Scope: {'Internal architecture support only' if module.internal_only else 'Public API surface'}",
+        "",
+        f"{module.summary}",
+        "",
+    ]
+
+    if method_rows:
+        sections.extend(
+            [
+                "## Methods",
+                "",
+                "| Method | Kind | Async | Request | Return | docs.rs | Site rustdoc |",
+                "| --- | --- | --- | --- | --- | --- | --- |",
+                *method_rows,
+                "",
+            ]
+        )
+
+    for heading, type_list in [
+        ("Requests", module.requests),
+        ("Responses", module.responses),
+        ("Models", module.models),
+        ("Enums", module.enums),
+        ("Shared Types", module.shared),
+    ]:
+        if not type_list:
+            continue
+        sections.extend([f"## {heading}", ""])
+        for type_info in type_list:
+            sections.extend(render_type_section(type_info, module.module_path))
+        sections.append("")
+
+    sections.extend(
+        [
+            "## Related Repository Artifacts",
+            "",
+            f"- Examples: {render_path_list(module.examples)}",
+            f"- Tests: {render_path_list(module.tests)}",
+            f"- Benchmarks: {render_path_list(module.benches)}",
+            "",
+            "## Coverage Notes",
+            "",
+            "- The strict endpoint parity ledger for this module lives in [API Coverage](../api-coverage.md).",
+            "- Generated reference pages mirror the shipped Rust surface and do not claim unimplemented Alpaca endpoints as available.",
+        ]
+    )
+
+    return "\n".join(sections).strip() + "\n"
+
+
+def render_type_row(type_info: TypeInfo, module_path: str) -> str:
+    return (
+        f"| `{type_info.name}` | {type_info.kind} | {safe_summary(type_info.summary)} | "
+        f"[docs.rs]({type_info.docs_rs_url(module_path)}) | [site]({type_info.local_rustdoc_url(module_path)}) |"
+    )
+
+
+def render_type_section(type_info: TypeInfo, module_path: str) -> list[str]:
+    lines = [
+        f"### `{type_info.name}`",
+        "",
+        f"- Kind: {type_info.kind}",
+        f"- Summary: {safe_summary(type_info.summary)}",
+        f"- docs.rs: [{type_info.name}]({type_info.docs_rs_url(module_path)})",
+        f"- Site rustdoc: [{type_info.name}]({type_info.local_rustdoc_url(module_path)})",
+    ]
+    if type_info.aliases_to:
+        lines.append(f"- Alias target: `{type_info.aliases_to}`")
+    if type_info.wrapper_examples:
+        lines.append(f"- Example constructors: {', '.join(f'`{example}`' for example in type_info.wrapper_examples)}")
+    if type_info.fields:
+        lines.extend(["", "| Field | Official Word | Type | Notes |", "| --- | --- | --- | --- |"])
+        for field in type_info.fields:
+            lines.append(
+                f"| `{field.name}` | `{field.official_name}` | `{field.type_name}` | {safe_summary(field.docs)} |"
+            )
+    if type_info.variants:
+        lines.extend(["", "| Variant | Official Value |", "| --- | --- |"])
+        for variant in type_info.variants:
+            lines.append(
+                f"| `{variant.name}` | `{variant.official_value or variant.name}` |"
+            )
+    lines.append("")
+    return lines
+
+
+def render_method_row(method: MethodInfo, module_path: str) -> str:
+    request = f"`{method.request_type}`" if method.request_type else "-"
+    response = f"`{method.return_type}`" if method.return_type else "-"
+    return (
+        f"| `{method.name}` | {method.kind} | {'yes' if method.is_async else 'no'} | {request} | {response} | "
+        f"[docs.rs]({method.docs_rs_url(module_path)}) | [site]({method.local_rustdoc_url(module_path)}) |"
+    )
+
+
+def render_sidebars(schema: dict[str, object]) -> str:
+    lines = [
+        'import type {SidebarsConfig} from "@docusaurus/plugin-content-docs";',
+        "",
+        "const sidebars: SidebarsConfig = {",
+        "  docsSidebar: [",
+    ]
+    for section_index, section in enumerate(schema["sections"]):
+        lines.extend(
+            [
+                "    {",
+                '      type: "category",',
+                f'      label: "{section["label"]}",',
+                "      collapsed: false,",
+                "      items: [",
+            ]
+        )
+        for item_index, item in enumerate(section["items"]):
+            suffix = "," if item_index < len(section["items"]) - 1 else ""
+            lines.append(f'        "{item}"{suffix}')
+        suffix = "," if section_index < len(schema["sections"]) - 1 else ""
+        lines.extend(["      ]", f"    }}{suffix}"])
+    lines.extend(["  ]", "};", "", "export default sidebars;"])
+    return "\n".join(lines) + "\n"
+
+
+def update_readme(path: Path, package: PackageInfo, modules: list[ModuleDoc]) -> None:
+    readme = path.read_text()
+    block = textwrap.dedent(
+        f"""\
+        {README_BLOCK_START}
+        - Documentation site: {DOCS_SITE_URL}
+        - Primary API host after publish: {package.documentation}
+        - Project Pages route: `{DOCS_SITE_URL}`
+        - Local generation: `./tools/docs/generate-doc-site`
+        - Local site install: `npm install --prefix website`
+        - Local site start: `npm run start --prefix website`
+        - Local site build: `npm run build --prefix website`
+        - API reference sections:
+          - [Documentation Home](docs/index.md)
+          - [Getting Started](docs/getting-started.md)
+          - [Authentication](docs/authentication.md)
+          - [Layers](docs/layers.md)
+          - [Project Structure](docs/project-structure.md)
+          - [API Reference](docs/reference/index.md)
+          - [API Coverage](docs/api-coverage.md)
+          - [Examples](docs/examples.md)
+          - [Release Checklist](docs/release-checklist.md)
+        - Generated module references: {", ".join(f'`docs/reference/{module.doc_slug}.md`' for module in modules)}
+        {README_BLOCK_END}
+        """
+    ).strip()
+
+    if "## Documentation Map" in readme:
+        pattern = re.compile(
+            rf"(## Documentation Map\n\n)(?:{re.escape(README_BLOCK_START)}.*?{re.escape(README_BLOCK_END)}\n?)?(.*?)(\n## API Audit Script)",
+            re.S,
+        )
+        replacement = rf"\1{block}\n\n\3"
+        updated, count = pattern.subn(replacement, readme, count=1)
+        if count == 0:
+            raise SystemExit("failed to replace README documentation map block")
+    else:
+        marker = "## API Audit Script"
+        if marker not in readme:
+            raise SystemExit("README is missing the API audit section marker")
+        updated = readme.replace(marker, f"## Documentation Map\n\n{block}\n\n{marker}", 1)
+
+    path.write_text(updated)
+
+
+def write_json(path: Path, payload: object) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=False) + "\n")
+
+
+def write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+
+
+def safe_summary(summary: str | None) -> str:
+    return summary or "-"
+
+
+def squash_whitespace(value: str) -> str:
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def clean_markdown(value: str) -> str:
+    lines = textwrap.dedent(value).strip().splitlines()
+    cleaned = [line[8:] if line.startswith("        ") else line for line in lines]
+    return "\n".join(cleaned) + "\n"
+
+
+def count_kind(methods: list[MethodInfo], kind: str) -> int:
+    return sum(1 for method in methods if method.kind == kind)
+
+
+def render_path_list(paths: list[str]) -> str:
+    if not paths:
+        return "-"
+    return ", ".join(f"`{path}`" for path in paths)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

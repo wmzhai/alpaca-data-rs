@@ -1,0 +1,972 @@
+{
+  "crate": {
+    "name": "alpaca-data",
+    "version": "0.8.0",
+    "edition": "2024",
+    "repository": "https://github.com/wmzhai/alpaca-data-rs",
+    "documentation": "https://docs.rs/alpaca-data",
+    "homepage": "https://wmzhai.github.io/alpaca-data-rs/",
+    "license": "MIT OR Apache-2.0",
+    "keywords": [
+      "alpaca",
+      "market-data",
+      "stocks",
+      "options",
+      "crypto"
+    ],
+    "categories": [
+      "api-bindings",
+      "asynchronous"
+    ]
+  },
+  "root": {
+    "type": "Client",
+    "builder_type": "ClientBuilder",
+    "module": "alpaca_data",
+    "resource_accessors": [
+      "stocks",
+      "options",
+      "crypto",
+      "news",
+      "corporate_actions"
+    ]
+  },
+  "modules": [
+    {
+      "slug": "stocks",
+      "module": "alpaca_data::stocks",
+      "title": "Stocks",
+      "client_type": "StocksClient",
+      "summary": "Stock market data endpoints. Mirror methods cover historical batch and single-symbol endpoints, latest endpoints, snapshots, and metadata endpoints. Convenience methods add:",
+      "internal_only": false,
+      "methods": [
+        {
+          "name": "bars",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "BarsRequest",
+          "response_type": "Result<BarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars"
+        },
+        {
+          "name": "bars_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "BarsRequest",
+          "response_type": "Result<BarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_all"
+        },
+        {
+          "name": "bars_single",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "BarsSingleRequest",
+          "response_type": "Result<BarsSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_single",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_single"
+        },
+        {
+          "name": "bars_single_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "BarsSingleRequest",
+          "response_type": "Result<BarsSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_single_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_single_all"
+        },
+        {
+          "name": "bars_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "BarsRequest",
+          "response_type": "ResponseStream<Result<BarsResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_stream"
+        },
+        {
+          "name": "bars_single_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "BarsSingleRequest",
+          "response_type": "ResponseStream<Result<BarsSingleResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.bars_single_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.bars_single_stream"
+        },
+        {
+          "name": "quotes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "QuotesRequest",
+          "response_type": "Result<QuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.quotes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.quotes"
+        },
+        {
+          "name": "quotes_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "QuotesRequest",
+          "response_type": "Result<QuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.quotes_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.quotes_all"
+        },
+        {
+          "name": "quotes_single",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "QuotesSingleRequest",
+          "response_type": "Result<QuotesSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.quotes_single",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.quotes_single"
+        },
+        {
+          "name": "quotes_single_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "QuotesSingleRequest",
+          "response_type": "Result<QuotesSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.quotes_single_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.quotes_single_all"
+        },
+        {
+          "name": "quotes_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "QuotesRequest",
+          "response_type": "ResponseStream<Result<QuotesResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.quotes_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.quotes_stream"
+        },
+        {
+          "name": "quotes_single_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "QuotesSingleRequest",
+          "response_type": "ResponseStream<Result<QuotesSingleResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.quotes_single_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.quotes_single_stream"
+        },
+        {
+          "name": "trades",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "TradesRequest",
+          "response_type": "Result<TradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.trades",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.trades"
+        },
+        {
+          "name": "trades_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "TradesRequest",
+          "response_type": "Result<TradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.trades_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.trades_all"
+        },
+        {
+          "name": "trades_single",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "TradesSingleRequest",
+          "response_type": "Result<TradesSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.trades_single",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.trades_single"
+        },
+        {
+          "name": "trades_single_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "TradesSingleRequest",
+          "response_type": "Result<TradesSingleResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.trades_single_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.trades_single_all"
+        },
+        {
+          "name": "trades_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "TradesRequest",
+          "response_type": "ResponseStream<Result<TradesResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.trades_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.trades_stream"
+        },
+        {
+          "name": "trades_single_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "TradesSingleRequest",
+          "response_type": "ResponseStream<Result<TradesSingleResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.trades_single_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.trades_single_stream"
+        },
+        {
+          "name": "latest_bars",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestBarsRequest",
+          "response_type": "Result<LatestBarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.latest_bars",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.latest_bars"
+        },
+        {
+          "name": "latest_bar",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestBarRequest",
+          "response_type": "Result<LatestBarResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.latest_bar",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.latest_bar"
+        },
+        {
+          "name": "latest_quotes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestQuotesRequest",
+          "response_type": "Result<LatestQuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.latest_quotes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.latest_quotes"
+        },
+        {
+          "name": "latest_quote",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestQuoteRequest",
+          "response_type": "Result<LatestQuoteResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.latest_quote",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.latest_quote"
+        },
+        {
+          "name": "latest_trades",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestTradesRequest",
+          "response_type": "Result<LatestTradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.latest_trades",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.latest_trades"
+        },
+        {
+          "name": "latest_trade",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestTradeRequest",
+          "response_type": "Result<LatestTradeResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.latest_trade",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.latest_trade"
+        },
+        {
+          "name": "snapshots",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "SnapshotsRequest",
+          "response_type": "Result<SnapshotsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.snapshots",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.snapshots"
+        },
+        {
+          "name": "snapshot",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "SnapshotRequest",
+          "response_type": "Result<SnapshotResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.snapshot",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.snapshot"
+        },
+        {
+          "name": "condition_codes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "ConditionCodesRequest",
+          "response_type": "Result<ConditionCodesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.condition_codes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.condition_codes"
+        },
+        {
+          "name": "exchange_codes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": null,
+          "response_type": "Result<ExchangeCodesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/stocks/struct.StocksClient.html#method.exchange_codes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/stocks/struct.StocksClient.html#method.exchange_codes"
+        }
+      ],
+      "types": {
+        "requests": [
+          "BarsRequest",
+          "BarsSingleRequest",
+          "ConditionCodesRequest",
+          "LatestBarRequest",
+          "LatestBarsRequest",
+          "LatestQuoteRequest",
+          "LatestQuotesRequest",
+          "LatestTradeRequest",
+          "LatestTradesRequest",
+          "QuotesRequest",
+          "QuotesSingleRequest",
+          "SnapshotRequest",
+          "SnapshotsRequest",
+          "TradesRequest",
+          "TradesSingleRequest"
+        ],
+        "responses": [
+          "BarsResponse",
+          "BarsSingleResponse",
+          "ConditionCodesResponse",
+          "ExchangeCodesResponse",
+          "LatestBarResponse",
+          "LatestBarsResponse",
+          "LatestQuoteResponse",
+          "LatestQuotesResponse",
+          "LatestTradeResponse",
+          "LatestTradesResponse",
+          "QuotesResponse",
+          "QuotesSingleResponse",
+          "SnapshotResponse",
+          "SnapshotsResponse",
+          "TradesResponse",
+          "TradesSingleResponse"
+        ],
+        "models": [
+          "Bar",
+          "Quote",
+          "Snapshot",
+          "Trade"
+        ],
+        "enums": [
+          "Adjustment",
+          "DataFeed",
+          "Tape",
+          "TickType",
+          "TimeFrame"
+        ],
+        "shared": []
+      },
+      "convenience_methods": [
+        "bars_all",
+        "bars_single_all",
+        "bars_stream",
+        "bars_single_stream",
+        "quotes_all",
+        "quotes_single_all",
+        "quotes_stream",
+        "quotes_single_stream",
+        "trades_all",
+        "trades_single_all",
+        "trades_stream",
+        "trades_single_stream"
+      ],
+      "examples": [
+        "examples/stocks_bars_all.rs",
+        "examples/stocks_latest_bar.rs"
+      ],
+      "tests": [
+        "tests/live_stocks_batch_historical.rs",
+        "tests/live_stocks_latest_snapshot.rs",
+        "tests/live_stocks_metadata.rs",
+        "tests/live_stocks_single_historical.rs",
+        "tests/mock_stocks_errors.rs"
+      ],
+      "benches": [
+        "benches/stocks.rs"
+      ]
+    },
+    {
+      "slug": "options",
+      "module": "alpaca_data::options",
+      "title": "Options",
+      "client_type": "OptionsClient",
+      "summary": "Options market data endpoints. Mirror methods cover historical bars and trades, latest quotes and trades, snapshots, chain lookups, and exchange metadata. Convenience methods add:",
+      "internal_only": false,
+      "methods": [
+        {
+          "name": "bars",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "BarsRequest",
+          "response_type": "Result<BarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.bars",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.bars"
+        },
+        {
+          "name": "bars_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "BarsRequest",
+          "response_type": "Result<BarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.bars_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.bars_all"
+        },
+        {
+          "name": "bars_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "BarsRequest",
+          "response_type": "ResponseStream<Result<BarsResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.bars_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.bars_stream"
+        },
+        {
+          "name": "trades",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "TradesRequest",
+          "response_type": "Result<TradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.trades",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.trades"
+        },
+        {
+          "name": "trades_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "TradesRequest",
+          "response_type": "Result<TradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.trades_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.trades_all"
+        },
+        {
+          "name": "trades_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "TradesRequest",
+          "response_type": "ResponseStream<Result<TradesResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.trades_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.trades_stream"
+        },
+        {
+          "name": "latest_quotes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestQuotesRequest",
+          "response_type": "Result<LatestQuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.latest_quotes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.latest_quotes"
+        },
+        {
+          "name": "latest_trades",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestTradesRequest",
+          "response_type": "Result<LatestTradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.latest_trades",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.latest_trades"
+        },
+        {
+          "name": "snapshots",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "SnapshotsRequest",
+          "response_type": "Result<SnapshotsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.snapshots",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.snapshots"
+        },
+        {
+          "name": "snapshots_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "SnapshotsRequest",
+          "response_type": "Result<SnapshotsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.snapshots_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.snapshots_all"
+        },
+        {
+          "name": "snapshots_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "SnapshotsRequest",
+          "response_type": "ResponseStream<Result<SnapshotsResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.snapshots_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.snapshots_stream"
+        },
+        {
+          "name": "chain",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "ChainRequest",
+          "response_type": "Result<ChainResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.chain",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.chain"
+        },
+        {
+          "name": "chain_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "ChainRequest",
+          "response_type": "Result<ChainResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.chain_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.chain_all"
+        },
+        {
+          "name": "chain_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "ChainRequest",
+          "response_type": "ResponseStream<Result<ChainResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.chain_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.chain_stream"
+        },
+        {
+          "name": "exchange_codes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": null,
+          "response_type": "Result<ExchangeCodesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/options/struct.OptionsClient.html#method.exchange_codes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/options/struct.OptionsClient.html#method.exchange_codes"
+        }
+      ],
+      "types": {
+        "requests": [
+          "BarsRequest",
+          "ChainRequest",
+          "LatestQuotesRequest",
+          "LatestTradesRequest",
+          "SnapshotsRequest",
+          "TradesRequest"
+        ],
+        "responses": [
+          "BarsResponse",
+          "ChainResponse",
+          "ExchangeCodesResponse",
+          "LatestQuotesResponse",
+          "LatestTradesResponse",
+          "SnapshotsResponse",
+          "TradesResponse"
+        ],
+        "models": [
+          "Bar",
+          "Greeks",
+          "Quote",
+          "Snapshot",
+          "Trade"
+        ],
+        "enums": [
+          "ContractType",
+          "OptionsFeed",
+          "TimeFrame"
+        ],
+        "shared": []
+      },
+      "convenience_methods": [
+        "bars_all",
+        "bars_stream",
+        "trades_all",
+        "trades_stream",
+        "snapshots_all",
+        "snapshots_stream",
+        "chain_all",
+        "chain_stream"
+      ],
+      "examples": [
+        "examples/options_chain.rs"
+      ],
+      "tests": [
+        "tests/live_options_historical.rs",
+        "tests/live_options_latest_metadata.rs",
+        "tests/live_options_snapshots_chain.rs",
+        "tests/mock_options_errors.rs"
+      ],
+      "benches": [
+        "benches/options.rs"
+      ]
+    },
+    {
+      "slug": "crypto",
+      "module": "alpaca_data::crypto",
+      "title": "Crypto",
+      "client_type": "CryptoClient",
+      "summary": "Crypto market data endpoints. Mirror methods cover historical bars, quotes, trades, latest data, latest orderbooks, and snapshots. Convenience methods add:",
+      "internal_only": false,
+      "methods": [
+        {
+          "name": "bars",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "BarsRequest",
+          "response_type": "Result<BarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.bars",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.bars"
+        },
+        {
+          "name": "bars_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "BarsRequest",
+          "response_type": "Result<BarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.bars_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.bars_all"
+        },
+        {
+          "name": "bars_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "BarsRequest",
+          "response_type": "ResponseStream<Result<BarsResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.bars_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.bars_stream"
+        },
+        {
+          "name": "quotes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "QuotesRequest",
+          "response_type": "Result<QuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.quotes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.quotes"
+        },
+        {
+          "name": "quotes_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "QuotesRequest",
+          "response_type": "Result<QuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.quotes_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.quotes_all"
+        },
+        {
+          "name": "quotes_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "QuotesRequest",
+          "response_type": "ResponseStream<Result<QuotesResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.quotes_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.quotes_stream"
+        },
+        {
+          "name": "trades",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "TradesRequest",
+          "response_type": "Result<TradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.trades",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.trades"
+        },
+        {
+          "name": "trades_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "TradesRequest",
+          "response_type": "Result<TradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.trades_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.trades_all"
+        },
+        {
+          "name": "trades_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "TradesRequest",
+          "response_type": "ResponseStream<Result<TradesResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.trades_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.trades_stream"
+        },
+        {
+          "name": "latest_bars",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestBarsRequest",
+          "response_type": "Result<LatestBarsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.latest_bars",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.latest_bars"
+        },
+        {
+          "name": "latest_quotes",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestQuotesRequest",
+          "response_type": "Result<LatestQuotesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.latest_quotes",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.latest_quotes"
+        },
+        {
+          "name": "latest_trades",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestTradesRequest",
+          "response_type": "Result<LatestTradesResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.latest_trades",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.latest_trades"
+        },
+        {
+          "name": "latest_orderbooks",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "LatestOrderbooksRequest",
+          "response_type": "Result<LatestOrderbooksResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.latest_orderbooks",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.latest_orderbooks"
+        },
+        {
+          "name": "snapshots",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "SnapshotsRequest",
+          "response_type": "Result<SnapshotsResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/crypto/struct.CryptoClient.html#method.snapshots",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/crypto/struct.CryptoClient.html#method.snapshots"
+        }
+      ],
+      "types": {
+        "requests": [
+          "BarsRequest",
+          "LatestBarsRequest",
+          "LatestOrderbooksRequest",
+          "LatestQuotesRequest",
+          "LatestTradesRequest",
+          "QuotesRequest",
+          "SnapshotsRequest",
+          "TradesRequest"
+        ],
+        "responses": [
+          "BarsResponse",
+          "LatestBarsResponse",
+          "LatestOrderbooksResponse",
+          "LatestQuotesResponse",
+          "LatestTradesResponse",
+          "QuotesResponse",
+          "SnapshotsResponse",
+          "TradesResponse"
+        ],
+        "models": [
+          "Bar",
+          "Orderbook",
+          "OrderbookLevel",
+          "Quote",
+          "Snapshot",
+          "Trade"
+        ],
+        "enums": [
+          "Loc",
+          "TimeFrame"
+        ],
+        "shared": []
+      },
+      "convenience_methods": [
+        "bars_all",
+        "bars_stream",
+        "quotes_all",
+        "quotes_stream",
+        "trades_all",
+        "trades_stream"
+      ],
+      "examples": [
+        "examples/crypto_latest_quotes.rs"
+      ],
+      "tests": [
+        "tests/live_crypto_historical.rs",
+        "tests/live_crypto_latest.rs",
+        "tests/live_crypto_latest_quotes_smoke.rs",
+        "tests/live_crypto_snapshots.rs",
+        "tests/mock_crypto_errors.rs"
+      ],
+      "benches": [
+        "benches/crypto.rs"
+      ]
+    },
+    {
+      "slug": "news",
+      "module": "alpaca_data::news",
+      "title": "News",
+      "client_type": "NewsClient",
+      "summary": "News endpoints. Mirror method:",
+      "internal_only": false,
+      "methods": [
+        {
+          "name": "list",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "ListRequest",
+          "response_type": "Result<ListResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/news/struct.NewsClient.html#method.list",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/news/struct.NewsClient.html#method.list"
+        },
+        {
+          "name": "list_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "ListRequest",
+          "response_type": "Result<ListResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/news/struct.NewsClient.html#method.list_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/news/struct.NewsClient.html#method.list_all"
+        },
+        {
+          "name": "list_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "ListRequest",
+          "response_type": "ResponseStream<Result<ListResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/news/struct.NewsClient.html#method.list_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/news/struct.NewsClient.html#method.list_stream"
+        }
+      ],
+      "types": {
+        "requests": [
+          "ListRequest"
+        ],
+        "responses": [
+          "ListResponse"
+        ],
+        "models": [
+          "NewsImage",
+          "NewsItem"
+        ],
+        "enums": [
+          "Sort"
+        ],
+        "shared": []
+      },
+      "convenience_methods": [
+        "list_all",
+        "list_stream"
+      ],
+      "examples": [
+        "examples/news_list.rs"
+      ],
+      "tests": [
+        "tests/live_news.rs",
+        "tests/mock_news_corporate_actions_errors.rs"
+      ],
+      "benches": [
+        "benches/news_corporate_actions.rs"
+      ]
+    },
+    {
+      "slug": "corporate-actions",
+      "module": "alpaca_data::corporate_actions",
+      "title": "Corporate Actions",
+      "client_type": "CorporateActionsClient",
+      "summary": "Corporate actions endpoints. Mirror method:",
+      "internal_only": false,
+      "methods": [
+        {
+          "name": "list",
+          "kind": "mirror",
+          "async": true,
+          "request_type": "ListRequest",
+          "response_type": "Result<ListResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/corporate_actions/struct.CorporateActionsClient.html#method.list",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/corporate_actions/struct.CorporateActionsClient.html#method.list"
+        },
+        {
+          "name": "list_all",
+          "kind": "convenience",
+          "async": true,
+          "request_type": "ListRequest",
+          "response_type": "Result<ListResponse, Error>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/corporate_actions/struct.CorporateActionsClient.html#method.list_all",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/corporate_actions/struct.CorporateActionsClient.html#method.list_all"
+        },
+        {
+          "name": "list_stream",
+          "kind": "convenience",
+          "async": false,
+          "request_type": "ListRequest",
+          "response_type": "ResponseStream<Result<ListResponse, Error>>",
+          "docs_rs_url": "https://docs.rs/alpaca-data/latest/alpaca_data/corporate_actions/struct.CorporateActionsClient.html#method.list_stream",
+          "local_rustdoc_url": "https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/corporate_actions/struct.CorporateActionsClient.html#method.list_stream"
+        }
+      ],
+      "types": {
+        "requests": [
+          "CorporateActionType",
+          "ListRequest"
+        ],
+        "responses": [
+          "ListResponse"
+        ],
+        "models": [
+          "CashDividend",
+          "CashMerger",
+          "CorporateActions",
+          "ForwardSplit",
+          "NameChange",
+          "Redemption",
+          "ReverseSplit",
+          "RightsDistribution",
+          "SpinOff",
+          "StockAndCashMerger",
+          "StockDividend",
+          "StockMerger",
+          "UnitSplit",
+          "UnknownCorporateAction",
+          "WorthlessRemoval"
+        ],
+        "enums": [
+          "Sort"
+        ],
+        "shared": []
+      },
+      "convenience_methods": [
+        "list_all",
+        "list_stream"
+      ],
+      "examples": [
+        "examples/corporate_actions_list.rs"
+      ],
+      "tests": [
+        "tests/live_corporate_actions.rs",
+        "tests/mock_news_corporate_actions_errors.rs"
+      ],
+      "benches": [
+        "benches/news_corporate_actions.rs"
+      ]
+    },
+    {
+      "slug": "common",
+      "module": "alpaca_data::common",
+      "title": "Common",
+      "client_type": null,
+      "summary": "Shared query, response, enum, and timestamp primitives used across resource modules.",
+      "internal_only": true,
+      "methods": [],
+      "types": {
+        "requests": [],
+        "responses": [],
+        "models": [],
+        "enums": [],
+        "shared": [
+          "Currency",
+          "QueryWriter",
+          "Sort",
+          "Timestamp"
+        ]
+      },
+      "convenience_methods": [],
+      "examples": [],
+      "tests": [
+        "tests/public_api.rs"
+      ],
+      "benches": []
+    },
+    {
+      "slug": "transport",
+      "module": "alpaca_data::transport",
+      "title": "Transport",
+      "client_type": null,
+      "summary": "Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infrastructure.",
+      "internal_only": true,
+      "methods": [],
+      "types": {
+        "requests": [],
+        "responses": [],
+        "models": [],
+        "enums": [],
+        "shared": [
+          "Endpoint",
+          "HttpClient",
+          "RateLimiter",
+          "RetryPolicy"
+        ]
+      },
+      "convenience_methods": [],
+      "examples": [],
+      "tests": [
+        "tests/mock_transport_errors.rs"
+      ],
+      "benches": [
+        "benches/shared_core.rs"
+      ]
+    }
+  ]
+}

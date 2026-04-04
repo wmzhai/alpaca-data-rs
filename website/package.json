@@ -1,0 +1,24 @@
+{
+  "name": "alpaca-data-docs",
+  "private": true,
+  "version": "0.8.0",
+  "scripts": {
+    "start": "docusaurus start --host 0.0.0.0 --port 3000",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve",
+    "clear": "docusaurus clear"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.9.2",
+    "@docusaurus/preset-classic": "3.9.2",
+    "clsx": "2.1.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

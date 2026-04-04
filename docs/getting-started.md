@@ -54,3 +54,29 @@ cargo bench --no-run
 ```
 
 For live Alpaca integration tests, see [authentication.md](authentication.md) and [release-checklist.md](release-checklist.md).
+
+## Browse The Documentation Site Locally
+
+Regenerate the committed documentation artifacts:
+
+```bash
+./tools/docs/generate-doc-site
+```
+
+Install the Docusaurus dependencies once:
+
+```bash
+npm install --prefix website
+```
+
+Start the local docs site:
+
+```bash
+npm run start --prefix website
+```
+
+Build the production docs bundle:
+
+```bash
+npm run build --prefix website
+```

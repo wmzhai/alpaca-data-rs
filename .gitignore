@@ -7,3 +7,7 @@ Cargo.lock
 *~
 docs/superpowers/
 memory/
+website/node_modules/
+website/.docusaurus/
+website/build/
+website/static/api/

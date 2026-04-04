@@ -1,0 +1,56 @@
+{
+  "sections": [
+    {
+      "label": "Overview",
+      "items": [
+        "index"
+      ]
+    },
+    {
+      "label": "Guide",
+      "items": [
+        "getting-started",
+        "authentication",
+        "layers"
+      ]
+    },
+    {
+      "label": "Architecture",
+      "items": [
+        "project-structure"
+      ]
+    },
+    {
+      "label": "API Reference",
+      "items": [
+        "reference/index",
+        "reference/client",
+        "reference/stocks",
+        "reference/options",
+        "reference/crypto",
+        "reference/news",
+        "reference/corporate-actions",
+        "reference/common",
+        "reference/transport"
+      ]
+    },
+    {
+      "label": "Coverage",
+      "items": [
+        "api-coverage"
+      ]
+    },
+    {
+      "label": "Examples",
+      "items": [
+        "examples"
+      ]
+    },
+    {
+      "label": "Release",
+      "items": [
+        "release-checklist"
+      ]
+    }
+  ]
+}

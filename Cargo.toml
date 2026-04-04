@@ -1,11 +1,12 @@
 [package]
 name = "alpaca-data"
-version = "0.7.1"
+version = "0.8.0"
 edition = "2024"
 description = "High-performance Rust client for Alpaca Market Data API"
 readme = "README.md"
 repository = "https://github.com/wmzhai/alpaca-data-rs"
 documentation = "https://docs.rs/alpaca-data"
+homepage = "https://wmzhai.github.io/alpaca-data-rs/"
 license = "MIT OR Apache-2.0"
 keywords = ["alpaca", "market-data", "stocks", "options", "crypto"]
 categories = ["api-bindings", "asynchronous"]
@@ -13,6 +14,8 @@ exclude = [
   "/.agents/**",
   "/.github/**",
   "/AGENTS.md",
+  "/tools/docs/**",
+  "/website/**",
 ]
 
 [dependencies]

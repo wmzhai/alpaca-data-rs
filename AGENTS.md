@@ -50,7 +50,8 @@ Start new sessions with:
 - If sub-agents are used, they must use `gpt-5.4` only.
 - If no audited MSRV is maintained, do not declare `rust-version` in `Cargo.toml`.
 - GitHub CI must use the floating `stable` toolchain.
-- GitHub CI must only run on pushed release tags such as `vX.Y.Z`.
+- Release CI must only run on pushed release tags such as `vX.Y.Z`.
+- GitHub Pages documentation deployment may run separately on `main`.
 - Keep internal workflow material out of the published crate artifact.
 - Before release-readiness or API-parity work, run `.agents/skills/alpaca-market-data-sync/SKILL.md`.
 - If the audit finds mirror drift, fix the mirror layer before re-validating convenience helpers.
@@ -58,6 +59,8 @@ Start new sessions with:
 ## Documentation Rules
 
 - `README.md` is the public design and usage contract.
+- `./tools/docs/generate-doc-site` is the source of truth for generated docs under `docs/generated/`, `docs/reference/`, `docs/project-structure.md`, `docs/index.md`, and `website/sidebars.ts`.
+- When the public API, repository structure, or documentation navigation changes, rerun `./tools/docs/generate-doc-site` before committing.
 - `CHANGELOG.md` must stay in English and record factual release changes only.
 - Do not write process history or planning narrative into retained public docs.
 - Before any commit, align code, tests, `README.md`, `AGENTS.md`, relevant `docs/`, and `CHANGELOG.md`.

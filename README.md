@@ -9,14 +9,14 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.7.1`
+- Current branch baseline: `v0.8.0`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
 - The crate has not been published to crates.io yet
-- Public docs, runnable examples, rustdoc, API coverage docs, and tag-triggered CI are in place
+- Public docs, generated API reference pages, Docusaurus sources, rustdoc, API coverage docs, and tag-triggered release CI are in place
 
-Repository CI is intentionally tag-triggered only and follows GitHub-hosted `stable`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
+Release CI is intentionally tag-triggered only and follows GitHub-hosted `stable`. Documentation deployment is handled separately by GitHub Pages on `main`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
 
 ## Design Contract
 
@@ -172,19 +172,27 @@ See [docs/authentication.md](docs/authentication.md) for the current auth contra
 
 ## Documentation Map
 
-The intended API-reference host is `docs.rs` once the crate is published. Repository docs under `docs/` are the narrative companion.
-Runnable examples live under [`examples/`](examples/) and are indexed in [docs/examples.md](docs/examples.md).
-The package metadata targets the source repository at `https://github.com/wmzhai/alpaca-data-rs` and the published API docs at `https://docs.rs/alpaca-data`.
-The release metadata now uses the dual-license expression `MIT OR Apache-2.0`.
+<!-- docs-site:start -->
+- Documentation site: https://wmzhai.github.io/alpaca-data-rs/
+- Primary API host after publish: https://docs.rs/alpaca-data
+- Project Pages route: `https://wmzhai.github.io/alpaca-data-rs/`
+- Local generation: `./tools/docs/generate-doc-site`
+- Local site install: `npm install --prefix website`
+- Local site start: `npm run start --prefix website`
+- Local site build: `npm run build --prefix website`
+- API reference sections:
+  - [Documentation Home](docs/index.md)
+  - [Getting Started](docs/getting-started.md)
+  - [Authentication](docs/authentication.md)
+  - [Layers](docs/layers.md)
+  - [Project Structure](docs/project-structure.md)
+  - [API Reference](docs/reference/index.md)
+  - [API Coverage](docs/api-coverage.md)
+  - [Examples](docs/examples.md)
+  - [Release Checklist](docs/release-checklist.md)
+- Generated module references: `docs/reference/stocks.md`, `docs/reference/options.md`, `docs/reference/crypto.md`, `docs/reference/news.md`, `docs/reference/corporate-actions.md`, `docs/reference/common.md`, `docs/reference/transport.md`
+<!-- docs-site:end -->
 
-- [Getting started](docs/getting-started.md)
-- [Authentication](docs/authentication.md)
-- [Layers](docs/layers.md)
-- [API coverage](docs/api-coverage.md)
-- [Examples](docs/examples.md)
-- [Release checklist](docs/release-checklist.md)
-
-The formal endpoint-to-method mapping lives in [docs/api-coverage.md](docs/api-coverage.md).
 
 ## API Audit Script
 

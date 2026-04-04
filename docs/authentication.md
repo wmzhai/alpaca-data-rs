@@ -49,7 +49,7 @@ If your local `.env` stores credentials under names such as:
 - `ALPACA_DATA_API_KEY`
 - `ALPACA_DATA_SECRET_KEY`
 
-export them before running live tests or examples:
+Run the following exports before running live tests or examples:
 
 ```bash
 export APCA_API_KEY_ID="$ALPACA_DATA_API_KEY"

@@ -1,0 +1,301 @@
+{
+  "top_level": [
+    {
+      "path": ".agents",
+      "kind": "dir",
+      "role": "local automation and audit skills"
+    },
+    {
+      "path": ".github",
+      "kind": "dir",
+      "role": "GitHub workflows for release and site automation"
+    },
+    {
+      "path": "benches",
+      "kind": "dir",
+      "role": "Criterion micro-benchmarks"
+    },
+    {
+      "path": "docs",
+      "kind": "dir",
+      "role": "public narrative and generated documentation"
+    },
+    {
+      "path": "examples",
+      "kind": "dir",
+      "role": "runnable usage examples"
+    },
+    {
+      "path": "scripts",
+      "kind": "dir",
+      "role": "public shell entry points"
+    },
+    {
+      "path": "src",
+      "kind": "dir",
+      "role": "crate source code"
+    },
+    {
+      "path": "tests",
+      "kind": "dir",
+      "role": "integration, live, and mock fault-injection tests"
+    },
+    {
+      "path": "tools",
+      "kind": "dir",
+      "role": "public maintenance assets and doc generators"
+    },
+    {
+      "path": "website",
+      "kind": "dir",
+      "role": "Docusaurus site shell for GitHub Pages"
+    }
+  ],
+  "modules": [
+    {
+      "name": "stocks",
+      "path": "src/stocks",
+      "files": [
+        "client.rs",
+        "enums.rs",
+        "mod.rs",
+        "model.rs",
+        "request.rs",
+        "response.rs"
+      ]
+    },
+    {
+      "name": "options",
+      "path": "src/options",
+      "files": [
+        "client.rs",
+        "enums.rs",
+        "mod.rs",
+        "model.rs",
+        "request.rs",
+        "response.rs"
+      ]
+    },
+    {
+      "name": "crypto",
+      "path": "src/crypto",
+      "files": [
+        "client.rs",
+        "enums.rs",
+        "mod.rs",
+        "model.rs",
+        "request.rs",
+        "response.rs"
+      ]
+    },
+    {
+      "name": "news",
+      "path": "src/news",
+      "files": [
+        "client.rs",
+        "mod.rs",
+        "model.rs",
+        "request.rs",
+        "response.rs"
+      ]
+    },
+    {
+      "name": "corporate_actions",
+      "path": "src/corporate_actions",
+      "files": [
+        "client.rs",
+        "mod.rs",
+        "model.rs",
+        "request.rs",
+        "response.rs"
+      ]
+    },
+    {
+      "name": "common",
+      "path": "src/common",
+      "files": [
+        "enums.rs",
+        "mod.rs",
+        "query.rs",
+        "response.rs",
+        "time.rs"
+      ]
+    },
+    {
+      "name": "transport",
+      "path": "src/transport",
+      "files": [
+        "endpoint.rs",
+        "http.rs",
+        "mod.rs",
+        "pagination.rs",
+        "rate_limit.rs",
+        "retry.rs"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "path": "examples/client_builder.rs",
+      "resource": "client"
+    },
+    {
+      "path": "examples/corporate_actions_list.rs",
+      "resource": "corporate_actions"
+    },
+    {
+      "path": "examples/crypto_latest_quotes.rs",
+      "resource": "crypto"
+    },
+    {
+      "path": "examples/news_list.rs",
+      "resource": "news"
+    },
+    {
+      "path": "examples/options_chain.rs",
+      "resource": "options"
+    },
+    {
+      "path": "examples/stocks_bars_all.rs",
+      "resource": "stocks"
+    },
+    {
+      "path": "examples/stocks_latest_bar.rs",
+      "resource": "stocks"
+    }
+  ],
+  "tests": [
+    {
+      "path": "tests/api_sync_scripts.rs",
+      "kind": "integration",
+      "resource": "shared"
+    },
+    {
+      "path": "tests/client_builder.rs",
+      "kind": "integration",
+      "resource": "client"
+    },
+    {
+      "path": "tests/doc_site_generation.rs",
+      "kind": "integration",
+      "resource": "client"
+    },
+    {
+      "path": "tests/live_corporate_actions.rs",
+      "kind": "live",
+      "resource": "corporate_actions"
+    },
+    {
+      "path": "tests/live_crypto_historical.rs",
+      "kind": "live",
+      "resource": "crypto"
+    },
+    {
+      "path": "tests/live_crypto_latest.rs",
+      "kind": "live",
+      "resource": "crypto"
+    },
+    {
+      "path": "tests/live_crypto_latest_quotes_smoke.rs",
+      "kind": "live",
+      "resource": "crypto"
+    },
+    {
+      "path": "tests/live_crypto_snapshots.rs",
+      "kind": "live",
+      "resource": "crypto"
+    },
+    {
+      "path": "tests/live_news.rs",
+      "kind": "live",
+      "resource": "news"
+    },
+    {
+      "path": "tests/live_options_historical.rs",
+      "kind": "live",
+      "resource": "options"
+    },
+    {
+      "path": "tests/live_options_latest_metadata.rs",
+      "kind": "live",
+      "resource": "options"
+    },
+    {
+      "path": "tests/live_options_snapshots_chain.rs",
+      "kind": "live",
+      "resource": "options"
+    },
+    {
+      "path": "tests/live_stocks_batch_historical.rs",
+      "kind": "live",
+      "resource": "stocks"
+    },
+    {
+      "path": "tests/live_stocks_latest_snapshot.rs",
+      "kind": "live",
+      "resource": "stocks"
+    },
+    {
+      "path": "tests/live_stocks_metadata.rs",
+      "kind": "live",
+      "resource": "stocks"
+    },
+    {
+      "path": "tests/live_stocks_single_historical.rs",
+      "kind": "live",
+      "resource": "stocks"
+    },
+    {
+      "path": "tests/mock_crypto_errors.rs",
+      "kind": "mock",
+      "resource": "crypto"
+    },
+    {
+      "path": "tests/mock_news_corporate_actions_errors.rs",
+      "kind": "mock",
+      "resource": "news"
+    },
+    {
+      "path": "tests/mock_options_errors.rs",
+      "kind": "mock",
+      "resource": "options"
+    },
+    {
+      "path": "tests/mock_stocks_errors.rs",
+      "kind": "mock",
+      "resource": "stocks"
+    },
+    {
+      "path": "tests/mock_transport_errors.rs",
+      "kind": "mock",
+      "resource": "transport"
+    },
+    {
+      "path": "tests/public_api.rs",
+      "kind": "integration",
+      "resource": "client"
+    }
+  ],
+  "benches": [
+    {
+      "path": "benches/crypto.rs",
+      "resource": "crypto"
+    },
+    {
+      "path": "benches/news_corporate_actions.rs",
+      "resource": "news"
+    },
+    {
+      "path": "benches/options.rs",
+      "resource": "options"
+    },
+    {
+      "path": "benches/shared_core.rs",
+      "resource": "transport"
+    },
+    {
+      "path": "benches/stocks.rs",
+      "resource": "stocks"
+    }
+  ]
+}

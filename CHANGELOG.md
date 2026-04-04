@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.8.0
+
+### Added
+
+- Added a Docusaurus documentation site under `website/` with a custom landing page, generated sidebar config, and GitHub Pages deployment workflow.
+- Added `tools/docs/generate-doc-site` to generate `docs/index.md`, `docs/project-structure.md`, `docs/reference/`, `docs/generated/`, and the README documentation block from the current repository state.
+- Added `tests/doc_site_generation.rs` to verify the documentation generator writes the expected public artifacts.
+
+### Changed
+
+- Enriched the public docs with a generated project-structure page, generated module reference pages, and local docs-site usage guidance.
+- Added the GitHub Pages homepage metadata to `Cargo.toml` and excluded `website/` and `tools/docs/` from the published crate artifact.
+- Split repository automation responsibilities so release CI remains tag-triggered while the documentation site deploys separately from `main`.
+
 ## v0.7.1
 
 ### Changed

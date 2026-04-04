@@ -2,21 +2,26 @@
 
 This checklist describes the release-preparation bar for the repository.
 
-The current branch baseline is `v0.7.1`.
+The current branch baseline is `v0.8.0`.
 
 ## Public Surface
 
 - README reflects the real public API
 - public docs under `docs/` are in English
+- the GitHub Pages site under `website/` builds from the committed docs tree without broken links
 - `docs.rs` is treated as the primary API-reference host
+- GitHub Pages hosts the narrative docs plus the rustdoc bundle under `/api/`
 - `Cargo.toml` carries release metadata for repository, documentation, keywords, categories, and license
+- `Cargo.toml` carries the GitHub Pages `homepage`
 - `Cargo.toml` intentionally omits `rust-version` until the project adopts an audited MSRV policy
 - examples and rustdoc point to the same API shape
 - API coverage documentation matches the codebase
 - `docs/api-coverage.md` matches `tools/api-coverage/market-data-api.json`
+- `docs/index.md`, `docs/project-structure.md`, `docs/reference/`, `docs/generated/`, `website/sidebars.ts`, and the README docs block match the latest `./tools/docs/generate-doc-site` output
 - `./scripts/api-sync-audit` has been run against the intended release baseline and reports no blocking drift
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
-- repository CI is a tag-triggered release guardrail and runs only when a `vX.Y.Z` tag is pushed
+- release CI is a tag-triggered guardrail and runs only when a `vX.Y.Z` tag is pushed
+- GitHub Pages deployment is a separate workflow that builds on `main`
 
 ## Verification Targets
 
@@ -28,6 +33,7 @@ cargo test
 cargo check --examples
 cargo test --doc
 cargo doc --no-deps
+npm run build --prefix website
 cargo bench --no-run
 cargo package --list
 cargo package
@@ -42,6 +48,4 @@ The published crate should be clean:
 
 - public docs are present
 - internal workflow material is not shipped in the package artifact
-- `.agents/`, `.github/`, and `AGENTS.md` are excluded from the package contents
-
-The repository no longer tracks the removed internal planning directories, while local recreations remain ignored by git.
+- `.agents/`, `.github/`, `AGENTS.md`, `tools/docs/`, and `website/` are excluded from the package contents
