@@ -32,8 +32,16 @@ fn resource_modules_expose_short_type_names() {
     let _ = stocks::TradesSingleResponse::default();
     let _ = options::ChainRequest::default();
     let _ = options::ChainResponse::default();
+    let _ = crypto::BarsRequest::default();
+    let _ = crypto::BarsResponse::default();
+    let _ = crypto::QuotesRequest::default();
+    let _ = crypto::QuotesResponse::default();
+    let _ = crypto::OrderbookLevel::default();
+    let _ = crypto::TradesRequest::default();
+    let _ = crypto::TradesResponse::default();
     let _ = crypto::LatestOrderbooksRequest::default();
     let _ = crypto::LatestOrderbooksResponse::default();
+    let _ = crypto::SnapshotsResponse::default();
     let _ = news::ListRequest::default();
     let _ = news::ListResponse::default();
     let _ = corporate_actions::ListRequest::default();
@@ -175,12 +183,34 @@ fn resource_clients_expose_core_method_names() {
         .options()
         .chain_stream(options::ChainRequest::default());
 
+    let _ = client.crypto().bars(crypto::BarsRequest::default());
+    let _ = client.crypto().bars_all(crypto::BarsRequest::default());
+    let _ = client.crypto().bars_stream(crypto::BarsRequest::default());
+    let _ = client.crypto().quotes(crypto::QuotesRequest::default());
+    let _ = client.crypto().quotes_all(crypto::QuotesRequest::default());
+    let _ = client
+        .crypto()
+        .quotes_stream(crypto::QuotesRequest::default());
+    let _ = client.crypto().trades(crypto::TradesRequest::default());
+    let _ = client.crypto().trades_all(crypto::TradesRequest::default());
+    let _ = client
+        .crypto()
+        .trades_stream(crypto::TradesRequest::default());
+    let _ = client
+        .crypto()
+        .latest_bars(crypto::LatestBarsRequest::default());
     let _ = client
         .crypto()
         .latest_orderbooks(crypto::LatestOrderbooksRequest::default());
     let _ = client
         .crypto()
         .latest_quotes(crypto::LatestQuotesRequest::default());
+    let _ = client
+        .crypto()
+        .latest_trades(crypto::LatestTradesRequest::default());
+    let _ = client
+        .crypto()
+        .snapshots(crypto::SnapshotsRequest::default());
     let _ = client.news().list(news::ListRequest::default());
     let _ = client
         .corporate_actions()

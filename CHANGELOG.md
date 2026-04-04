@@ -8,6 +8,95 @@
 - 不只记录结构变化，也记录对外接口、文档、测试、工程配置和内部实现上的重要变化
 - 版本号使用三段格式：`MAJOR.MINOR.PATCH`
 
+## v0.4.0
+
+### Added
+
+- 新建 `benches/crypto.rs`，为 `crypto.snapshots` 建立本地 `criterion` micro-benchmark baseline
+- `Cargo.toml` 现在新增 `crypto` bench target，可直接用 `cargo bench --bench crypto --no-run` 验证 crypto benchmark 编译链路
+
+### Changed
+
+- `Phase 4: Crypto` 现在正式标记为完成；`crypto` 已成为继 `stocks`、`options` 之后第三个完整资源模板，覆盖官方 mirror endpoint、historical convenience、真实 API happy-path、异常路径 mock 与本地 benchmark baseline
+- `README.md`、`AGENTS.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`memory/core/workflows.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4` 完成后的真实状态，并把下一步推进到 `Phase 5: News + Corporate Actions`
+- 将 crate 版本提升到 `0.4.0`，作为 `Phase 4: Crypto` 的 MINOR 收尾版本
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test`
+- `cargo bench --bench crypto --no-run`
+
+## v0.3.3
+
+### Added
+
+- 新建 `tests/live_crypto_snapshots.rs`，使用真实 Alpaca API 覆盖 `crypto.snapshots`
+- 新建 `tests/mock_crypto_errors.rs`，覆盖 `crypto.snapshots` 与 `crypto.latest_orderbooks` 的损坏 JSON -> `Error::Deserialize`
+- 为 `crypto.snapshots` 新增 route、request、response 与 public API 单元测试，覆盖 official path、`symbols` query 与 snapshot wrapper shape
+
+### Changed
+
+- `CryptoClient` 现在已接通 `GET /v1beta3/crypto/{loc}/snapshots`
+- `crypto::Snapshot` 现在改为忠实对齐官方 camelCase 字段：`latestTrade`、`latestQuote`、`minuteBar`、`dailyBar`、`prevDailyBar`
+- `SnapshotsResponse` 现在忠实反序列化官方顶层 `snapshots` map，不再保留 placeholder snake_case snapshot shape
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4 / Task 3` 完成后的真实状态
+- 将 crate 版本提升到 `0.3.3`，对齐 `Phase 4 / Task 3` 的版本提交要求
+
+### Verification
+
+- `cargo test --lib crypto -- --nocapture`
+- `cargo test --test public_api -- --nocapture`
+- `cargo test --test mock_crypto_errors -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_snapshots -- --nocapture`
+
+## v0.3.2
+
+### Added
+
+- 新建 `tests/live_crypto_latest.rs`，使用真实 Alpaca API 覆盖 `crypto.latest_bars`、`crypto.latest_quotes`、`crypto.latest_trades` 与 `crypto.latest_orderbooks`
+- 为 `crypto` latest family 新增 route、request、response 与 public API 单元测试，覆盖官方 latest path、`symbols` query、latest wrapper shape 与 `OrderbookLevel` 公开类型
+
+### Changed
+
+- `CryptoClient` 现在已接通 `GET /v1beta3/crypto/{loc}/latest/bars`、`/latest/quotes`、`/latest/trades` 与 `/latest/orderbooks`
+- `LatestBarsResponse`、`LatestQuotesResponse`、`LatestTradesResponse` 与 `LatestOrderbooksResponse` 现在忠实反序列化官方顶层 `bars` / `quotes` / `trades` / `orderbooks` map
+- `crypto::Orderbook` 现在补齐官方 `a` / `b` / `t` 字段；`crypto::OrderbookLevel` 现作为公开 typed model 暴露
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4 / Task 2` 完成后的真实状态
+- 将 crate 版本提升到 `0.3.2`，对齐 `Phase 4 / Task 2` 的版本提交要求
+
+### Verification
+
+- `cargo test --lib crypto -- --nocapture`
+- `cargo test --test public_api -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_latest -- --nocapture`
+
+## v0.3.1
+
+### Added
+
+- 新建 `docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md` 与 `docs/superpowers/plans/2026-04-04-phase-4-crypto.md`，将 `Phase 4: Crypto` 的官方 HTTP 设计约束、真实 API 观察与任务拆分落成仓库文档
+- 新建 `tests/live_crypto_historical.rs`，使用真实 Alpaca API 覆盖 `crypto.bars`、`crypto.quotes`、`crypto.trades` 与 `crypto.bars_all`
+- 为 `crypto` historical 新增 route、request、response 与 pagination 单元测试，覆盖官方 query 单词、`loc` path word、response wrapper shape 与跨页 merge
+
+### Changed
+
+- `CryptoClient` 现在已接通 `GET /v1beta3/crypto/{loc}/bars`、`/quotes` 与 `/trades`，并同时打通 `bars_all` / `bars_stream`、`quotes_all` / `quotes_stream`、`trades_all` / `trades_stream`
+- `crypto::Loc` 现在按官方 path word 序列化为 `us`、`us-1`、`eu-1`；历史 `loc` 继续只参与 path 路由，不进入 query
+- `crypto::TimeFrame` 现在改为与 `stocks` / `options` 一致的官方字符串封装；`crypto::Bar`、`crypto::Quote`、`crypto::Trade` 现已补齐真实 typed 字段，并保留 crypto 小数 size / volume 形状
+- `src/transport/endpoint.rs` 现在修正了 `us1` 伪 path，crypto historical 与 existing latest quote route 都已统一到官方连字符 location word
+- `README.md`、`memory/README.md`、`memory/api/README.md`、`memory/core/system-map.md`、`docs/superpowers/specs/2026-04-04-phase-4-crypto-design.md`、`docs/superpowers/plans/2026-04-04-phase-4-crypto.md` 与 `docs/superpowers/plans/2026-04-03-full-project-roadmap.md` 现在已同步到 `Phase 4 / Task 1` 完成后的真实状态
+- 将 crate 版本提升到 `0.3.1`，对齐 `Phase 4 / Task 1` 的版本提交要求
+
+### Verification
+
+- `cargo fmt --check`
+- `cargo test --lib crypto -- --nocapture`
+- `cargo test --test public_api resource_clients_expose_core_method_names -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_historical -- --nocapture`
+- `set -a && source .env && set +a && cargo test --test live_crypto_latest_quotes_smoke -- --nocapture`
+- `cargo test`
+
 ## v0.3.0
 
 ### Added

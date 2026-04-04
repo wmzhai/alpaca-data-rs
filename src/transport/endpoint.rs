@@ -5,7 +5,14 @@ use crate::crypto::Loc;
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) enum Endpoint {
+    CryptoBars { loc: Loc },
+    CryptoQuotes { loc: Loc },
+    CryptoTrades { loc: Loc },
+    CryptoLatestBars { loc: Loc },
     CryptoLatestQuotes { loc: Loc },
+    CryptoLatestTrades { loc: Loc },
+    CryptoLatestOrderbooks { loc: Loc },
+    CryptoSnapshots { loc: Loc },
     OptionsBars,
     OptionsTrades,
     OptionsLatestQuotes,
@@ -33,8 +40,36 @@ pub(crate) enum Endpoint {
 
 #[allow(dead_code)]
 impl Endpoint {
+    pub(crate) fn crypto_bars(loc: Loc) -> Self {
+        Self::CryptoBars { loc }
+    }
+
+    pub(crate) fn crypto_quotes(loc: Loc) -> Self {
+        Self::CryptoQuotes { loc }
+    }
+
+    pub(crate) fn crypto_trades(loc: Loc) -> Self {
+        Self::CryptoTrades { loc }
+    }
+
     pub(crate) fn crypto_latest_quotes(loc: Loc) -> Self {
         Self::CryptoLatestQuotes { loc }
+    }
+
+    pub(crate) fn crypto_latest_bars(loc: Loc) -> Self {
+        Self::CryptoLatestBars { loc }
+    }
+
+    pub(crate) fn crypto_latest_trades(loc: Loc) -> Self {
+        Self::CryptoLatestTrades { loc }
+    }
+
+    pub(crate) fn crypto_latest_orderbooks(loc: Loc) -> Self {
+        Self::CryptoLatestOrderbooks { loc }
+    }
+
+    pub(crate) fn crypto_snapshots(loc: Loc) -> Self {
+        Self::CryptoSnapshots { loc }
     }
 
     pub(crate) fn options_bars() -> Self {
@@ -91,12 +126,28 @@ impl Endpoint {
 
     pub(crate) fn path(&self) -> Cow<'_, str> {
         match self {
+            Self::CryptoBars { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/bars")),
+            Self::CryptoQuotes { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/quotes")),
+            Self::CryptoTrades { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/trades")),
+            Self::CryptoLatestBars { loc } => {
+                Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/bars"))
+            }
             Self::CryptoLatestQuotes { loc: Loc::Us } => {
                 Cow::Borrowed("/v1beta3/crypto/us/latest/quotes")
             }
             Self::CryptoLatestQuotes { loc: Loc::Us1 } => {
-                Cow::Borrowed("/v1beta3/crypto/us1/latest/quotes")
+                Cow::Borrowed("/v1beta3/crypto/us-1/latest/quotes")
             }
+            Self::CryptoLatestQuotes { loc: Loc::Eu1 } => {
+                Cow::Borrowed("/v1beta3/crypto/eu-1/latest/quotes")
+            }
+            Self::CryptoLatestTrades { loc } => {
+                Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/trades"))
+            }
+            Self::CryptoLatestOrderbooks { loc } => {
+                Cow::Owned(format!("/v1beta3/crypto/{loc}/latest/orderbooks"))
+            }
+            Self::CryptoSnapshots { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/snapshots")),
             Self::OptionsBars => Cow::Borrowed("/v1beta1/options/bars"),
             Self::OptionsTrades => Cow::Borrowed("/v1beta1/options/trades"),
             Self::OptionsLatestQuotes => Cow::Borrowed("/v1beta1/options/quotes/latest"),
@@ -139,7 +190,14 @@ impl Endpoint {
 
     pub(crate) fn requires_auth(&self) -> bool {
         match self {
-            Self::CryptoLatestQuotes { .. } => false,
+            Self::CryptoBars { .. }
+            | Self::CryptoQuotes { .. }
+            | Self::CryptoTrades { .. }
+            | Self::CryptoLatestBars { .. }
+            | Self::CryptoLatestQuotes { .. } => false,
+            Self::CryptoLatestTrades { .. }
+            | Self::CryptoLatestOrderbooks { .. }
+            | Self::CryptoSnapshots { .. } => false,
             Self::OptionsBars
             | Self::OptionsTrades
             | Self::OptionsLatestQuotes
@@ -180,6 +238,61 @@ mod tests {
 
         assert_eq!(endpoint.path(), "/v1beta3/crypto/us/latest/quotes");
         assert!(!endpoint.requires_auth());
+    }
+
+    #[test]
+    fn endpoint_routes_crypto_historical_paths_with_official_loc_words() {
+        assert_eq!(
+            Endpoint::crypto_bars(Loc::Us).path(),
+            "/v1beta3/crypto/us/bars"
+        );
+        assert_eq!(
+            Endpoint::crypto_quotes(Loc::Us1).path(),
+            "/v1beta3/crypto/us-1/quotes"
+        );
+        assert_eq!(
+            Endpoint::crypto_trades(Loc::Eu1).path(),
+            "/v1beta3/crypto/eu-1/trades"
+        );
+        assert!(!Endpoint::crypto_bars(Loc::Eu1).requires_auth());
+    }
+
+    #[test]
+    fn endpoint_routes_crypto_latest_paths_with_official_loc_words() {
+        assert_eq!(
+            Endpoint::crypto_latest_bars(Loc::Us).path(),
+            "/v1beta3/crypto/us/latest/bars"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_quotes(Loc::Us1).path(),
+            "/v1beta3/crypto/us-1/latest/quotes"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_trades(Loc::Eu1).path(),
+            "/v1beta3/crypto/eu-1/latest/trades"
+        );
+        assert_eq!(
+            Endpoint::crypto_latest_orderbooks(Loc::Us).path(),
+            "/v1beta3/crypto/us/latest/orderbooks"
+        );
+        assert!(!Endpoint::crypto_latest_orderbooks(Loc::Eu1).requires_auth());
+    }
+
+    #[test]
+    fn endpoint_routes_crypto_snapshots_with_official_loc_words() {
+        assert_eq!(
+            Endpoint::crypto_snapshots(Loc::Us).path(),
+            "/v1beta3/crypto/us/snapshots"
+        );
+        assert_eq!(
+            Endpoint::crypto_snapshots(Loc::Us1).path(),
+            "/v1beta3/crypto/us-1/snapshots"
+        );
+        assert_eq!(
+            Endpoint::crypto_snapshots(Loc::Eu1).path(),
+            "/v1beta3/crypto/eu-1/snapshots"
+        );
+        assert!(!Endpoint::crypto_snapshots(Loc::Eu1).requires_auth());
     }
 
     #[test]
