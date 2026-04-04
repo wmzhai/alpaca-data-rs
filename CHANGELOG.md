@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.6.2
+
+### Added
+
+- Added `scripts/api-sync-openapi` as a local entry point for fetching the latest official Market Data OpenAPI summary or raw JSON.
+- Added `scripts/api-sync-audit` as a read-only local parity audit entry point that prints findings and recommended follow-up changes to the terminal.
+- Added `tests/api_sync_scripts.rs` to verify script help output and the `crypto::Loc` schema-ref audit regression.
+
+### Changed
+
+- Updated the README and retained public docs to document the script-based API audit workflow.
+- Changed the audit script to resolve `crypto::Loc` enum values through OpenAPI schema references and report adopted-family mirror gaps dynamically from the local manifest.
+
 ## v0.6.1
 
 ### Changed

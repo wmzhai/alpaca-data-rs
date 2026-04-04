@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+OPENAPI_URL="https://docs.alpaca.markets/openapi/market-data-api.json"
+
+usage() {
+  cat <<'EOF'
+Fetch the latest official Alpaca Market Data OpenAPI and print a summary.
+
+Usage:
+  ./scripts/api-sync-openapi
+  ./scripts/api-sync-openapi --json
+  ./scripts/api-sync-openapi --help
+
+Options:
+  --json    Print the raw OpenAPI document instead of the summary and path table.
+  --help    Show this help message.
+EOF
+}
+
+require_tool() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "error: required tool '$1' is not installed" >&2
+    exit 2
+  fi
+}
+
+json_output=0
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --json)
+      json_output=1
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument '$1'" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+require_tool curl
+require_tool jq
+
+tmp_file="$(mktemp)"
+trap 'rm -f "$tmp_file"' EXIT
+
+curl -fsSL "$OPENAPI_URL" >"$tmp_file"
+
+if [ "$json_output" -eq 1 ]; then
+  cat "$tmp_file"
+  exit 0
+fi
+
+title="$(jq -r '.info.title // "unknown"' "$tmp_file")"
+version="$(jq -r '.info.version // "unknown"' "$tmp_file")"
+path_count="$(jq -r '.paths | length' "$tmp_file")"
+
+echo "Official OpenAPI: $title"
+echo "Version: $version"
+echo "Total paths: $path_count"
+echo "Source: $OPENAPI_URL"
+echo
+printf '%s\t%s\t%s\n' "PATH" "OPERATION_ID" "TAGS"
+jq -r '
+  .paths
+  | to_entries[]
+  | [.key, (.value.get.operationId // ""), ((.value.get.tags // []) | join(","))]
+  | @tsv
+' "$tmp_file"

@@ -2,7 +2,7 @@
 
 ## Current State
 
-`alpaca-data` is not published to crates.io yet. Until the release phase is complete, depend on the repository directly.
+`alpaca-data` is not published to crates.io yet. Depend on the repository directly for now.
 
 ```toml
 [dependencies]

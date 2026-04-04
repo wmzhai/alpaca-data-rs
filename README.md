@@ -9,14 +9,14 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.6.1`
+- Current branch baseline: `v0.6.2`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
-- Current phase: `Phase 6: Release Hardening`
-- Current branch status: release-prepared phase-close candidate awaiting merge approval
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
+- The crate has not been published to crates.io yet
+- Public docs, runnable examples, rustdoc, API coverage docs, and tag-triggered CI are in place
 
-`Phase 6` is release preparation only. The current branch closes this phase with public docs, runnable examples, rustdoc, API coverage documentation, the internal API sync workflow, release metadata, package boundary controls, CI guardrails, and pre-release verification. Repository CI is intentionally tag-triggered only and follows GitHub-hosted `stable`; the manifest intentionally omits `rust-version` until an audited MSRV policy exists. Final internal-doc cleanup and any real crates.io publication decision are deferred to `Phase 7: Release`.
+Repository CI is intentionally tag-triggered only and follows GitHub-hosted `stable`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
 
 ## Design Contract
 
@@ -78,7 +78,7 @@ The convenience layer never changes the official payload words. It only automate
 
 ## Quick Start
 
-The crate has not been published to crates.io yet. Until the release phase is complete, use a git dependency.
+The crate has not been published to crates.io yet. Use a git dependency for now.
 
 ```toml
 [dependencies]
@@ -186,6 +186,43 @@ The release metadata now uses the dual-license expression `MIT OR Apache-2.0`.
 
 The formal endpoint-to-method mapping lives in [docs/api-coverage.md](docs/api-coverage.md).
 
+## API Audit Scripts
+
+The repository includes two local entry points for official Market Data API audit work.
+
+Requirements:
+
+- `bash`
+- `curl`
+- `jq`
+- `rg`
+
+Fetch the latest official OpenAPI summary and path inventory:
+
+```bash
+./scripts/api-sync-openapi
+```
+
+Print the raw official OpenAPI document:
+
+```bash
+./scripts/api-sync-openapi --json
+```
+
+Run a read-only parity audit against the local coverage manifest and source tree:
+
+```bash
+./scripts/api-sync-audit
+```
+
+Run the same audit in strict mode so blocking findings return a non-zero exit code:
+
+```bash
+./scripts/api-sync-audit --strict
+```
+
+The audit script does not modify files. It prints findings and recommended follow-up changes directly to the terminal.
+
 ## Testing
 
 Default checks:
@@ -227,13 +264,8 @@ Compile benchmark targets without running a full sample:
 cargo bench --no-run
 ```
 
-## Release Plan
-
-- `Phase 6: Release Hardening` prepares the crate for publication
-- `Phase 7: Release` handles internal-doc cleanup, final repository cleanup, and the final publication decision
+## Publication Notes
 
 The published crate is expected to exclude internal workflow material such as `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/`, while tag-triggered CI verifies formatting, tests, examples, docs, and package creation on pushed release tags.
 
-The current branch is the `Phase 6` close-out candidate. Fast-forward merge, push, branch deletion, and any actual publication decision remain gated on explicit user approval.
-
-No automatic crates.io publication happens during `Phase 6`.
+No automatic crates.io publication is performed by repository CI.

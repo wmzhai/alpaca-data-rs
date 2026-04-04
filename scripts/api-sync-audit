@@ -1,0 +1,326 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+OPENAPI_URL="${ALPACA_MARKET_DATA_OPENAPI_URL:-https://docs.alpaca.markets/openapi/market-data-api.json}"
+MANIFEST_PATH="${ALPACA_MARKET_DATA_MANIFEST_PATH:-$REPO_ROOT/tools/api-coverage/market-data-api.json}"
+DOCS_PATH="${ALPACA_MARKET_DATA_DOCS_PATH:-$REPO_ROOT/docs/api-coverage.md}"
+
+usage() {
+  cat <<'EOF'
+Run a read-only Alpaca Market Data API parity audit.
+
+Usage:
+  ./scripts/api-sync-audit
+  ./scripts/api-sync-audit --strict
+  ./scripts/api-sync-audit --help
+
+Options:
+  --strict  Exit with status 1 when blocking findings are detected.
+  --help    Show this help message.
+EOF
+}
+
+require_tool() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "error: required tool '$1' is not installed" >&2
+    exit 2
+  fi
+}
+
+strict_mode=0
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --strict)
+      strict_mode=1
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "error: unknown argument '$1'" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+require_tool curl
+require_tool jq
+require_tool rg
+require_tool comm
+require_tool sort
+require_tool mktemp
+
+if [ ! -f "$MANIFEST_PATH" ]; then
+  echo "error: missing manifest at $MANIFEST_PATH" >&2
+  exit 2
+fi
+
+if [ ! -f "$DOCS_PATH" ]; then
+  echo "error: missing docs contract at $DOCS_PATH" >&2
+  exit 2
+fi
+
+openapi_file="$(mktemp)"
+official_paths_file="$(mktemp)"
+official_adopted_paths_file="$(mktemp)"
+official_adopted_tags_file="$(mktemp)"
+manifest_covered_paths_file="$(mktemp)"
+manifest_mirror_methods_file="$(mktemp)"
+missing_contract_paths_file="$(mktemp)"
+missing_method_defs_file="$(mktemp)"
+summary_mismatches_file="$(mktemp)"
+manifest_gap_paths_file="$(mktemp)"
+manifest_gap_tags_file="$(mktemp)"
+official_not_adopted_tags_file="$(mktemp)"
+untracked_official_tags_file="$(mktemp)"
+stale_manifest_tags_file="$(mktemp)"
+official_crypto_loc_file="$(mktemp)"
+local_crypto_loc_file="$(mktemp)"
+missing_crypto_loc_file="$(mktemp)"
+
+cleanup() {
+  rm -f \
+    "$openapi_file" \
+    "$official_paths_file" \
+    "$official_adopted_paths_file" \
+    "$official_adopted_tags_file" \
+    "$manifest_covered_paths_file" \
+    "$manifest_mirror_methods_file" \
+    "$missing_contract_paths_file" \
+    "$missing_method_defs_file" \
+    "$summary_mismatches_file" \
+    "$manifest_gap_paths_file" \
+    "$manifest_gap_tags_file" \
+    "$official_not_adopted_tags_file" \
+    "$untracked_official_tags_file" \
+    "$stale_manifest_tags_file" \
+    "$official_crypto_loc_file" \
+    "$local_crypto_loc_file" \
+    "$missing_crypto_loc_file"
+}
+trap cleanup EXIT
+
+curl -fsSL "$OPENAPI_URL" >"$openapi_file"
+
+jq -r '.paths | keys[]' "$openapi_file" | sort -u >"$official_paths_file"
+
+jq -r '
+  .paths
+  | to_entries[]
+  | select((.value.get.tags // []) | any(. == "Stock" or . == "Option" or . == "Crypto" or . == "News" or . == "Corporate actions"))
+  | .key
+' "$openapi_file" | sort -u >"$official_adopted_paths_file"
+
+printf '%s\n' "Stock" "Option" "Crypto" "News" "Corporate actions" | sort -u >"$official_adopted_tags_file"
+
+jq -r '
+  (.mirror_layer[]?.path),
+  (.gaps_in_adopted_families[]?.path)
+' "$MANIFEST_PATH" | sort -u >"$manifest_covered_paths_file"
+
+jq -r '
+  .mirror_layer[]
+  | [.local_resource, .mirror_method]
+  | @tsv
+' "$MANIFEST_PATH" >"$manifest_mirror_methods_file"
+
+jq -r '.gaps_in_adopted_families[]?.path' "$MANIFEST_PATH" | sort -u >"$manifest_gap_paths_file"
+jq -r '.not_adopted_resource_families[]?.tag' "$MANIFEST_PATH" | sort -u >"$manifest_gap_tags_file"
+
+comm -23 "$official_adopted_paths_file" "$manifest_covered_paths_file" >"$missing_contract_paths_file"
+
+while IFS=$'\t' read -r resource method; do
+  [ -n "$resource" ] || continue
+  [ -n "$method" ] || continue
+
+  client_file="$REPO_ROOT/src/$resource/client.rs"
+  if [ ! -f "$client_file" ] || ! rg -n "pub async fn ${method}\b" "$client_file" >/dev/null 2>&1; then
+    printf '%s\t%s\t%s\n' "$resource" "$method" "$client_file" >>"$missing_method_defs_file"
+  fi
+done <"$manifest_mirror_methods_file"
+
+official_total_paths="$(jq -r '.paths | length' "$openapi_file")"
+official_adopted_total_paths="$(wc -l <"$official_adopted_paths_file" | tr -d ' ')"
+manifest_summary_official="$(jq -r '.summary.official_total_paths' "$MANIFEST_PATH")"
+manifest_summary_adopted="$(jq -r '.summary.adopted_family_total_paths' "$MANIFEST_PATH")"
+manifest_summary_implemented="$(jq -r '.summary.implemented_mirror_paths' "$MANIFEST_PATH")"
+manifest_summary_open_gaps="$(jq -r '.summary.adopted_family_open_gaps' "$MANIFEST_PATH")"
+manifest_mirror_count="$(jq -r '.mirror_layer | length' "$MANIFEST_PATH")"
+manifest_gap_count="$(jq -r '.gaps_in_adopted_families | length' "$MANIFEST_PATH")"
+
+if [ "$official_total_paths" != "$manifest_summary_official" ]; then
+  printf 'summary.official_total_paths\tmanifest=%s\tofficial=%s\n' "$manifest_summary_official" "$official_total_paths" >>"$summary_mismatches_file"
+fi
+
+if [ "$official_adopted_total_paths" != "$manifest_summary_adopted" ]; then
+  printf 'summary.adopted_family_total_paths\tmanifest=%s\tofficial=%s\n' "$manifest_summary_adopted" "$official_adopted_total_paths" >>"$summary_mismatches_file"
+fi
+
+if [ "$manifest_mirror_count" != "$manifest_summary_implemented" ]; then
+  printf 'summary.implemented_mirror_paths\tmanifest=%s\tactual=%s\n' "$manifest_summary_implemented" "$manifest_mirror_count" >>"$summary_mismatches_file"
+fi
+
+if [ "$manifest_gap_count" != "$manifest_summary_open_gaps" ]; then
+  printf 'summary.adopted_family_open_gaps\tmanifest=%s\tactual=%s\n' "$manifest_summary_open_gaps" "$manifest_gap_count" >>"$summary_mismatches_file"
+fi
+
+jq -r '.paths | to_entries[] | .value.get.tags[]?' "$openapi_file" | sort -u >"$official_not_adopted_tags_file"
+comm -23 "$official_not_adopted_tags_file" "$official_adopted_tags_file" >"${official_not_adopted_tags_file}.filtered"
+mv "${official_not_adopted_tags_file}.filtered" "$official_not_adopted_tags_file"
+
+comm -23 "$official_not_adopted_tags_file" "$manifest_gap_tags_file" >"$untracked_official_tags_file"
+comm -13 "$official_not_adopted_tags_file" "$manifest_gap_tags_file" >"$stale_manifest_tags_file"
+
+jq -r '
+  . as $root
+  | $root.components.parameters
+  | to_entries[]
+  | select(.value.name == "loc")
+  | select(.key | startswith("crypto_"))
+  | select((.key | contains("perp")) | not)
+  | .value.schema["$ref"]
+  | select(. != null)
+  | ltrimstr("#/components/schemas/")
+  | $root.components.schemas[.].enum[]?
+' "$openapi_file" | sort -u >"$official_crypto_loc_file"
+
+jq -r '
+  .known_parity_gaps[]
+  | select(.subject == "crypto::Loc")
+  | .local_values[]
+' "$MANIFEST_PATH" | sort -u >"$local_crypto_loc_file"
+
+comm -23 "$official_crypto_loc_file" "$local_crypto_loc_file" >"$missing_crypto_loc_file"
+
+official_title="$(jq -r '.info.title // .official.title // "unknown"' "$openapi_file")"
+official_version="$(jq -r '.info.version // "unknown"' "$openapi_file")"
+manifest_generated_at="$(jq -r '.generated_at // "unknown"' "$MANIFEST_PATH")"
+
+missing_contract_count="$(wc -l <"$missing_contract_paths_file" | tr -d ' ')"
+missing_method_count="$(wc -l <"$missing_method_defs_file" | tr -d ' ')"
+summary_mismatch_count="$(wc -l <"$summary_mismatches_file" | tr -d ' ')"
+untracked_tag_count="$(wc -l <"$untracked_official_tags_file" | tr -d ' ')"
+stale_tag_count="$(wc -l <"$stale_manifest_tags_file" | tr -d ' ')"
+missing_crypto_loc_count="$(wc -l <"$missing_crypto_loc_file" | tr -d ' ')"
+
+blocking_count=$((missing_contract_count + missing_method_count + summary_mismatch_count))
+
+echo "alpaca-market-data-sync audit"
+echo "Official source: $official_title v$official_version"
+echo "Official OpenAPI: $OPENAPI_URL"
+echo "Local manifest: $MANIFEST_PATH"
+echo "Manifest observed_at: $manifest_generated_at"
+echo
+echo "Summary"
+echo "- Official total paths: $official_total_paths"
+echo "- Adopted-family official paths: $official_adopted_total_paths"
+echo "- Manifest mirror paths: $manifest_mirror_count"
+echo "- Manifest adopted-family gaps: $manifest_gap_count"
+echo
+
+echo "Findings"
+if [ "$blocking_count" -eq 0 ]; then
+  echo "- No blocking drift detected by the automated audit."
+fi
+if [ "$manifest_gap_count" -gt 0 ]; then
+  echo "- The manifest still records $manifest_gap_count adopted-family mirror gap(s) listed below."
+fi
+if [ "$missing_crypto_loc_count" -gt 0 ]; then
+  echo "- The manifest still records a crypto::Loc parity gap listed below."
+fi
+if [ "$blocking_count" -ne 0 ] || [ "$untracked_tag_count" -ne 0 ] || [ "$stale_tag_count" -ne 0 ] || [ "$manifest_gap_count" -ne 0 ] || [ "$missing_crypto_loc_count" -ne 0 ]; then
+  :
+else
+  echo "- No additional warnings or parity notes were detected."
+fi
+
+if [ "$missing_contract_count" -gt 0 ]; then
+  echo
+  echo "Blocking: official adopted-family paths missing from the local coverage contract"
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    echo "- $path"
+  done <"$missing_contract_paths_file"
+fi
+
+if [ "$missing_method_count" -gt 0 ]; then
+  echo
+  echo "Blocking: mirror methods declared in the manifest but missing from source"
+  while IFS=$'\t' read -r resource method client_file; do
+    [ -n "$resource" ] || continue
+    echo "- ${resource}.${method} expected in $client_file"
+  done <"$missing_method_defs_file"
+fi
+
+if [ "$summary_mismatch_count" -gt 0 ]; then
+  echo
+  echo "Blocking: manifest summary fields do not match computed values"
+  while IFS=$'\t' read -r field manifest_value actual_value; do
+    [ -n "$field" ] || continue
+    echo "- $field: $manifest_value, $actual_value"
+  done <"$summary_mismatches_file"
+fi
+
+if [ "$untracked_tag_count" -gt 0 ]; then
+  echo
+  echo "Warning: official resource families not tracked in the manifest"
+  while IFS= read -r tag; do
+    [ -n "$tag" ] || continue
+    echo "- $tag"
+  done <"$untracked_official_tags_file"
+fi
+
+if [ "$stale_tag_count" -gt 0 ]; then
+  echo
+  echo "Warning: manifest resource families not found in the current official OpenAPI"
+  while IFS= read -r tag; do
+    [ -n "$tag" ] || continue
+    echo "- $tag"
+  done <"$stale_manifest_tags_file"
+fi
+
+if [ "$manifest_gap_count" -gt 0 ]; then
+  echo
+  echo "Open adopted-family mirror gaps"
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    echo "- $path"
+  done <"$manifest_gap_paths_file"
+fi
+
+if [ "$missing_crypto_loc_count" -gt 0 ]; then
+  echo
+  echo "Open parity note: official crypto loc values missing from local coverage"
+  while IFS= read -r value; do
+    [ -n "$value" ] || continue
+    echo "- $value"
+  done <"$missing_crypto_loc_file"
+fi
+
+echo
+echo "Recommended changes"
+if [ "$missing_contract_count" -gt 0 ] || [ "$summary_mismatch_count" -gt 0 ]; then
+  echo "- Refresh docs/api-coverage.md and tools/api-coverage/market-data-api.json so the published contract matches the current official OpenAPI."
+fi
+if [ "$missing_method_count" -gt 0 ]; then
+  echo "- Implement or remove any manifest mirror entries whose source methods do not exist."
+fi
+if [ "$manifest_gap_count" -gt 0 ]; then
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    echo "- Implement mirror coverage for adopted-family path: $path."
+  done <"$manifest_gap_paths_file"
+fi
+if [ "$missing_crypto_loc_count" -gt 0 ]; then
+  echo "- Extend crypto::Loc with the missing official values reported above."
+fi
+echo "- Re-run ./scripts/api-sync-audit after any mirror-layer change before checking convenience helpers."
+
+if [ "$strict_mode" -eq 1 ] && [ "$blocking_count" -gt 0 ]; then
+  exit 1
+fi

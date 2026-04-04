@@ -166,9 +166,10 @@ The machine-readable manifest is the source that future API audit tooling should
 
 ## Audit Workflow
 
-Future API sync and release-preparation work should run the internal audit skill first:
+Future API sync and release-preparation work should start with the local audit entry points:
 
-- `.agents/skills/alpaca-market-data-sync/SKILL.md`
+- `./scripts/api-sync-openapi`
+- `./scripts/api-sync-audit`
 
 The expected audit order is:
 

@@ -2,17 +2,7 @@
 
 This checklist describes the release-preparation bar for the repository.
 
-The current branch baseline is `v0.6.1`. It is the `Phase 6` release-prepared candidate and still requires explicit approval before any fast-forward merge, push, branch deletion, or real publication step.
-
-## Phase Boundary
-
-`Phase 6` prepares the crate for publication but does not publish it.
-
-`Phase 7` handles:
-
-- internal working-doc cleanup
-- final public-repo cleanup
-- the final publication decision
+The current branch baseline is `v0.6.2`.
 
 ## Public Surface
 
@@ -24,13 +14,13 @@ The current branch baseline is `v0.6.1`. It is the `Phase 6` release-prepared ca
 - examples and rustdoc point to the same API shape
 - API coverage documentation matches the codebase
 - `docs/api-coverage.md` matches `tools/api-coverage/market-data-api.json`
-- the API sync audit from `.agents/skills/alpaca-market-data-sync/SKILL.md` has been run against the intended release baseline
+- `./scripts/api-sync-audit` has been run against the intended release baseline
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
 - repository CI is a tag-triggered release guardrail and runs only when a `vX.Y.Z` tag is pushed
 
 ## Verification Targets
 
-The final `Phase 6` verification run must cover:
+The release verification run should cover:
 
 ```bash
 cargo fmt --check
@@ -54,4 +44,4 @@ The published crate should be clean:
 - internal working directories are not shipped in the package artifact
 - `.agents/`, `.github/`, `AGENTS.md`, `docs/superpowers/`, and `memory/` are excluded from the package contents
 
-In `Phase 6`, this is achieved through package-boundary configuration rather than by deleting the internal directories from git.
+This is currently achieved through package-boundary configuration rather than by deleting internal directories from git.
