@@ -21,7 +21,6 @@ require_tool() {
 
 require_tool curl
 require_tool jq
-require_tool rg
 require_tool comm
 require_tool sort
 require_tool mktemp
@@ -270,7 +269,7 @@ while IFS=$'\t' read -r path resource method; do
   [ -n "$method" ] || continue
 
   client_file="$REPO_ROOT/src/$resource/client.rs"
-  if [ ! -f "$client_file" ] || ! rg -n "pub async fn ${method}\b" "$client_file" >/dev/null 2>&1; then
+  if [ ! -f "$client_file" ] || ! grep -F "pub async fn ${method}(" "$client_file" >/dev/null 2>&1; then
     printf '%s\t%s\t%s\t%s\n' "$path" "$resource" "$method" "$client_file" >>"$missing_method_defs_file"
     continue
   fi

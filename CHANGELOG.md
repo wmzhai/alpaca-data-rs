@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## v0.9.1
+
+### Fixed
+
+- Removed the `rg` runtime dependency from `./scripts/api-sync-audit` so the audit entry point and its integration tests run on the default GitHub-hosted Linux runner.
+
 ## v0.9.0
 
 ### Added

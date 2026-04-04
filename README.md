@@ -9,7 +9,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.9.0`
+- Current branch baseline: `v0.9.1`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
@@ -82,7 +82,7 @@ Install from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = "0.9.0"
+alpaca-data = "0.9.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -203,7 +203,6 @@ Requirements:
 - `bash`
 - `curl`
 - `jq`
-- `rg`
 
 Run the read-only parity audit against the local coverage manifest and source tree:
 
