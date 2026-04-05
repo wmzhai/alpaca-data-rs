@@ -12,6 +12,8 @@ use crate::{
     transport::{http::HttpClient, rate_limit::RateLimiter, retry::RetryConfig},
 };
 
+const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
+
 /// Root async client for Alpaca Market Data HTTP APIs.
 ///
 /// Build a client once, then obtain resource clients with [`Self::stocks`],
@@ -37,7 +39,7 @@ pub struct Client {
 pub(crate) struct Inner {
     pub(crate) auth: Auth,
     pub(crate) base_url: String,
-    pub(crate) timeout: Duration,
+    pub(crate) timeout: Option<Duration>,
     pub(crate) retry_config: RetryConfig,
     pub(crate) max_in_flight: Option<usize>,
     pub(crate) http: HttpClient,
@@ -48,7 +50,8 @@ pub struct ClientBuilder {
     api_key: Option<String>,
     secret_key: Option<String>,
     base_url: Option<String>,
-    timeout: Duration,
+    timeout: Option<Duration>,
+    reqwest_client: Option<reqwest::Client>,
     retry_config: RetryConfig,
     max_in_flight: Option<usize>,
 }
@@ -96,15 +99,23 @@ impl Client {
     pub(crate) fn from_parts(
         auth: Auth,
         base_url: String,
-        timeout: Duration,
+        timeout: Option<Duration>,
+        reqwest_client: Option<reqwest::Client>,
         retry_config: RetryConfig,
         max_in_flight: Option<usize>,
     ) -> Result<Self, Error> {
-        let http = HttpClient::new(
-            timeout,
-            retry_config.clone(),
-            RateLimiter::new(max_in_flight),
-        )?;
+        let http = match reqwest_client {
+            Some(client) => HttpClient::with_client(
+                client,
+                retry_config.clone(),
+                RateLimiter::new(max_in_flight),
+            ),
+            None => HttpClient::from_timeout(
+                timeout.unwrap_or(DEFAULT_TIMEOUT),
+                retry_config.clone(),
+                RateLimiter::new(max_in_flight),
+            )?,
+        };
 
         Ok(Self {
             inner: Arc::new(Inner {
@@ -125,7 +136,8 @@ impl Default for ClientBuilder {
             api_key: None,
             secret_key: None,
             base_url: None,
-            timeout: Duration::from_secs(10),
+            timeout: None,
+            reqwest_client: None,
             retry_config: RetryConfig::default(),
             max_in_flight: None,
         }
@@ -151,9 +163,22 @@ impl ClientBuilder {
         self
     }
 
-    /// Sets the request timeout.
+    /// Sets the request timeout for the internally constructed `reqwest::Client`.
+    ///
+    /// Building fails if `reqwest_client(...)` is also used because the injected
+    /// client owns its own timeout configuration.
     pub fn timeout(mut self, timeout: Duration) -> Self {
-        self.timeout = timeout;
+        self.timeout = Some(timeout);
+        self
+    }
+
+    /// Injects a preconfigured `reqwest::Client` for advanced transport tuning.
+    ///
+    /// The injected client owns reqwest-level behavior such as connection
+    /// pooling, proxy behavior, default headers, and timeout settings. Build
+    /// validation rejects conflicting builder settings such as `timeout(...)`.
+    pub fn reqwest_client(mut self, reqwest_client: reqwest::Client) -> Self {
+        self.reqwest_client = Some(reqwest_client);
         self
     }
 
@@ -215,6 +240,12 @@ impl ClientBuilder {
             ));
         }
 
+        if self.reqwest_client.is_some() && self.timeout.is_some() {
+            return Err(Error::InvalidConfiguration(
+                "reqwest_client owns timeout configuration; remove timeout(...) or configure timeout on the injected reqwest::Client".into(),
+            ));
+        }
+
         let auth = Auth::new(self.api_key, self.secret_key)?;
         let base_url = self
             .base_url
@@ -224,6 +255,7 @@ impl ClientBuilder {
             auth,
             base_url,
             self.timeout,
+            self.reqwest_client,
             self.retry_config,
             self.max_in_flight,
         )

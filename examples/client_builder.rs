@@ -4,8 +4,12 @@ use std::time::Duration;
 use alpaca_data::Client;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut builder = Client::builder()
+    let reqwest_client = reqwest::Client::builder()
         .timeout(Duration::from_secs(5))
+        .build()?;
+
+    let mut builder = Client::builder()
+        .reqwest_client(reqwest_client)
         .max_retries(2)
         .retry_on_429(true)
         .respect_retry_after(true)

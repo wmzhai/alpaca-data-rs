@@ -35,7 +35,19 @@ impl ResponseParts {
 }
 
 impl HttpClient {
-    pub(crate) fn new(
+    pub(crate) fn with_client(
+        client: reqwest::Client,
+        retry_config: RetryConfig,
+        rate_limiter: RateLimiter,
+    ) -> Self {
+        Self {
+            client,
+            retry_config,
+            rate_limiter,
+        }
+    }
+
+    pub(crate) fn from_timeout(
         timeout: Duration,
         retry_config: RetryConfig,
         rate_limiter: RateLimiter,
@@ -45,11 +57,7 @@ impl HttpClient {
             .build()
             .map_err(Error::from_reqwest)?;
 
-        Ok(Self {
-            client,
-            retry_config,
-            rate_limiter,
-        })
+        Ok(Self::with_client(client, retry_config, rate_limiter))
     }
 
     pub(crate) async fn get_json<T>(

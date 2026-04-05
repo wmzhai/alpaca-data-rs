@@ -26,6 +26,7 @@ Use `Client::builder()` when you need explicit configuration:
 - `secret_key(...)`
 - `base_url(...)`
 - `timeout(...)`
+- `reqwest_client(...)`
 - `max_retries(...)`
 - `retry_on_429(...)`
 - `respect_retry_after(...)`
@@ -36,6 +37,8 @@ Use `Client::builder()` when you need explicit configuration:
 - `max_in_flight(...)`
 
 The retry builder defaults stay conservative: 5xx retries remain enabled within the retry budget, while 429 retries and `Retry-After` handling stay opt-in until you enable them explicitly.
+
+Use `reqwest_client(...)` when a service integration needs to own reqwest-level settings such as connection pooling, default headers, or timeout behavior. When you inject a custom client, configure those reqwest-level knobs on the injected client instead of combining them with `timeout(...)` on `ClientBuilder`.
 
 ## Choose a Resource
 

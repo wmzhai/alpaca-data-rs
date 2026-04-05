@@ -117,6 +117,31 @@ let client = Client::builder()
 
 The default retry behavior stays conservative: retrying 429 responses and honoring `Retry-After` remain opt-in.
 
+Inject a custom `reqwest::Client` when you need to own the underlying network stack:
+
+```rust
+use std::time::Duration;
+use alpaca_data::Client;
+
+let reqwest_client = reqwest::Client::builder()
+    .timeout(Duration::from_secs(5))
+    .build()?;
+
+let client = Client::builder()
+    .reqwest_client(reqwest_client)
+    .max_retries(2)
+    .retry_on_429(true)
+    .respect_retry_after(true)
+    .base_backoff(Duration::from_millis(100))
+    .max_backoff(Duration::from_millis(500))
+    .max_in_flight(32)
+    .build()?;
+# let _ = client;
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+When `reqwest_client(...)` is used, reqwest-level settings such as `timeout(...)` must be configured on the injected client instead of on `ClientBuilder`.
+
 Fetch stock latest bars:
 
 ```rust
