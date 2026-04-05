@@ -71,10 +71,25 @@ jobs:
       - name: Build Docusaurus site
         run: npm run build --prefix website
 
+      - name: Archive Pages artifact
+        run: |
+          tar \
+            --dereference \
+            --hard-dereference \
+            --directory website/build \
+            -cvf "$RUNNER_TEMP/github-pages-artifact.tar" \
+            --exclude=.git \
+            --exclude=.github \
+            --exclude=".[^/]*" \
+            .
+
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          path: website/build
+          name: github-pages
+          path: ${{ runner.temp }}/github-pages-artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
   publish:
     needs: build
