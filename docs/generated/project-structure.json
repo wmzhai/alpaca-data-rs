@@ -118,7 +118,8 @@
         "mod.rs",
         "query.rs",
         "response.rs",
-        "time.rs"
+        "time.rs",
+        "validate.rs"
       ]
     },
     {

@@ -62,6 +62,7 @@ sidebar_position: 4
   - `query.rs`
   - `response.rs`
   - `time.rs`
+  - `validate.rs`
 - `src/transport/`
   - `endpoint.rs`
   - `http.rs`

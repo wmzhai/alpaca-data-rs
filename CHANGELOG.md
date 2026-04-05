@@ -9,7 +9,7 @@ All notable changes to this project are documented in this file.
 - Added fail-fast validation for stock single-symbol path requests so empty or whitespace-only `symbol` values return `Error::InvalidRequest` before endpoint construction.
 - Added fail-fast validation for `options().chain(...)` so empty or whitespace-only `underlying_symbol` values return `Error::InvalidRequest` before transport.
 - Rejected empty or whitespace-only entries inside stock, option, and crypto batch `symbols` lists instead of allowing malformed query strings to reach the HTTP layer.
-- Clamped final retry waits to the remaining `total_retry_budget` even when retry jitter is enabled, keeping retry sleeps within the configured budget.
+- Clamped final retry waits to the remaining `total_retry_budget`, including `Retry-After`-driven waits and waits with retry jitter enabled, keeping retry sleeps within the configured budget.
 - Aligned stock single-request validation tests with the stricter request guardrails.
 
 ## v0.10.0

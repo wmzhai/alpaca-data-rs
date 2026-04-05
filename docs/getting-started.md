@@ -41,6 +41,10 @@ Use `Client::builder()` when you need explicit configuration:
 
 The retry builder defaults stay conservative: 5xx retries remain enabled within the retry budget, while 429 retries and `Retry-After` handling stay opt-in until you enable them explicitly.
 
+Use `retry_jitter(...)` to add a bounded random delay on top of each computed retry wait so concurrent callers are less likely to retry in lockstep.
+
+Use `total_retry_budget(...)` to cap the total elapsed retry waiting time for one request. After the recent retry hardening, the remaining budget is also a hard cap on the final scheduled wait, including `Retry-After`-driven waits and waits with jitter enabled.
+
 Use `reqwest_client(...)` when a service integration needs to own reqwest-level settings such as connection pooling, default headers, or timeout behavior. When you inject a custom client, configure those reqwest-level knobs on the injected client instead of combining them with `timeout(...)` on `ClientBuilder`.
 
 Use `credentials_from_env()?` or `credentials_from_env_names(...)?` only as optional ergonomics when your runtime already manages paired environment variables. The primary credential path remains explicit `api_key(...)` plus `secret_key(...)`.

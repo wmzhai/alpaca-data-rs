@@ -45,7 +45,7 @@ The convenience layer never changes the official payload words. It only automate
 ### Request guardrails stay official-only
 
 - The crate fails fast with `Error::InvalidRequest` only for clearly documented Alpaca request rules.
-- Examples include empty required symbol lists, documented `limit` bounds, the options symbol-list cap, and the corporate-actions `ids` exclusivity rule.
+- Examples include empty required symbol lists, blank required single-path identifiers such as `symbol` or `underlying_symbol`, documented `limit` bounds, the options symbol-list cap, and the corporate-actions `ids` exclusivity rule.
 - The crate does not silently auto-chunk mirror requests to work around documented hard limits.
 
 ## Coverage Summary
@@ -122,6 +122,8 @@ let client = Client::builder()
 ```
 
 The default retry behavior stays conservative: retrying 429 responses and honoring `Retry-After` remain opt-in.
+
+When you set `total_retry_budget(...)`, the remaining budget is a hard cap on the final retry wait, including waits derived from `Retry-After` and waits with jitter enabled.
 
 Inject a custom `reqwest::Client` when you need to own the underlying network stack:
 
