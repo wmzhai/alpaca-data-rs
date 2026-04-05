@@ -176,6 +176,46 @@ mod tests {
     }
 
     #[test]
+    fn retry_after_larger_than_remaining_budget_is_clamped() {
+        let config = RetryConfig {
+            retry_on_429: true,
+            respect_retry_after: true,
+            max_backoff: Duration::from_secs(10),
+            total_retry_budget: Some(Duration::from_millis(50)),
+            ..RetryConfig::default()
+        };
+
+        assert_eq!(
+            config.classify_status(
+                reqwest::StatusCode::TOO_MANY_REQUESTS,
+                0,
+                Some(Duration::from_millis(45)),
+                Duration::from_millis(40),
+            ),
+            RetryDecision::RetryAfter(Duration::from_millis(10))
+        );
+    }
+
+    #[test]
+    fn retry_after_with_jitter_still_does_not_exceed_remaining_budget() {
+        let config = RetryConfig {
+            jitter: Some(Duration::from_millis(50)),
+            total_retry_budget: Some(Duration::from_millis(50)),
+            max_backoff: Duration::from_secs(1),
+            ..RetryConfig::default()
+        };
+
+        assert_eq!(
+            config.finalize_wait(
+                Duration::from_millis(45),
+                Duration::from_millis(40),
+                Duration::from_millis(50).as_nanos(),
+            ),
+            Some(Duration::from_millis(10))
+        );
+    }
+
+    #[test]
     fn budget_without_jitter_respects_remaining_budget() {
         let config = RetryConfig {
             total_retry_budget: Some(Duration::from_millis(100)),
@@ -204,6 +244,26 @@ mod tests {
                 Duration::from_millis(50).as_nanos(),
             ),
             Some(Duration::from_millis(10))
+        );
+    }
+
+    #[test]
+    fn exhausted_budget_on_429_returns_do_not_retry() {
+        let config = RetryConfig {
+            retry_on_429: true,
+            respect_retry_after: true,
+            total_retry_budget: Some(Duration::from_millis(50)),
+            ..RetryConfig::default()
+        };
+
+        assert_eq!(
+            config.classify_status(
+                reqwest::StatusCode::TOO_MANY_REQUESTS,
+                0,
+                Some(Duration::from_millis(1)),
+                Duration::from_millis(50),
+            ),
+            RetryDecision::DoNotRetry
         );
     }
 

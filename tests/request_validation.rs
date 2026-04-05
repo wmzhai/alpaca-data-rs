@@ -52,6 +52,74 @@ async fn stocks_single_latest_bar_rejects_empty_symbol() {
 }
 
 #[tokio::test]
+async fn stocks_single_latest_quote_rejects_empty_symbol() {
+    let error = auth_client()
+        .stocks()
+        .latest_quote(stocks::LatestQuoteRequest {
+            symbol: String::new(),
+            ..stocks::LatestQuoteRequest::default()
+        })
+        .await
+        .expect_err("empty stock symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
+async fn stocks_single_latest_quote_rejects_whitespace_only_symbol() {
+    let error = auth_client()
+        .stocks()
+        .latest_quote(stocks::LatestQuoteRequest {
+            symbol: "   ".into(),
+            ..stocks::LatestQuoteRequest::default()
+        })
+        .await
+        .expect_err("blank stock symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
+async fn stocks_single_latest_trade_rejects_empty_symbol() {
+    let error = auth_client()
+        .stocks()
+        .latest_trade(stocks::LatestTradeRequest {
+            symbol: String::new(),
+            ..stocks::LatestTradeRequest::default()
+        })
+        .await
+        .expect_err("empty stock symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
+async fn stocks_single_latest_trade_rejects_whitespace_only_symbol() {
+    let error = auth_client()
+        .stocks()
+        .latest_trade(stocks::LatestTradeRequest {
+            symbol: "   ".into(),
+            ..stocks::LatestTradeRequest::default()
+        })
+        .await
+        .expect_err("blank stock symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
 async fn stocks_snapshot_rejects_whitespace_only_symbol() {
     let error = auth_client()
         .stocks()
@@ -123,6 +191,24 @@ async fn options_chain_rejects_empty_underlying_symbol() {
     assert!(matches!(
         error,
         Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
+async fn options_chain_rejects_whitespace_only_underlying_symbol() {
+    let error = auth_client()
+        .options()
+        .chain(options::ChainRequest {
+            underlying_symbol: "   ".into(),
+            ..options::ChainRequest::default()
+        })
+        .await
+        .expect_err("blank underlying symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message)
+            if message.contains("underlying_symbol") && message.contains("invalid")
     ));
 }
 
