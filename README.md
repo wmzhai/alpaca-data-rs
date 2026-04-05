@@ -47,6 +47,8 @@ The crate exposes two layers:
 
 The convenience layer never changes the official payload words. It only automates pagination.
 
+Typed numeric market-data fields use `alpaca_data::Decimal` so the client preserves API precision and trailing-zero scale instead of normalizing values through `f64`.
+
 ### Request guardrails stay official-only
 
 - The crate fails fast with `Error::InvalidRequest` only for clearly documented Alpaca request rules.

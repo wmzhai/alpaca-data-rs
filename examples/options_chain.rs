@@ -1,6 +1,6 @@
-use std::error::Error;
+use std::{error::Error, str::FromStr};
 
-use alpaca_data::{Client, options};
+use alpaca_data::{Client, Decimal, options};
 
 fn authenticated_client() -> Result<Client, Box<dyn Error>> {
     let mut builder = Client::builder()
@@ -24,8 +24,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
             underlying_symbol: "AAPL".into(),
             feed: None,
             r#type: Some(options::ContractType::Call),
-            strike_price_gte: Some(180.0),
-            strike_price_lte: Some(220.0),
+            strike_price_gte: Some(
+                Decimal::from_str("180.0").expect("decimal literal should parse"),
+            ),
+            strike_price_lte: Some(
+                Decimal::from_str("220.0").expect("decimal literal should parse"),
+            ),
             expiration_date: None,
             expiration_date_gte: Some("2026-04-01".into()),
             expiration_date_lte: Some("2026-06-30".into()),

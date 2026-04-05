@@ -68,6 +68,44 @@ The root client exposes five resource entrypoints:
 
 The convenience layer does not rename official fields. It only automates pagination.
 
+Typed numeric market-data fields use `alpaca_data::Decimal` so price and ratio values keep the precision and scale returned by Alpaca.
+
+## Build Decimal-Based Requests
+
+Use `alpaca_data::Decimal` for numeric request fields such as options chain strike filters:
+
+```rust
+use std::str::FromStr;
+
+use alpaca_data::{Client, Decimal, options};
+
+# async fn example(client: &Client) -> Result<(), alpaca_data::Error> {
+let response = client
+    .options()
+    .chain(options::ChainRequest {
+        underlying_symbol: "AAPL".into(),
+        feed: None,
+        r#type: Some(options::ContractType::Call),
+        strike_price_gte: Some(
+            Decimal::from_str("180.0").expect("decimal literal should parse"),
+        ),
+        strike_price_lte: Some(
+            Decimal::from_str("220.0").expect("decimal literal should parse"),
+        ),
+        expiration_date: None,
+        expiration_date_gte: Some("2026-04-01".into()),
+        expiration_date_lte: Some("2026-06-30".into()),
+        root_symbol: None,
+        updated_since: None,
+        limit: Some(5),
+        page_token: None,
+    })
+    .await?;
+# let _ = response;
+# Ok(())
+# }
+```
+
 ## Run Local Checks
 
 ```bash

@@ -1,4 +1,5 @@
 use crate::Error;
+use crate::common::decimal::Decimal;
 use crate::common::query::QueryWriter;
 use crate::common::validate::{validate_required_symbol, validate_required_symbols};
 use crate::transport::pagination::PaginatedRequest;
@@ -51,8 +52,8 @@ pub struct ChainRequest {
     pub underlying_symbol: String,
     pub feed: Option<OptionsFeed>,
     pub r#type: Option<ContractType>,
-    pub strike_price_gte: Option<f64>,
-    pub strike_price_lte: Option<f64>,
+    pub strike_price_gte: Option<Decimal>,
+    pub strike_price_lte: Option<Decimal>,
     pub expiration_date: Option<String>,
     pub expiration_date_gte: Option<String>,
     pub expiration_date_lte: Option<String>,
@@ -241,6 +242,9 @@ fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::Decimal;
     use crate::Error;
 
     use super::{
@@ -366,8 +370,12 @@ mod tests {
             underlying_symbol: "AAPL".into(),
             feed: Some(OptionsFeed::Indicative),
             r#type: Some(ContractType::Call),
-            strike_price_gte: Some(180.0),
-            strike_price_lte: Some(200.0),
+            strike_price_gte: Some(
+                Decimal::from_str("180.0").expect("decimal literal should parse"),
+            ),
+            strike_price_lte: Some(
+                Decimal::from_str("200.0").expect("decimal literal should parse"),
+            ),
             expiration_date: Some("2026-04-06".into()),
             expiration_date_gte: Some("2026-04-06".into()),
             expiration_date_lte: Some("2026-04-13".into()),
@@ -383,8 +391,8 @@ mod tests {
             vec![
                 ("feed".to_string(), "indicative".to_string()),
                 ("type".to_string(), "call".to_string()),
-                ("strike_price_gte".to_string(), "180".to_string()),
-                ("strike_price_lte".to_string(), "200".to_string()),
+                ("strike_price_gte".to_string(), "180.0".to_string()),
+                ("strike_price_lte".to_string(), "200.0".to_string()),
                 ("expiration_date".to_string(), "2026-04-06".to_string()),
                 ("expiration_date_gte".to_string(), "2026-04-06".to_string()),
                 ("expiration_date_lte".to_string(), "2026-04-13".to_string()),

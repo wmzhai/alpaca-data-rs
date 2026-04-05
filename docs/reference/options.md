@@ -65,8 +65,8 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | `underlying_symbol` | `underlying_symbol` | `String` | - |
 | `feed` | `feed` | `Option<OptionsFeed>` | - |
 | `r#type` | `type` | `Option<ContractType>` | - |
-| `strike_price_gte` | `strike_price_gte` | `Option<f64>` | - |
-| `strike_price_lte` | `strike_price_lte` | `Option<f64>` | - |
+| `strike_price_gte` | `strike_price_gte` | `Option<Decimal>` | - |
+| `strike_price_lte` | `strike_price_lte` | `Option<Decimal>` | - |
 | `expiration_date` | `expiration_date` | `Option<String>` | - |
 | `expiration_date_gte` | `expiration_date_gte` | `Option<String>` | - |
 | `expiration_date_lte` | `expiration_date_lte` | `Option<String>` | - |
