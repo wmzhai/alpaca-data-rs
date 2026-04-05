@@ -123,7 +123,7 @@ let client = Client::builder()
 
 The default retry behavior stays conservative: retrying 429 responses and honoring `Retry-After` remain opt-in.
 
-When you set `total_retry_budget(...)`, the remaining budget is a hard cap on the final retry wait, including waits derived from `Retry-After` and waits with jitter enabled.
+When you set `total_retry_budget(...)`, the retry loop is bounded by the remaining elapsed-time budget, and each scheduled retry wait is capped by that remaining budget, including waits derived from `Retry-After` and waits with jitter enabled.
 
 Inject a custom `reqwest::Client` when you need to own the underlying network stack:
 

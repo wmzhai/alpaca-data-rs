@@ -43,7 +43,7 @@ The retry builder defaults stay conservative: 5xx retries remain enabled within 
 
 Use `retry_jitter(...)` to add a bounded random delay on top of each computed retry wait so concurrent callers are less likely to retry in lockstep.
 
-Use `total_retry_budget(...)` to cap the total elapsed retry waiting time for one request. After the recent retry hardening, the remaining budget is also a hard cap on the final scheduled wait, including `Retry-After`-driven waits and waits with jitter enabled.
+Use `total_retry_budget(...)` to bound the retry loop for one request against elapsed time. After the recent retry hardening, the remaining budget also caps each scheduled retry wait, including `Retry-After`-driven waits and waits with jitter enabled.
 
 Use `reqwest_client(...)` when a service integration needs to own reqwest-level settings such as connection pooling, default headers, or timeout behavior. When you inject a custom client, configure those reqwest-level knobs on the injected client instead of combining them with `timeout(...)` on `ClientBuilder`.
 
