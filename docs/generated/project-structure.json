@@ -114,6 +114,7 @@
       "name": "common",
       "path": "src/common",
       "files": [
+        "decimal.rs",
         "enums.rs",
         "mod.rs",
         "query.rs",
@@ -177,6 +178,11 @@
       "path": "tests/client_builder.rs",
       "kind": "integration",
       "resource": "client"
+    },
+    {
+      "path": "tests/decimal_precision.rs",
+      "kind": "integration",
+      "resource": "shared"
     },
     {
       "path": "tests/doc_site_generation.rs",

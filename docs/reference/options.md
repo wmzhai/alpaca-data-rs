@@ -242,13 +242,13 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `o` | `o` | `Option<f64>` | - |
-| `h` | `h` | `Option<f64>` | - |
-| `l` | `l` | `Option<f64>` | - |
-| `c` | `c` | `Option<f64>` | - |
+| `o` | `o` | `Option<Decimal>` | - |
+| `h` | `h` | `Option<Decimal>` | - |
+| `l` | `l` | `Option<Decimal>` | - |
+| `c` | `c` | `Option<Decimal>` | - |
 | `v` | `v` | `Option<u64>` | - |
 | `n` | `n` | `Option<u64>` | - |
-| `vw` | `vw` | `Option<f64>` | - |
+| `vw` | `vw` | `Option<Decimal>` | - |
 
 ### `Greeks`
 
@@ -259,11 +259,11 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
-| `delta` | `delta` | `Option<f64>` | - |
-| `gamma` | `gamma` | `Option<f64>` | - |
-| `rho` | `rho` | `Option<f64>` | - |
-| `theta` | `theta` | `Option<f64>` | - |
-| `vega` | `vega` | `Option<f64>` | - |
+| `delta` | `delta` | `Option<Decimal>` | - |
+| `gamma` | `gamma` | `Option<Decimal>` | - |
+| `rho` | `rho` | `Option<Decimal>` | - |
+| `theta` | `theta` | `Option<Decimal>` | - |
+| `vega` | `vega` | `Option<Decimal>` | - |
 
 ### `Quote`
 
@@ -276,10 +276,10 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
 | `bx` | `bx` | `Option<String>` | - |
-| `bp` | `bp` | `Option<f64>` | - |
+| `bp` | `bp` | `Option<Decimal>` | - |
 | `bs` | `bs` | `Option<u64>` | - |
 | `ax` | `ax` | `Option<String>` | - |
-| `ap` | `ap` | `Option<f64>` | - |
+| `ap` | `ap` | `Option<Decimal>` | - |
 | `r#as` | `as` | `Option<u64>` | - |
 | `c` | `c` | `Option<String>` | - |
 
@@ -298,7 +298,7 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | `dailyBar` | `dailyBar` | `Option<Bar>` | - |
 | `prevDailyBar` | `prevDailyBar` | `Option<Bar>` | - |
 | `greeks` | `greeks` | `Option<Greeks>` | - |
-| `impliedVolatility` | `impliedVolatility` | `Option<f64>` | - |
+| `impliedVolatility` | `impliedVolatility` | `Option<Decimal>` | - |
 
 ### `Trade`
 
@@ -311,7 +311,7 @@ Options market data endpoints. Mirror methods cover historical bars and trades, 
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
 | `x` | `x` | `Option<String>` | - |
-| `p` | `p` | `Option<f64>` | - |
+| `p` | `p` | `Option<Decimal>` | - |
 | `s` | `s` | `Option<u64>` | - |
 | `c` | `c` | `Option<String>` | - |
 

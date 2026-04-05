@@ -57,6 +57,7 @@ sidebar_position: 4
   - `request.rs`
   - `response.rs`
 - `src/common/`
+  - `decimal.rs`
   - `enums.rs`
   - `mod.rs`
   - `query.rs`
@@ -91,6 +92,7 @@ sidebar_position: 4
 | --- | --- | --- |
 | `tests/api_sync_scripts.rs` | integration | shared |
 | `tests/client_builder.rs` | integration | client |
+| `tests/decimal_precision.rs` | integration | shared |
 | `tests/doc_site_generation.rs` | integration | client |
 | `tests/live_corporate_actions.rs` | live | corporate_actions |
 | `tests/live_crypto_historical.rs` | live | crypto |
