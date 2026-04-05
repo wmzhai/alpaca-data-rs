@@ -253,13 +253,13 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `o` | `o` | `Option<f64>` | - |
-| `h` | `h` | `Option<f64>` | - |
-| `l` | `l` | `Option<f64>` | - |
-| `c` | `c` | `Option<f64>` | - |
-| `v` | `v` | `Option<f64>` | - |
+| `o` | `o` | `Option<Decimal>` | - |
+| `h` | `h` | `Option<Decimal>` | - |
+| `l` | `l` | `Option<Decimal>` | - |
+| `c` | `c` | `Option<Decimal>` | - |
+| `v` | `v` | `Option<Decimal>` | - |
 | `n` | `n` | `Option<u64>` | - |
-| `vw` | `vw` | `Option<f64>` | - |
+| `vw` | `vw` | `Option<Decimal>` | - |
 
 ### `Orderbook`
 
@@ -283,8 +283,8 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
-| `p` | `p` | `Option<f64>` | - |
-| `s` | `s` | `Option<f64>` | - |
+| `p` | `p` | `Option<Decimal>` | - |
+| `s` | `s` | `Option<Decimal>` | - |
 
 ### `Quote`
 
@@ -296,10 +296,10 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `bp` | `bp` | `Option<f64>` | - |
-| `bs` | `bs` | `Option<f64>` | - |
-| `ap` | `ap` | `Option<f64>` | - |
-| `r#as` | `as` | `Option<f64>` | - |
+| `bp` | `bp` | `Option<Decimal>` | - |
+| `bs` | `bs` | `Option<Decimal>` | - |
+| `ap` | `ap` | `Option<Decimal>` | - |
+| `r#as` | `as` | `Option<Decimal>` | - |
 
 ### `Snapshot`
 
@@ -326,8 +326,8 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `p` | `p` | `Option<f64>` | - |
-| `s` | `s` | `Option<f64>` | - |
+| `p` | `p` | `Option<Decimal>` | - |
+| `s` | `s` | `Option<Decimal>` | - |
 | `i` | `i` | `Option<u64>` | - |
 | `tks` | `tks` | `Option<String>` | - |
 
