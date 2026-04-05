@@ -1008,6 +1008,7 @@ mod tests {
             .validate()
             .expect_err("bars limit below one must fail"),
             BarsSingleRequest {
+                symbol: "AAPL".into(),
                 limit: Some(10_001),
                 ..BarsSingleRequest::default()
             }
@@ -1021,6 +1022,7 @@ mod tests {
             .validate()
             .expect_err("auctions limit below one must fail"),
             AuctionsSingleRequest {
+                symbol: "AAPL".into(),
                 limit: Some(10_001),
                 ..AuctionsSingleRequest::default()
             }
@@ -1034,6 +1036,7 @@ mod tests {
             .validate()
             .expect_err("quotes limit below one must fail"),
             QuotesSingleRequest {
+                symbol: "AAPL".into(),
                 limit: Some(10_001),
                 ..QuotesSingleRequest::default()
             }
@@ -1047,6 +1050,7 @@ mod tests {
             .validate()
             .expect_err("trades limit below one must fail"),
             TradesSingleRequest {
+                symbol: "AAPL".into(),
                 limit: Some(10_001),
                 ..TradesSingleRequest::default()
             }
