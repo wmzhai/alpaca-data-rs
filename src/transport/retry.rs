@@ -43,7 +43,7 @@ impl RetryConfig {
             return RetryDecision::DoNotRetry;
         }
 
-        let mut wait = if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
+        let wait = if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
             if !self.retry_on_429 {
                 return RetryDecision::DoNotRetry;
             }
@@ -59,22 +59,10 @@ impl RetryConfig {
             return RetryDecision::DoNotRetry;
         };
 
-        wait = wait.min(self.max_backoff);
-
-        if let Some(total_retry_budget) = self.total_retry_budget {
-            if elapsed >= total_retry_budget {
-                return RetryDecision::DoNotRetry;
-            }
-
-            let remaining = total_retry_budget - elapsed;
-            if remaining.is_zero() {
-                return RetryDecision::DoNotRetry;
-            }
-
-            wait = wait.min(remaining);
+        match self.finalize_wait(wait, elapsed, current_jitter_seed()) {
+            Some(wait) => RetryDecision::RetryAfter(wait),
+            None => RetryDecision::DoNotRetry,
         }
-
-        RetryDecision::RetryAfter(self.apply_jitter(wait))
     }
 
     fn backoff(&self, attempt: u32) -> Duration {
@@ -88,7 +76,41 @@ impl RetryConfig {
         Duration::from_millis(bounded_u64)
     }
 
-    fn apply_jitter(&self, wait: Duration) -> Duration {
+    fn finalize_wait(
+        &self,
+        wait: Duration,
+        elapsed: Duration,
+        jitter_seed: u128,
+    ) -> Option<Duration> {
+        let wait = wait.min(self.max_backoff);
+
+        let remaining_budget = match self.total_retry_budget {
+            Some(total_retry_budget) => {
+                let remaining_budget = total_retry_budget.checked_sub(elapsed)?;
+                if remaining_budget.is_zero() {
+                    return None;
+                }
+
+                Some(remaining_budget)
+            }
+            None => None,
+        };
+
+        let wait = if let Some(remaining_budget) = remaining_budget {
+            if remaining_budget.is_zero() {
+                return None;
+            }
+
+            self.apply_jitter_with_seed(wait.min(remaining_budget), jitter_seed)
+                .min(remaining_budget)
+        } else {
+            self.apply_jitter_with_seed(wait, jitter_seed)
+        };
+
+        Some(wait)
+    }
+
+    fn apply_jitter_with_seed(&self, wait: Duration, jitter_seed: u128) -> Duration {
         let Some(max_jitter) = self.jitter else {
             return wait;
         };
@@ -98,19 +120,24 @@ impl RetryConfig {
             return wait;
         }
 
-        let seed = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_nanos();
-        let extra = (seed % jitter_nanos.saturating_add(1)).min(u128::from(u64::MAX));
+        let extra = (jitter_seed % jitter_nanos.saturating_add(1)).min(u128::from(u64::MAX));
         let extra = Duration::from_nanos(u64::try_from(extra).unwrap_or(u64::MAX));
 
         wait.saturating_add(extra).min(self.max_backoff)
     }
 }
 
+fn current_jitter_seed() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos()
+}
+
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
     use super::{RetryConfig, RetryDecision};
 
     #[test]
@@ -133,7 +160,7 @@ mod tests {
         let config = RetryConfig {
             retry_on_429: true,
             respect_retry_after: true,
-            max_backoff: std::time::Duration::from_secs(10),
+            max_backoff: Duration::from_secs(10),
             ..RetryConfig::default()
         };
 
@@ -141,10 +168,60 @@ mod tests {
             config.classify_status(
                 reqwest::StatusCode::TOO_MANY_REQUESTS,
                 0,
-                Some(std::time::Duration::from_secs(3)),
-                std::time::Duration::ZERO,
+                Some(Duration::from_secs(3)),
+                Duration::ZERO,
             ),
-            RetryDecision::RetryAfter(std::time::Duration::from_secs(3))
+            RetryDecision::RetryAfter(Duration::from_secs(3))
+        );
+    }
+
+    #[test]
+    fn budget_without_jitter_respects_remaining_budget() {
+        let config = RetryConfig {
+            total_retry_budget: Some(Duration::from_millis(100)),
+            ..RetryConfig::default()
+        };
+
+        assert_eq!(
+            config.finalize_wait(Duration::from_millis(50), Duration::from_millis(90), 0),
+            Some(Duration::from_millis(10))
+        );
+    }
+
+    #[test]
+    fn budget_with_jitter_still_does_not_exceed_remaining_budget() {
+        let config = RetryConfig {
+            jitter: Some(Duration::from_millis(50)),
+            total_retry_budget: Some(Duration::from_millis(100)),
+            max_backoff: Duration::from_secs(1),
+            ..RetryConfig::default()
+        };
+
+        assert_eq!(
+            config.finalize_wait(
+                Duration::from_millis(10),
+                Duration::from_millis(90),
+                Duration::from_millis(50).as_nanos(),
+            ),
+            Some(Duration::from_millis(10))
+        );
+    }
+
+    #[test]
+    fn exhausted_budget_returns_do_not_retry() {
+        let config = RetryConfig {
+            total_retry_budget: Some(Duration::from_millis(100)),
+            ..RetryConfig::default()
+        };
+
+        assert_eq!(
+            config.classify_status(
+                reqwest::StatusCode::INTERNAL_SERVER_ERROR,
+                0,
+                None,
+                Duration::from_millis(100),
+            ),
+            RetryDecision::DoNotRetry
         );
     }
 }
