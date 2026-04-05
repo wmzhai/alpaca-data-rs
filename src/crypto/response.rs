@@ -111,8 +111,8 @@ mod tests {
     use crate::{Decimal, transport::pagination::PaginatedResponse};
 
     use super::{
-        Bar, BarsResponse, LatestBarsResponse, LatestOrderbooksResponse, LatestTradesResponse,
-        QuotesResponse, SnapshotsResponse, TradesResponse,
+        Bar, BarsResponse, LatestBarsResponse, LatestOrderbooksResponse, LatestQuotesResponse,
+        LatestTradesResponse, QuotesResponse, SnapshotsResponse, TradesResponse,
     };
 
     #[test]
@@ -139,6 +139,24 @@ mod tests {
                 .map(Vec::len)
                 .unwrap_or_default(),
             1
+        );
+        assert_eq!(
+            quotes
+                .quotes
+                .get("BTC/USD")
+                .and_then(|quotes| quotes.first())
+                .and_then(|quote| quote.ap.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("67005.5").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            quotes
+                .quotes
+                .get("BTC/USD")
+                .and_then(|quotes| quotes.first())
+                .and_then(|quote| quote.r#as.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("1.26733").expect("decimal literal should parse"))
         );
 
         let trades: TradesResponse = serde_json::from_str(
@@ -287,6 +305,28 @@ mod tests {
                 .and_then(|bar| bar.v.as_ref())
                 .map(Decimal::scale),
             Some(1)
+        );
+
+        let latest_quotes: LatestQuotesResponse = serde_json::from_str(
+            r#"{"quotes":{"BTC/USD":{"ap":66819.4,"as":1.28052,"bp":66763.431,"bs":1.272,"t":"2026-04-04T04:14:35.580241652Z"}}}"#,
+        )
+        .expect("latest quotes response should deserialize");
+        assert!(latest_quotes.quotes.contains_key("BTC/USD"));
+        assert_eq!(
+            latest_quotes
+                .quotes
+                .get("BTC/USD")
+                .and_then(|quote| quote.bp.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("66763.431").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            latest_quotes
+                .quotes
+                .get("BTC/USD")
+                .and_then(|quote| quote.bs.as_ref())
+                .map(Decimal::scale),
+            Some(3)
         );
 
         let latest_trades: LatestTradesResponse = serde_json::from_str(

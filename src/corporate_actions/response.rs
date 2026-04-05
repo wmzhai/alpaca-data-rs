@@ -43,6 +43,10 @@ mod tests {
             response.corporate_actions.cash_dividends[0].rate,
             Decimal::from_str("0.055284").expect("decimal literal should parse")
         );
+        assert_eq!(
+            response.corporate_actions.name_changes[0].new_symbol,
+            "22112H119"
+        );
         assert_eq!(response.corporate_actions.name_changes.len(), 1);
         assert_eq!(response.corporate_actions.contract_adjustments.len(), 1);
         assert_eq!(
@@ -88,5 +92,22 @@ mod tests {
             Some(2)
         );
         assert_eq!(first.next_page_token, None);
+    }
+
+    #[test]
+    fn list_response_deserializes_non_dividend_decimal_rate_fields() {
+        let response: ListResponse = serde_json::from_str(
+            r#"{"corporate_actions":{"forward_splits":[{"id":"fs-1","symbol":"ABC","cusip":"000000001","new_rate":3.0,"old_rate":2.0,"process_date":"2024-08-14","ex_date":"2024-08-07","record_date":"2024-08-07","payable_date":"2024-08-15"}],"stock_and_cash_mergers":[{"id":"scm-1","acquirer_symbol":"AAA","acquirer_cusip":"111111111","acquirer_rate":0.75,"acquiree_symbol":"BBB","acquiree_cusip":"222222222","acquiree_rate":1.0,"cash_rate":4.25,"process_date":"2024-08-14","effective_date":"2024-08-15","payable_date":"2024-08-16"}]},"next_page_token":null}"#,
+        )
+        .expect("response should deserialize");
+
+        assert_eq!(
+            response.corporate_actions.forward_splits[0].new_rate,
+            Decimal::from_str("3.0").expect("decimal literal should parse")
+        );
+        assert_eq!(
+            response.corporate_actions.stock_and_cash_mergers[0].cash_rate,
+            Decimal::from_str("4.25").expect("decimal literal should parse")
+        );
     }
 }
