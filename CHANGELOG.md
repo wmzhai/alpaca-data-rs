@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## v0.10.1
+
 ### Fixed
 
 - Added fail-fast validation for stock single-symbol path requests so empty or whitespace-only `symbol` values return `Error::InvalidRequest` before endpoint construction.
@@ -11,6 +13,12 @@ All notable changes to this project are documented in this file.
 - Rejected empty or whitespace-only entries inside stock, option, and crypto batch `symbols` lists instead of allowing malformed query strings to reach the HTTP layer.
 - Capped each scheduled retry wait by the remaining `total_retry_budget`, including `Retry-After`-driven waits and waits with retry jitter enabled, keeping the retry loop within the configured elapsed-time budget.
 - Aligned stock single-request validation tests with the stricter request guardrails.
+
+### Changed
+
+- Consolidated shared request validation helpers and expanded regression coverage so mirror requests fail faster and more consistently for documented invalid input.
+- Clarified retry-builder rustdoc and request-validation coverage around the remaining-budget semantics before retry waits are scheduled.
+- Updated the retained release documentation and workflow so pushed `vX.Y.Z` tags can publish to crates.io through Trusted Publishing before GitHub Pages deployment.
 
 ## v0.10.0
 
