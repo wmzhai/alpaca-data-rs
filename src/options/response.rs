@@ -133,18 +133,18 @@ impl PaginatedResponse for ChainResponse {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, str::FromStr};
 
     use super::{
         Bar, BarsResponse, ChainResponse, ConditionCodesResponse, ExchangeCodesResponse,
         LatestQuotesResponse, LatestTradesResponse, SnapshotsResponse, Trade, TradesResponse,
     };
-    use crate::{Error, transport::pagination::PaginatedResponse};
+    use crate::{Decimal, Error, transport::pagination::PaginatedResponse};
 
     #[test]
     fn historical_responses_deserialize_official_wrapper_shapes() {
         let bars: BarsResponse = serde_json::from_str(
-            r#"{"bars":{"AAPL260406C00180000":[{"c":70.97,"h":71.21,"l":70.97,"n":2,"o":71.21,"t":"2026-04-02T04:00:00Z","v":2,"vw":71.09}]},"next_page_token":"page-2"}"#,
+            r#"{"bars":{"AAPL260406C00180000":[{"c":70.97,"h":71.21,"l":70.97,"n":2,"o":71.20,"t":"2026-04-02T04:00:00Z","v":2,"vw":71.09}]},"next_page_token":"page-2"}"#,
         )
         .expect("bars response should deserialize");
         assert_eq!(bars.next_page_token.as_deref(), Some("page-2"));
@@ -155,9 +155,17 @@ mod tests {
                 .unwrap_or_default(),
             1
         );
+        assert_eq!(
+            bars.bars
+                .get("AAPL260406C00180000")
+                .and_then(|bars| bars.first())
+                .and_then(|bar| bar.o.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("71.20").expect("decimal literal should parse"))
+        );
 
         let trades: TradesResponse = serde_json::from_str(
-            r#"{"trades":{"AAPL260406C00180000":[{"c":"n","p":70.97,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"}]},"next_page_token":"page-3"}"#,
+            r#"{"trades":{"AAPL260406C00180000":[{"c":"n","p":70.90,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"}]},"next_page_token":"page-3"}"#,
         )
         .expect("trades response should deserialize");
         assert_eq!(trades.next_page_token.as_deref(), Some("page-3"));
@@ -168,6 +176,15 @@ mod tests {
                 .map(Vec::len)
                 .unwrap_or_default(),
             1
+        );
+        assert_eq!(
+            trades
+                .trades
+                .get("AAPL260406C00180000")
+                .and_then(|trades| trades.first())
+                .and_then(|trade| trade.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("70.90").expect("decimal literal should parse"))
         );
     }
 
@@ -247,12 +264,28 @@ mod tests {
         )
         .expect("latest quotes response should deserialize");
         assert!(quotes.quotes.contains_key("AAPL260406C00180000"));
+        assert_eq!(
+            quotes
+                .quotes
+                .get("AAPL260406C00180000")
+                .and_then(|quote| quote.bp.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("73.95").expect("decimal literal should parse"))
+        );
 
         let trades: LatestTradesResponse = serde_json::from_str(
-            r#"{"trades":{"AAPL260406C00180000":{"c":"n","p":70.97,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"}}}"#,
+            r#"{"trades":{"AAPL260406C00180000":{"c":"n","p":70.90,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"}}}"#,
         )
         .expect("latest trades response should deserialize");
         assert!(trades.trades.contains_key("AAPL260406C00180000"));
+        assert_eq!(
+            trades
+                .trades
+                .get("AAPL260406C00180000")
+                .and_then(|trade| trade.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("70.90").expect("decimal literal should parse"))
+        );
     }
 
     #[test]
@@ -290,7 +323,7 @@ mod tests {
     #[test]
     fn snapshot_responses_deserialize_official_wrapper_shapes() {
         let snapshots: SnapshotsResponse = serde_json::from_str(
-            r#"{"snapshots":{"AAPL260406C00180000":{"latestQuote":{"ap":77.75,"as":5,"ax":"A","bp":73.95,"bs":3,"bx":"N","c":" ","t":"2026-04-02T19:59:59.792862244Z"},"latestTrade":{"c":"n","p":70.97,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"},"minuteBar":{"c":70.97,"h":71.21,"l":70.97,"n":2,"o":71.21,"t":"2026-04-02T13:39:00Z","v":2,"vw":71.09},"dailyBar":{"c":70.97,"h":71.21,"l":70.97,"n":2,"o":71.21,"t":"2026-04-02T04:00:00Z","v":2,"vw":71.09},"prevDailyBar":{"c":72.32,"h":72.32,"l":72.32,"n":1,"o":72.32,"t":"2026-04-01T04:00:00Z","v":1,"vw":72.32},"greeks":{"delta":0.0232,"gamma":0.0118,"rho":0.0005,"theta":-0.043,"vega":0.0127},"impliedVolatility":0.2006}},"next_page_token":"page-2"}"#,
+            r#"{"snapshots":{"AAPL260406C00180000":{"latestQuote":{"ap":77.75,"as":5,"ax":"A","bp":73.95,"bs":3,"bx":"N","c":" ","t":"2026-04-02T19:59:59.792862244Z"},"latestTrade":{"c":"n","p":70.90,"s":1,"t":"2026-04-02T13:39:38.883488197Z","x":"I"},"minuteBar":{"c":70.97,"h":71.21,"l":70.97,"n":2,"o":71.20,"t":"2026-04-02T13:39:00Z","v":2,"vw":71.09},"dailyBar":{"c":70.97,"h":71.21,"l":70.97,"n":2,"o":71.20,"t":"2026-04-02T04:00:00Z","v":2,"vw":71.09},"prevDailyBar":{"c":72.32,"h":72.32,"l":72.32,"n":1,"o":72.32,"t":"2026-04-01T04:00:00Z","v":1,"vw":72.32},"greeks":{"delta":0.0232,"gamma":0.0118,"rho":0.0005,"theta":-0.043,"vega":0.0127},"impliedVolatility":0.2006}},"next_page_token":"page-2"}"#,
         )
         .expect("snapshots response should deserialize");
         assert_eq!(snapshots.next_page_token.as_deref(), Some("page-2"));
@@ -301,7 +334,42 @@ mod tests {
         assert!(snapshot.latestQuote.is_some());
         assert!(snapshot.latestTrade.is_some());
         assert!(snapshot.greeks.is_some());
-        assert_eq!(snapshot.impliedVolatility, Some(0.2006));
+        assert_eq!(
+            snapshot.impliedVolatility,
+            Some(Decimal::from_str("0.2006").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            snapshot
+                .greeks
+                .as_ref()
+                .and_then(|greeks| greeks.theta.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("-0.043").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            snapshot
+                .latestQuote
+                .as_ref()
+                .and_then(|quote| quote.bp.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("73.95").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            snapshot
+                .latestTrade
+                .as_ref()
+                .and_then(|trade| trade.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("70.90").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            snapshot
+                .minuteBar
+                .as_ref()
+                .and_then(|bar| bar.o.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("71.20").expect("decimal literal should parse"))
+        );
 
         let chain: ChainResponse = serde_json::from_str(
             r#"{"snapshots":{"AAPL260406C00185000":{"latestQuote":{"ap":72.85,"as":5,"ax":"X","bp":69.1,"bs":4,"bx":"S","c":" ","t":"2026-04-02T19:59:59.792862244Z"}}},"next_page_token":null}"#,

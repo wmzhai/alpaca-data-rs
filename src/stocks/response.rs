@@ -343,7 +343,7 @@ impl PaginatedResponse for TradesResponse {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, str::FromStr};
 
     use super::{
         AuctionsResponse, AuctionsSingleResponse, BarsResponse, BarsSingleResponse,
@@ -351,7 +351,7 @@ mod tests {
         LatestQuoteResponse, LatestQuotesResponse, LatestTradeResponse, LatestTradesResponse,
         QuotesSingleResponse, SnapshotResponse, SnapshotsResponse, TradesSingleResponse,
     };
-    use crate::{Error, transport::pagination::PaginatedResponse};
+    use crate::{Decimal, Error, transport::pagination::PaginatedResponse};
 
     #[test]
     fn single_historical_responses_deserialize_official_wrapper_fields() {
@@ -511,6 +511,14 @@ mod tests {
         .expect("latest bars response should deserialize");
         assert!(batch_bars.bars.contains_key("AAPL"));
         assert_eq!(
+            batch_bars
+                .bars
+                .get("AAPL")
+                .and_then(|bar| bar.c.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.66").expect("decimal literal should parse"))
+        );
+        assert_eq!(
             batch_bars.currency.as_ref().map(|value| value.as_str()),
             Some("USD")
         );
@@ -520,33 +528,58 @@ mod tests {
         )
         .expect("latest bar response should deserialize");
         assert_eq!(single_bar.symbol, "AAPL");
-        assert!(single_bar.bar.c.is_some());
+        assert_eq!(
+            single_bar.bar.c,
+            Some(Decimal::from_str("179.66").expect("decimal literal should parse"))
+        );
 
         let batch_quotes: LatestQuotesResponse = serde_json::from_str(
             r#"{"quotes":{"AAPL":{"t":"2024-03-01T20:00:00Z","bp":179.65}},"currency":"USD"}"#,
         )
         .expect("latest quotes response should deserialize");
         assert!(batch_quotes.quotes.contains_key("AAPL"));
+        assert_eq!(
+            batch_quotes
+                .quotes
+                .get("AAPL")
+                .and_then(|quote| quote.bp.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.65").expect("decimal literal should parse"))
+        );
 
         let single_quote: LatestQuoteResponse = serde_json::from_str(
             r#"{"symbol":"AAPL","quote":{"t":"2024-03-01T20:00:00Z","bp":179.65},"currency":"USD"}"#,
         )
         .expect("latest quote response should deserialize");
         assert_eq!(single_quote.symbol, "AAPL");
-        assert!(single_quote.quote.bp.is_some());
+        assert_eq!(
+            single_quote.quote.bp,
+            Some(Decimal::from_str("179.65").expect("decimal literal should parse"))
+        );
 
         let batch_trades: LatestTradesResponse = serde_json::from_str(
             r#"{"trades":{"AAPL":{"t":"2024-03-01T20:00:00Z","p":179.64}},"currency":"USD"}"#,
         )
         .expect("latest trades response should deserialize");
         assert!(batch_trades.trades.contains_key("AAPL"));
+        assert_eq!(
+            batch_trades
+                .trades
+                .get("AAPL")
+                .and_then(|trade| trade.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.64").expect("decimal literal should parse"))
+        );
 
         let single_trade: LatestTradeResponse = serde_json::from_str(
             r#"{"symbol":"AAPL","trade":{"t":"2024-03-01T20:00:00Z","p":179.64},"currency":"USD"}"#,
         )
         .expect("latest trade response should deserialize");
         assert_eq!(single_trade.symbol, "AAPL");
-        assert!(single_trade.trade.p.is_some());
+        assert_eq!(
+            single_trade.trade.p,
+            Some(Decimal::from_str("179.64").expect("decimal literal should parse"))
+        );
     }
 
     #[test]
@@ -571,6 +604,27 @@ mod tests {
         assert!(aapl.minuteBar.is_some());
         assert!(aapl.dailyBar.is_some());
         assert!(aapl.prevDailyBar.is_some());
+        assert_eq!(
+            aapl.latestQuote
+                .as_ref()
+                .and_then(|quote| quote.bp.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.65").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            aapl.latestTrade
+                .as_ref()
+                .and_then(|trade| trade.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.64").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            aapl.minuteBar
+                .as_ref()
+                .and_then(|bar| bar.c.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.66").expect("decimal literal should parse"))
+        );
 
         let single: SnapshotResponse = serde_json::from_str(
             r#"{
@@ -594,6 +648,14 @@ mod tests {
         assert!(single.minuteBar.is_some());
         assert!(single.dailyBar.is_some());
         assert!(single.prevDailyBar.is_some());
+        assert_eq!(
+            single
+                .latestQuote
+                .as_ref()
+                .and_then(|quote| quote.bp.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.65").expect("decimal literal should parse"))
+        );
     }
 
     #[test]
@@ -723,6 +785,19 @@ mod tests {
         assert_eq!(first.bars.get("AAPL").map(Vec::len), Some(2));
         assert_eq!(first.bars.get("MSFT").map(Vec::len), Some(1));
         assert_eq!(first.bars.get("NVDA").map(Vec::len), Some(1));
+        assert_eq!(
+            first
+                .bars
+                .get("AAPL")
+                .and_then(|bars| bars.last())
+                .and_then(|bar| bar.c.as_ref())
+                .map(ToString::to_string),
+            Some(
+                Decimal::from_str("175.10")
+                    .expect("decimal literal should parse")
+                    .to_string()
+            )
+        );
         assert_eq!(first.next_page_token, None);
     }
 
