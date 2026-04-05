@@ -160,8 +160,9 @@ mod tests {
                 .get("AAPL260406C00180000")
                 .and_then(|bars| bars.first())
                 .and_then(|bar| bar.o.as_ref())
-                .cloned(),
+                .map(ToString::to_string),
             Some(Decimal::from_str("71.20").expect("decimal literal should parse"))
+                .map(|value| value.to_string())
         );
 
         let trades: TradesResponse = serde_json::from_str(
@@ -183,8 +184,9 @@ mod tests {
                 .get("AAPL260406C00180000")
                 .and_then(|trades| trades.first())
                 .and_then(|trade| trade.p.as_ref())
-                .cloned(),
+                .map(ToString::to_string),
             Some(Decimal::from_str("70.90").expect("decimal literal should parse"))
+                .map(|value| value.to_string())
         );
     }
 
@@ -283,8 +285,9 @@ mod tests {
                 .trades
                 .get("AAPL260406C00180000")
                 .and_then(|trade| trade.p.as_ref())
-                .cloned(),
+                .map(ToString::to_string),
             Some(Decimal::from_str("70.90").expect("decimal literal should parse"))
+                .map(|value| value.to_string())
         );
     }
 
@@ -359,16 +362,18 @@ mod tests {
                 .latestTrade
                 .as_ref()
                 .and_then(|trade| trade.p.as_ref())
-                .cloned(),
+                .map(ToString::to_string),
             Some(Decimal::from_str("70.90").expect("decimal literal should parse"))
+                .map(|value| value.to_string())
         );
         assert_eq!(
             snapshot
                 .minuteBar
                 .as_ref()
                 .and_then(|bar| bar.o.as_ref())
-                .cloned(),
+                .map(ToString::to_string),
             Some(Decimal::from_str("71.20").expect("decimal literal should parse"))
+                .map(|value| value.to_string())
         );
 
         let chain: ChainResponse = serde_json::from_str(
