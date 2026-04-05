@@ -694,6 +694,16 @@ mod tests {
             Some("USD")
         );
         assert_eq!(batch.auctions.get("AAPL").map(Vec::len), Some(1));
+        assert_eq!(
+            batch
+                .auctions
+                .get("AAPL")
+                .and_then(|days| days.first())
+                .and_then(|day| day.o.first())
+                .and_then(|auction| auction.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.55").expect("decimal literal should parse"))
+        );
 
         let single: AuctionsSingleResponse = serde_json::from_str(
             r#"{"symbol":"AAPL","auctions":[{"d":"2024-03-01","o":[{"c":"Q","p":179.55,"s":8,"t":"2024-03-01T14:30:00.092366196Z","x":"P"}],"c":[{"c":"M","p":179.64,"s":2008,"t":"2024-03-01T21:00:00.071062102Z","x":"P"}]}],"next_page_token":null,"currency":"USD"}"#,
@@ -701,6 +711,15 @@ mod tests {
         .expect("single auctions response should deserialize");
         assert_eq!(single.symbol, "AAPL");
         assert_eq!(single.auctions.len(), 1);
+        assert_eq!(
+            single
+                .auctions
+                .first()
+                .and_then(|day| day.c.first())
+                .and_then(|auction| auction.p.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("179.64").expect("decimal literal should parse"))
+        );
     }
 
     #[test]
@@ -733,6 +752,20 @@ mod tests {
 
         assert_eq!(first.auctions.get("AAPL").map(Vec::len), Some(1));
         assert_eq!(first.auctions.get("MSFT").map(Vec::len), Some(1));
+        assert_eq!(
+            first
+                .auctions
+                .get("MSFT")
+                .and_then(|days| days.first())
+                .and_then(|day| day.o.first())
+                .and_then(|auction| auction.p.as_ref())
+                .map(ToString::to_string),
+            Some(
+                Decimal::from_str("415.10")
+                    .expect("decimal literal should parse")
+                    .to_string()
+            )
+        );
         assert_eq!(first.next_page_token, None);
     }
 
