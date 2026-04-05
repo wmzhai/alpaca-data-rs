@@ -2,6 +2,11 @@
 
 `alpaca-data` is an async Rust client for the Alpaca Market Data HTTP API.
 
+Quick links:
+
+- crates.io: [https://crates.io/crates/alpaca-data](https://crates.io/crates/alpaca-data)
+- Documentation: [https://wmzhai.github.io/alpaca-data-rs/](https://wmzhai.github.io/alpaca-data-rs/)
+
 The crate is built around two constraints:
 
 - The official Alpaca Market Data HTTP API is the only semantic source of truth.
@@ -359,11 +364,3 @@ Compile benchmark targets without running a full sample:
 ```bash
 cargo bench --no-run
 ```
-
-## Publication Notes
-
-The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while the tag-triggered release workflow verifies formatting, tests, examples, docs, package creation, publishes through crates.io Trusted Publishing, and builds the documentation site on pushed release tags.
-
-The public documentation site is published at `https://wmzhai.github.io/alpaca-data-rs/`. `docs.rs` remains the primary rustdoc host, and the repository docs under `docs/` remain the narrative documentation surface.
-
-Automatic crates.io publication is performed by repository CI for pushed `vX.Y.Z` tags after crates.io Trusted Publishing is configured for the repository. Workflow reruns skip the publish step when that tagged version already exists on crates.io.
