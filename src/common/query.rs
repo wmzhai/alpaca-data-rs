@@ -55,4 +55,20 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn query_writer_keeps_decimal_scale() {
+        use std::str::FromStr;
+
+        let mut query = QueryWriter::default();
+        query.push_opt(
+            "strike_price_gte",
+            Some(crate::Decimal::from_str("180.0").expect("decimal literal should parse")),
+        );
+
+        assert_eq!(
+            query.finish(),
+            vec![("strike_price_gte".to_string(), "180.0".to_string())]
+        );
+    }
 }

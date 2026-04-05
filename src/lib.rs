@@ -51,4 +51,5 @@ pub mod stocks;
 
 pub use client::{Client, ClientBuilder};
 pub use error::Error;
+pub use rust_decimal::Decimal;
 pub use transport::observer::{ObservedResponseMeta, TransportObserver};
