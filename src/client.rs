@@ -202,19 +202,29 @@ impl ClientBuilder {
         self
     }
 
-    /// Sets the retry budget for the shared HTTP transport.
+    /// Sets the maximum number of retry attempts for one request.
+    ///
+    /// This applies to server-error retries by default. HTTP 429 retries only
+    /// participate when [`Self::retry_on_429`] is enabled.
     pub fn max_retries(mut self, max_retries: u32) -> Self {
         self.retry_config.max_retries = max_retries;
         self
     }
 
     /// Enables or disables automatic retries on HTTP 429 responses.
+    ///
+    /// This setting is disabled by default and affects only 429 responses. It
+    /// does not automatically enable honoring `Retry-After`.
     pub fn retry_on_429(mut self, retry_on_429: bool) -> Self {
         self.retry_config.retry_on_429 = retry_on_429;
         self
     }
 
     /// Enables or disables honoring the `Retry-After` response header.
+    ///
+    /// This setting only participates when 429 retries are enabled with
+    /// [`Self::retry_on_429`]. If a 429 response omits `Retry-After`, the
+    /// transport falls back to the configured backoff schedule.
     pub fn respect_retry_after(mut self, respect_retry_after: bool) -> Self {
         self.retry_config.respect_retry_after = respect_retry_after;
         self
@@ -232,13 +242,22 @@ impl ClientBuilder {
         self
     }
 
-    /// Sets an optional jitter window applied to retry waits.
+    /// Adds a bounded random delay on top of each computed retry wait.
+    ///
+    /// Jitter helps concurrent callers avoid retrying in lockstep. The
+    /// transport keeps the added delay within the configured retry budget and
+    /// maximum backoff constraints.
     pub fn retry_jitter(mut self, retry_jitter: Duration) -> Self {
         self.retry_config.jitter = Some(retry_jitter);
         self
     }
 
-    /// Sets an optional total retry time budget for a request.
+    /// Sets an optional elapsed-time budget for one request's retry loop.
+    ///
+    /// The transport subtracts the request's retry-loop elapsed time from this
+    /// budget before each retry decision. The remaining budget then caps each
+    /// scheduled retry wait, including waits derived from `Retry-After` and
+    /// waits with jitter enabled.
     pub fn total_retry_budget(mut self, total_retry_budget: Duration) -> Self {
         self.retry_config.total_retry_budget = Some(total_retry_budget);
         self
