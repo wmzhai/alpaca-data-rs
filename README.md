@@ -21,7 +21,7 @@ The crate is built around two constraints:
 - crates.io package: `alpaca-data`
 - Public docs include a GitHub Pages site, generated API reference pages, rustdoc links, API coverage docs, and a tag-triggered release workflow
 
-Release automation is intentionally tag-triggered only and follows GitHub-hosted `stable`. After the initial manual crates.io bootstrap release, the `github-pages` workflow runs the standard Rust validation steps, publishes the crate to crates.io through Trusted Publishing, and deploys the documentation build only on pushed release tags such as `vX.Y.Z`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
+Release automation is intentionally tag-triggered only and follows GitHub-hosted `stable`. After the initial manual crates.io bootstrap release, the `github-pages` workflow runs the standard Rust validation steps, publishes the crate to crates.io through Trusted Publishing, deploys the documentation build, and then creates or updates the matching GitHub Release from the corresponding `CHANGELOG.md` section only on pushed release tags such as `vX.Y.Z`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
 
 ## Design Contract
 

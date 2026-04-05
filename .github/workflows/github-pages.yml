@@ -180,3 +180,56 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  release:
+    needs:
+      - publish
+      - deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          tag = os.environ["RELEASE_TAG"]
+          changelog = Path("CHANGELOG.md")
+          lines = changelog.read_text(encoding="utf-8").splitlines()
+          heading = f"## {tag}"
+
+          start = None
+          for index, line in enumerate(lines):
+              if line.strip() == heading:
+                  start = index
+                  break
+
+          if start is None:
+              raise SystemExit(f"missing changelog section for {tag}")
+
+          end = len(lines)
+          for index in range(start + 1, len(lines)):
+              if lines[index].startswith("## "):
+                  end = index
+                  break
+
+          section = "\n".join(lines[start + 1 : end]).strip()
+          if not section:
+              raise SystemExit(f"empty changelog section for {tag}")
+
+          Path("release-notes.md").write_text(section + "\n", encoding="utf-8")
+          PY
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md

@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- Made pushed `vX.Y.Z` tags create or update the matching GitHub Release and populate its notes from the corresponding `CHANGELOG.md` section after the retained release workflow succeeds.
+
 ## v0.10.3
 
 ### Fixed

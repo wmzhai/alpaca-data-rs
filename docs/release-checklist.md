@@ -22,7 +22,8 @@ The current branch baseline is `v0.10.3`.
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
 - the `github-pages` release workflow is the tag-triggered guardrail and runs only when a `vX.Y.Z` tag is pushed
 - after the first manual crates.io release, the repository is configured as a crates.io Trusted Publisher for the retained `github-pages` workflow before relying on CI publication
-- the `github-pages` workflow covers Rust validation, packaging, crates.io publication, docs-site build, and GitHub Pages deployment
+- the `github-pages` workflow covers Rust validation, packaging, crates.io publication, GitHub Release creation from the matching `CHANGELOG.md` section, docs-site build, and GitHub Pages deployment
+- every pushed release tag has a matching non-empty `## vX.Y.Z` section in `CHANGELOG.md` so the workflow can publish release notes deterministically
 
 ## Verification Targets
 
