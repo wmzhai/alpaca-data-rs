@@ -973,6 +973,47 @@ mod tests {
     }
 
     #[test]
+    fn latest_single_requests_reject_blank_symbols() {
+        let errors = [
+            LatestQuoteRequest::default()
+                .validate()
+                .expect_err("latest quote symbol must be required"),
+            LatestQuoteRequest {
+                symbol: "   ".into(),
+                ..LatestQuoteRequest::default()
+            }
+            .validate()
+            .expect_err("latest quote symbol must reject whitespace-only input"),
+            LatestTradeRequest::default()
+                .validate()
+                .expect_err("latest trade symbol must be required"),
+            LatestTradeRequest {
+                symbol: "   ".into(),
+                ..LatestTradeRequest::default()
+            }
+            .validate()
+            .expect_err("latest trade symbol must reject whitespace-only input"),
+            SnapshotRequest::default()
+                .validate()
+                .expect_err("snapshot symbol must be required"),
+            SnapshotRequest {
+                symbol: "   ".into(),
+                ..SnapshotRequest::default()
+            }
+            .validate()
+            .expect_err("snapshot symbol must reject whitespace-only input"),
+        ];
+
+        for error in errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("symbol") && message.contains("invalid")
+            ));
+        }
+    }
+
+    #[test]
     fn historical_requests_reject_limits_outside_documented_range() {
         let errors = [
             BarsRequest {

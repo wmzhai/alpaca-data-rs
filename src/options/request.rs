@@ -496,6 +496,29 @@ mod tests {
     }
 
     #[test]
+    fn chain_request_rejects_blank_underlying_symbols() {
+        let errors = [
+            ChainRequest::default()
+                .validate()
+                .expect_err("chain underlying symbol must be required"),
+            ChainRequest {
+                underlying_symbol: "   ".into(),
+                ..ChainRequest::default()
+            }
+            .validate()
+            .expect_err("chain underlying symbol must reject whitespace-only input"),
+        ];
+
+        for error in errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("underlying_symbol") && message.contains("invalid")
+            ));
+        }
+    }
+
+    #[test]
     fn requests_reject_limits_outside_documented_ranges() {
         let errors = [
             BarsRequest {
