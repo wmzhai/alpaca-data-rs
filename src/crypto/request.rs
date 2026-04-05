@@ -1,3 +1,4 @@
+use crate::Error;
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
 
@@ -68,6 +69,11 @@ pub struct SnapshotsRequest {
 }
 
 impl BarsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -82,6 +88,11 @@ impl BarsRequest {
 }
 
 impl QuotesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -95,6 +106,11 @@ impl QuotesRequest {
 }
 
 impl TradesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -108,30 +124,50 @@ impl TradesRequest {
 }
 
 impl LatestBarsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols)
     }
 }
 
 impl LatestQuotesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols)
     }
 }
 
 impl LatestTradesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols)
     }
 }
 
 impl LatestOrderbooksRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols)
     }
 }
 
 impl SnapshotsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols)
     }
@@ -167,8 +203,29 @@ fn latest_query(symbols: Vec<String>) -> Vec<(String, String)> {
     query.finish()
 }
 
+fn validate_required_symbols(symbols: &[String]) -> Result<(), Error> {
+    if symbols.is_empty() {
+        return Err(Error::InvalidRequest("symbols must not be empty".into()));
+    }
+
+    Ok(())
+}
+
+fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
+    if let Some(limit) = limit {
+        if !(min..=max).contains(&limit) {
+            return Err(Error::InvalidRequest(format!(
+                "limit must be between {min} and {max}"
+            )));
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::Error;
     use crate::transport::pagination::PaginatedRequest;
 
     use super::{
@@ -343,5 +400,78 @@ mod tests {
             query,
             vec![("symbols".to_string(), "BTC/USD,ETH/USD".to_string())]
         );
+    }
+
+    #[test]
+    fn requests_reject_empty_symbols_for_required_symbol_endpoints() {
+        let errors = [
+            BarsRequest::default()
+                .validate()
+                .expect_err("bars symbols must be required"),
+            QuotesRequest::default()
+                .validate()
+                .expect_err("quotes symbols must be required"),
+            TradesRequest::default()
+                .validate()
+                .expect_err("trades symbols must be required"),
+            LatestBarsRequest::default()
+                .validate()
+                .expect_err("latest bars symbols must be required"),
+            LatestQuotesRequest::default()
+                .validate()
+                .expect_err("latest quotes symbols must be required"),
+            LatestTradesRequest::default()
+                .validate()
+                .expect_err("latest trades symbols must be required"),
+            LatestOrderbooksRequest::default()
+                .validate()
+                .expect_err("latest orderbooks symbols must be required"),
+            SnapshotsRequest::default()
+                .validate()
+                .expect_err("snapshots symbols must be required"),
+        ];
+
+        for error in errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("symbols") && message.contains("empty")
+            ));
+        }
+    }
+
+    #[test]
+    fn historical_requests_reject_limits_outside_documented_range() {
+        let errors = [
+            BarsRequest {
+                symbols: vec!["BTC/USD".into()],
+                limit: Some(0),
+                ..BarsRequest::default()
+            }
+            .validate()
+            .expect_err("bars limit below one must fail"),
+            QuotesRequest {
+                symbols: vec!["BTC/USD".into()],
+                limit: Some(10_001),
+                ..QuotesRequest::default()
+            }
+            .validate()
+            .expect_err("quotes limit above ten thousand must fail"),
+            TradesRequest {
+                symbols: vec!["BTC/USD".into()],
+                limit: Some(0),
+                ..TradesRequest::default()
+            }
+            .validate()
+            .expect_err("trades limit below one must fail"),
+        ];
+
+        for error in errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("limit") && message.contains("10000")
+            ));
+        }
     }
 }

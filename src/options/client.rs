@@ -27,6 +27,7 @@ impl OptionsClient {
 
     pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -63,6 +64,7 @@ impl OptionsClient {
 
     pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -105,6 +107,7 @@ impl OptionsClient {
         request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -121,6 +124,7 @@ impl OptionsClient {
         request: LatestTradesRequest,
     ) -> Result<LatestTradesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -134,6 +138,7 @@ impl OptionsClient {
 
     pub async fn snapshots(&self, request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -176,6 +181,7 @@ impl OptionsClient {
 
     pub async fn chain(&self, request: ChainRequest) -> Result<ChainResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::OptionsChain {
             underlying_symbol: request.underlying_symbol.clone(),
         };

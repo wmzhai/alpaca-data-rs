@@ -42,6 +42,12 @@ The crate exposes two layers:
 
 The convenience layer never changes the official payload words. It only automates pagination.
 
+### Request guardrails stay official-only
+
+- The crate fails fast with `Error::InvalidRequest` only for clearly documented Alpaca request rules.
+- Examples include empty required symbol lists, documented `limit` bounds, the options symbol-list cap, and the corporate-actions `ids` exclusivity rule.
+- The crate does not silently auto-chunk mirror requests to work around documented hard limits.
+
 ## Coverage Summary
 
 ### Stocks

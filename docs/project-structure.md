@@ -113,6 +113,7 @@ sidebar_position: 4
 | `tests/mock_stocks_errors.rs` | mock | stocks |
 | `tests/mock_transport_errors.rs` | mock | transport |
 | `tests/public_api.rs` | integration | client |
+| `tests/request_validation.rs` | integration | shared |
 
 ## Benchmarks
 

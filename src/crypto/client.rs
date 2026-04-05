@@ -26,6 +26,7 @@ impl CryptoClient {
     }
 
     pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_bars(request.loc.unwrap_or_default());
         self.inner
             .http
@@ -57,6 +58,7 @@ impl CryptoClient {
     }
 
     pub async fn quotes(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_quotes(request.loc.unwrap_or_default());
         self.inner
             .http
@@ -91,6 +93,7 @@ impl CryptoClient {
     }
 
     pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_trades(request.loc.unwrap_or_default());
         self.inner
             .http
@@ -128,6 +131,7 @@ impl CryptoClient {
         &self,
         request: LatestBarsRequest,
     ) -> Result<LatestBarsResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_latest_bars(request.loc.unwrap_or_default());
         self.inner
             .http
@@ -144,6 +148,7 @@ impl CryptoClient {
         &self,
         request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_latest_quotes(request.loc.unwrap_or_default());
 
         self.inner
@@ -161,6 +166,7 @@ impl CryptoClient {
         &self,
         request: LatestTradesRequest,
     ) -> Result<LatestTradesResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_latest_trades(request.loc.unwrap_or_default());
         self.inner
             .http
@@ -177,6 +183,7 @@ impl CryptoClient {
         &self,
         request: LatestOrderbooksRequest,
     ) -> Result<LatestOrderbooksResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_latest_orderbooks(request.loc.unwrap_or_default());
         self.inner
             .http
@@ -190,6 +197,7 @@ impl CryptoClient {
     }
 
     pub async fn snapshots(&self, request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
+        request.validate()?;
         let endpoint = Endpoint::crypto_snapshots(request.loc.unwrap_or_default());
         self.inner
             .http

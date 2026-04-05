@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 - Added `ClientBuilder::reqwest_client(...)` for advanced integrations that need to inject a preconfigured `reqwest::Client`.
 - Added `ClientBuilder::observer(...)` plus `TransportObserver` and `ObservedResponseMeta` so successful responses can emit immutable transport metadata.
 - Added `ClientBuilder::credentials_from_env()` and `credentials_from_env_names(...)` for optional environment-driven credential loading.
+- Added fail-fast request validation for documented Market Data rules such as required symbol lists, official `limit` ranges, the options symbol cap, and the corporate-actions `ids` exclusivity rule.
 
 ### Changed
 
@@ -18,6 +19,7 @@ All notable changes to this project are documented in this file.
 - Truncated stored HTTP error bodies to readable snippets for diagnostics instead of retaining unbounded response payloads.
 - Added builder validation so reqwest-client-level settings such as `timeout(...)` fail cleanly when a custom `reqwest::Client` is injected.
 - Updated the builder example and authentication docs to keep explicit credentials as the primary path while documenting optional env helpers and observer-based metadata hooks.
+- Kept mirror and convenience behavior aligned with the official API by returning `Error::InvalidRequest` for documented request violations instead of silently rewriting or chunking requests.
 
 ## v0.9.2
 

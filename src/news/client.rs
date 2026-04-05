@@ -22,6 +22,7 @@ impl NewsClient {
 
     pub async fn list(&self, request: ListRequest) -> Result<ListResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(

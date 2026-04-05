@@ -1,5 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
+use crate::Error;
 use crate::common::enums::Sort;
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
@@ -60,6 +61,24 @@ pub struct ListRequest {
 }
 
 impl ListRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 1_000)?;
+
+        if self.ids.is_some()
+            && (self.symbols.is_some()
+                || self.cusips.is_some()
+                || self.types.is_some()
+                || self.start.is_some()
+                || self.end.is_some())
+        {
+            return Err(Error::InvalidRequest(
+                "ids cannot be combined with other corporate actions filters".into(),
+            ));
+        }
+
+        Ok(())
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         if let Some(symbols) = self.symbols {
@@ -83,6 +102,18 @@ impl ListRequest {
     }
 }
 
+fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
+    if let Some(limit) = limit {
+        if !(min..=max).contains(&limit) {
+            return Err(Error::InvalidRequest(format!(
+                "limit must be between {min} and {max}"
+            )));
+        }
+    }
+
+    Ok(())
+}
+
 impl PaginatedRequest for ListRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -94,7 +125,7 @@ impl PaginatedRequest for ListRequest {
 #[cfg(test)]
 mod tests {
     use super::{CorporateActionType, ListRequest};
-    use crate::common::enums::Sort;
+    use crate::{Error, common::enums::Sort};
 
     #[test]
     fn corporate_action_type_serializes_to_official_query_words() {
@@ -171,5 +202,61 @@ mod tests {
                 ("page_token".to_string(), "page-2".to_string()),
             ]
         );
+    }
+
+    #[test]
+    fn list_request_rejects_limits_outside_documented_range() {
+        let low = ListRequest {
+            limit: Some(0),
+            ..ListRequest::default()
+        }
+        .validate()
+        .expect_err("limit below one must fail");
+        assert!(matches!(
+            low,
+            Error::InvalidRequest(message)
+                if message.contains("limit") && message.contains("1000")
+        ));
+
+        let high = ListRequest {
+            limit: Some(1001),
+            ..ListRequest::default()
+        }
+        .validate()
+        .expect_err("limit above one thousand must fail");
+        assert!(matches!(
+            high,
+            Error::InvalidRequest(message)
+                if message.contains("limit") && message.contains("1000")
+        ));
+    }
+
+    #[test]
+    fn ids_remain_mutually_exclusive_with_other_filters() {
+        let error = ListRequest {
+            symbols: Some(vec!["AAPL".into()]),
+            ids: Some(vec!["ca-1".into()]),
+            ..ListRequest::default()
+        }
+        .validate()
+        .expect_err("ids plus symbols must fail");
+        assert!(matches!(
+            error,
+            Error::InvalidRequest(message)
+                if message.contains("ids") && message.contains("filters")
+        ));
+
+        let error = ListRequest {
+            cusips: Some(vec!["037833100".into()]),
+            ids: Some(vec!["ca-1".into()]),
+            ..ListRequest::default()
+        }
+        .validate()
+        .expect_err("ids plus cusips must fail");
+        assert!(matches!(
+            error,
+            Error::InvalidRequest(message)
+                if message.contains("ids") && message.contains("filters")
+        ));
     }
 }

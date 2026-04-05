@@ -20,6 +20,7 @@ Mirror-layer rules:
 - endpoint semantics come from the official HTTP API
 - request and response field words use the official API terms
 - wrapper shapes such as `next_page_token` are preserved
+- documented request-shape violations fail fast with `Error::InvalidRequest`
 
 ## Convenience Layer
 
@@ -43,6 +44,7 @@ Convenience-layer rules:
 - response field words are unchanged
 - `*_all` returns the same response type with aggregated pages
 - `*_stream` yields pages, not flattened items
+- documented hard-limit violations do not trigger silent auto-chunking
 
 ## Why This Split Exists
 

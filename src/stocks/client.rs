@@ -31,6 +31,7 @@ impl StocksClient {
 
     pub async fn bars(&self, request: BarsRequest) -> Result<BarsResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -44,6 +45,7 @@ impl StocksClient {
 
     pub async fn auctions(&self, request: AuctionsRequest) -> Result<AuctionsResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -71,6 +73,7 @@ impl StocksClient {
         request: AuctionsSingleRequest,
     ) -> Result<AuctionsSingleResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksAuctionsSingle {
             symbol: request.symbol.clone(),
         };
@@ -145,6 +148,7 @@ impl StocksClient {
         request: BarsSingleRequest,
     ) -> Result<BarsSingleResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksBarsSingle {
             symbol: request.symbol.clone(),
         };
@@ -202,6 +206,7 @@ impl StocksClient {
 
     pub async fn quotes(&self, request: QuotesRequest) -> Result<QuotesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -229,6 +234,7 @@ impl StocksClient {
         request: QuotesSingleRequest,
     ) -> Result<QuotesSingleResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksQuotesSingle {
             symbol: request.symbol.clone(),
         };
@@ -289,6 +295,7 @@ impl StocksClient {
 
     pub async fn trades(&self, request: TradesRequest) -> Result<TradesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -316,6 +323,7 @@ impl StocksClient {
         request: TradesSingleRequest,
     ) -> Result<TradesSingleResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksTradesSingle {
             symbol: request.symbol.clone(),
         };
@@ -379,6 +387,7 @@ impl StocksClient {
         request: LatestBarsRequest,
     ) -> Result<LatestBarsResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -411,6 +420,7 @@ impl StocksClient {
         request: LatestQuotesRequest,
     ) -> Result<LatestQuotesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -446,6 +456,7 @@ impl StocksClient {
         request: LatestTradesRequest,
     ) -> Result<LatestTradesResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(
@@ -478,6 +489,7 @@ impl StocksClient {
 
     pub async fn snapshots(&self, request: SnapshotsRequest) -> Result<SnapshotsResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         self.inner
             .http
             .get_json(

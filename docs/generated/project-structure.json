@@ -291,6 +291,11 @@
       "path": "tests/public_api.rs",
       "kind": "integration",
       "resource": "client"
+    },
+    {
+      "path": "tests/request_validation.rs",
+      "kind": "integration",
+      "resource": "shared"
     }
   ],
   "benches": [

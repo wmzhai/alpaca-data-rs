@@ -1,3 +1,4 @@
+use crate::Error;
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
 
@@ -174,6 +175,11 @@ pub struct ConditionCodesRequest {
 }
 
 impl BarsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -192,6 +198,10 @@ impl BarsRequest {
 }
 
 impl BarsSingleRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_opt("timeframe", Some(self.timeframe));
@@ -209,6 +219,11 @@ impl BarsSingleRequest {
 }
 
 impl AuctionsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -225,6 +240,10 @@ impl AuctionsRequest {
 }
 
 impl AuctionsSingleRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_opt("start", self.start);
@@ -240,6 +259,11 @@ impl AuctionsSingleRequest {
 }
 
 impl QuotesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -256,6 +280,10 @@ impl QuotesRequest {
 }
 
 impl QuotesSingleRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_opt("start", self.start);
@@ -271,6 +299,11 @@ impl QuotesSingleRequest {
 }
 
 impl TradesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -287,6 +320,10 @@ impl TradesRequest {
 }
 
 impl TradesSingleRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_opt("start", self.start);
@@ -302,6 +339,10 @@ impl TradesSingleRequest {
 }
 
 impl LatestBarsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_batch_query(self.symbols, self.feed, self.currency)
     }
@@ -314,6 +355,10 @@ impl LatestBarRequest {
 }
 
 impl LatestQuotesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_batch_query(self.symbols, self.feed, self.currency)
     }
@@ -326,6 +371,10 @@ impl LatestQuoteRequest {
 }
 
 impl LatestTradesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_batch_query(self.symbols, self.feed, self.currency)
     }
@@ -338,6 +387,10 @@ impl LatestTradeRequest {
 }
 
 impl SnapshotsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbols(&self.symbols)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_batch_query(self.symbols, self.feed, self.currency)
     }
@@ -393,6 +446,26 @@ fn latest_batch_query(
     query.finish()
 }
 
+fn validate_required_symbols(symbols: &[String]) -> Result<(), Error> {
+    if symbols.is_empty() {
+        return Err(Error::InvalidRequest("symbols must not be empty".into()));
+    }
+
+    Ok(())
+}
+
+fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
+    if let Some(limit) = limit {
+        if !(min..=max).contains(&limit) {
+            return Err(Error::InvalidRequest(format!(
+                "limit must be between {min} and {max}"
+            )));
+        }
+    }
+
+    Ok(())
+}
+
 fn latest_single_query(
     feed: Option<DataFeed>,
     currency: Option<Currency>,
@@ -445,6 +518,8 @@ impl PaginatedRequest for TradesRequest {
 
 #[cfg(test)]
 mod tests {
+    use crate::Error;
+
     use super::*;
 
     #[test]
@@ -844,5 +919,109 @@ mod tests {
             request.to_query(),
             vec![("tape".to_string(), "A".to_string()),]
         );
+    }
+
+    #[test]
+    fn batch_requests_reject_empty_symbols_for_required_symbol_endpoints() {
+        let errors = [
+            BarsRequest::default()
+                .validate()
+                .expect_err("bars symbols must be required"),
+            AuctionsRequest::default()
+                .validate()
+                .expect_err("auctions symbols must be required"),
+            QuotesRequest::default()
+                .validate()
+                .expect_err("quotes symbols must be required"),
+            TradesRequest::default()
+                .validate()
+                .expect_err("trades symbols must be required"),
+            LatestBarsRequest::default()
+                .validate()
+                .expect_err("latest bars symbols must be required"),
+            LatestQuotesRequest::default()
+                .validate()
+                .expect_err("latest quotes symbols must be required"),
+            LatestTradesRequest::default()
+                .validate()
+                .expect_err("latest trades symbols must be required"),
+            SnapshotsRequest::default()
+                .validate()
+                .expect_err("snapshots symbols must be required"),
+        ];
+
+        for error in errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("symbols") && message.contains("empty")
+            ));
+        }
+    }
+
+    #[test]
+    fn historical_requests_reject_limits_outside_documented_range() {
+        let errors = [
+            BarsRequest {
+                symbols: vec!["AAPL".into()],
+                limit: Some(0),
+                ..BarsRequest::default()
+            }
+            .validate()
+            .expect_err("bars limit below one must fail"),
+            BarsSingleRequest {
+                limit: Some(10_001),
+                ..BarsSingleRequest::default()
+            }
+            .validate()
+            .expect_err("single bars limit above ten thousand must fail"),
+            AuctionsRequest {
+                symbols: vec!["AAPL".into()],
+                limit: Some(0),
+                ..AuctionsRequest::default()
+            }
+            .validate()
+            .expect_err("auctions limit below one must fail"),
+            AuctionsSingleRequest {
+                limit: Some(10_001),
+                ..AuctionsSingleRequest::default()
+            }
+            .validate()
+            .expect_err("single auctions limit above ten thousand must fail"),
+            QuotesRequest {
+                symbols: vec!["AAPL".into()],
+                limit: Some(0),
+                ..QuotesRequest::default()
+            }
+            .validate()
+            .expect_err("quotes limit below one must fail"),
+            QuotesSingleRequest {
+                limit: Some(10_001),
+                ..QuotesSingleRequest::default()
+            }
+            .validate()
+            .expect_err("single quotes limit above ten thousand must fail"),
+            TradesRequest {
+                symbols: vec!["AAPL".into()],
+                limit: Some(0),
+                ..TradesRequest::default()
+            }
+            .validate()
+            .expect_err("trades limit below one must fail"),
+            TradesSingleRequest {
+                limit: Some(10_001),
+                ..TradesSingleRequest::default()
+            }
+            .validate()
+            .expect_err("single trades limit above ten thousand must fail"),
+        ];
+
+        for error in errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("limit") && message.contains("10000")
+            ));
+        }
     }
 }

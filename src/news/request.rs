@@ -1,3 +1,4 @@
+use crate::Error;
 use crate::common::enums::Sort;
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
@@ -15,6 +16,10 @@ pub struct ListRequest {
 }
 
 impl ListRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 50)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_opt("start", self.start);
@@ -31,6 +36,18 @@ impl ListRequest {
     }
 }
 
+fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
+    if let Some(limit) = limit {
+        if !(min..=max).contains(&limit) {
+            return Err(Error::InvalidRequest(format!(
+                "limit must be between {min} and {max}"
+            )));
+        }
+    }
+
+    Ok(())
+}
+
 impl PaginatedRequest for ListRequest {
     fn with_page_token(&self, page_token: Option<String>) -> Self {
         let mut next = self.clone();
@@ -42,7 +59,7 @@ impl PaginatedRequest for ListRequest {
 #[cfg(test)]
 mod tests {
     use super::ListRequest;
-    use crate::common::enums::Sort;
+    use crate::{Error, common::enums::Sort};
 
     #[test]
     fn list_request_serializes_official_query_words() {
@@ -71,5 +88,30 @@ mod tests {
                 ("page_token".to_string(), "page-2".to_string()),
             ]
         );
+    }
+
+    #[test]
+    fn list_request_rejects_limits_outside_documented_range() {
+        let low = ListRequest {
+            limit: Some(0),
+            ..ListRequest::default()
+        }
+        .validate()
+        .expect_err("limit below one must fail");
+        assert!(matches!(
+            low,
+            Error::InvalidRequest(message) if message.contains("limit") && message.contains("50")
+        ));
+
+        let high = ListRequest {
+            limit: Some(51),
+            ..ListRequest::default()
+        }
+        .validate()
+        .expect_err("limit above fifty must fail");
+        assert!(matches!(
+            high,
+            Error::InvalidRequest(message) if message.contains("limit") && message.contains("50")
+        ));
     }
 }

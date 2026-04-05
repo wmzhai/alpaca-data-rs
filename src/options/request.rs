@@ -1,3 +1,4 @@
+use crate::Error;
 use crate::common::query::QueryWriter;
 use crate::transport::pagination::PaginatedRequest;
 
@@ -66,6 +67,11 @@ pub struct ConditionCodesRequest {
 }
 
 impl BarsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_option_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -80,6 +86,11 @@ impl BarsRequest {
 }
 
 impl TradesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_option_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 10_000)
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
         query.push_csv("symbols", self.symbols);
@@ -93,6 +104,10 @@ impl TradesRequest {
 }
 
 impl LatestQuotesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_option_symbols(&self.symbols)
+    }
+
     #[allow(dead_code)]
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols, self.feed)
@@ -100,6 +115,10 @@ impl LatestQuotesRequest {
 }
 
 impl LatestTradesRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_option_symbols(&self.symbols)
+    }
+
     #[allow(dead_code)]
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_query(self.symbols, self.feed)
@@ -107,6 +126,11 @@ impl LatestTradesRequest {
 }
 
 impl SnapshotsRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_option_symbols(&self.symbols)?;
+        validate_limit(self.limit, 1, 1_000)
+    }
+
     #[allow(dead_code)]
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
@@ -119,6 +143,10 @@ impl SnapshotsRequest {
 }
 
 impl ChainRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_limit(self.limit, 1, 1_000)
+    }
+
     #[allow(dead_code)]
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         let mut query = QueryWriter::default();
@@ -183,8 +211,36 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
     query.finish()
 }
 
+fn validate_option_symbols(symbols: &[String]) -> Result<(), Error> {
+    if symbols.is_empty() {
+        return Err(Error::InvalidRequest("symbols must not be empty".into()));
+    }
+
+    if symbols.len() > 100 {
+        return Err(Error::InvalidRequest(
+            "symbols must contain at most 100 contract symbols".into(),
+        ));
+    }
+
+    Ok(())
+}
+
+fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
+    if let Some(limit) = limit {
+        if !(min..=max).contains(&limit) {
+            return Err(Error::InvalidRequest(format!(
+                "limit must be between {min} and {max}"
+            )));
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
+    use crate::Error;
+
     use super::{
         BarsRequest, ChainRequest, ConditionCodesRequest, ContractType, LatestQuotesRequest,
         LatestTradesRequest, OptionsFeed, SnapshotsRequest, Sort, TickType, TimeFrame,
@@ -352,5 +408,110 @@ mod tests {
             ticktype: TickType::Quote,
         };
         assert_eq!(quote.ticktype(), "quote");
+    }
+
+    #[test]
+    fn requests_reject_empty_or_oversized_symbol_lists() {
+        let empty_errors = [
+            BarsRequest::default()
+                .validate()
+                .expect_err("bars symbols must be required"),
+            TradesRequest::default()
+                .validate()
+                .expect_err("trades symbols must be required"),
+            LatestQuotesRequest::default()
+                .validate()
+                .expect_err("latest quotes symbols must be required"),
+            LatestTradesRequest::default()
+                .validate()
+                .expect_err("latest trades symbols must be required"),
+            SnapshotsRequest::default()
+                .validate()
+                .expect_err("snapshots symbols must be required"),
+        ];
+
+        for error in empty_errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("symbols") && message.contains("empty")
+            ));
+        }
+
+        let symbols = (0..101)
+            .map(|index| format!("AAPL260406C{:08}", index))
+            .collect::<Vec<_>>();
+
+        let oversized_errors = [
+            BarsRequest {
+                symbols: symbols.clone(),
+                ..BarsRequest::default()
+            }
+            .validate()
+            .expect_err("bars symbols over one hundred must fail"),
+            LatestQuotesRequest {
+                symbols: symbols.clone(),
+                ..LatestQuotesRequest::default()
+            }
+            .validate()
+            .expect_err("latest quotes symbols over one hundred must fail"),
+            SnapshotsRequest {
+                symbols,
+                ..SnapshotsRequest::default()
+            }
+            .validate()
+            .expect_err("snapshots symbols over one hundred must fail"),
+        ];
+
+        for error in oversized_errors {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("symbols") && message.contains("100")
+            ));
+        }
+    }
+
+    #[test]
+    fn requests_reject_limits_outside_documented_ranges() {
+        let errors = [
+            BarsRequest {
+                symbols: vec!["AAPL260406C00180000".into()],
+                limit: Some(0),
+                ..BarsRequest::default()
+            }
+            .validate()
+            .expect_err("bars limit below one must fail"),
+            TradesRequest {
+                symbols: vec!["AAPL260406C00180000".into()],
+                limit: Some(10_001),
+                ..TradesRequest::default()
+            }
+            .validate()
+            .expect_err("trades limit above ten thousand must fail"),
+            SnapshotsRequest {
+                symbols: vec!["AAPL260406C00180000".into()],
+                limit: Some(0),
+                ..SnapshotsRequest::default()
+            }
+            .validate()
+            .expect_err("snapshots limit below one must fail"),
+            ChainRequest {
+                underlying_symbol: "AAPL".into(),
+                limit: Some(1_001),
+                ..ChainRequest::default()
+            }
+            .validate()
+            .expect_err("chain limit above one thousand must fail"),
+        ];
+
+        let expected_maxima = ["10000", "10000", "1000", "1000"];
+        for (error, expected_max) in errors.into_iter().zip(expected_maxima) {
+            assert!(matches!(
+                error,
+                Error::InvalidRequest(message)
+                    if message.contains("limit") && message.contains(expected_max)
+            ));
+        }
     }
 }
