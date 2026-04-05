@@ -106,9 +106,9 @@ impl PaginatedResponse for TradesResponse {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, str::FromStr};
 
-    use crate::transport::pagination::PaginatedResponse;
+    use crate::{Decimal, transport::pagination::PaginatedResponse};
 
     use super::{
         Bar, BarsResponse, LatestBarsResponse, LatestOrderbooksResponse, LatestTradesResponse,
@@ -260,18 +260,64 @@ mod tests {
         )
         .expect("latest bars response should deserialize");
         assert!(latest_bars.bars.contains_key("BTC/USD"));
+        assert_eq!(
+            latest_bars
+                .bars
+                .get("BTC/USD")
+                .and_then(|bar| bar.c.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("66800.79").expect("decimal literal should parse"))
+        );
+        assert_eq!(
+            latest_bars
+                .bars
+                .get("BTC/USD")
+                .and_then(|bar| bar.v.as_ref())
+                .map(ToString::to_string),
+            Some(
+                Decimal::from_str("0.0")
+                    .expect("decimal literal should parse")
+                    .to_string()
+            )
+        );
+        assert_eq!(
+            latest_bars
+                .bars
+                .get("BTC/USD")
+                .and_then(|bar| bar.v.as_ref())
+                .map(Decimal::scale),
+            Some(1)
+        );
 
         let latest_trades: LatestTradesResponse = serde_json::from_str(
             r#"{"trades":{"BTC/USD":{"i":519366231866950988,"p":66842.8,"s":0.000828,"t":"2026-04-04T04:12:55.361347989Z","tks":"B"}}}"#,
         )
         .expect("latest trades response should deserialize");
         assert!(latest_trades.trades.contains_key("BTC/USD"));
+        assert_eq!(
+            latest_trades
+                .trades
+                .get("BTC/USD")
+                .and_then(|trade| trade.s.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("0.000828").expect("decimal literal should parse"))
+        );
 
         let latest_orderbooks: LatestOrderbooksResponse = serde_json::from_str(
             r#"{"orderbooks":{"BTC/USD":{"a":[{"p":66819.4,"s":1.28052},{"p":66847.8,"s":2.5525}],"b":[{"p":66763.431,"s":1.272},{"p":66743.135,"s":2.5795}],"t":"2026-04-04T04:14:35.581059122Z"}}}"#,
         )
         .expect("latest orderbooks response should deserialize");
         assert!(latest_orderbooks.orderbooks.contains_key("BTC/USD"));
+        assert_eq!(
+            latest_orderbooks
+                .orderbooks
+                .get("BTC/USD")
+                .and_then(|orderbook| orderbook.a.as_ref())
+                .and_then(|asks| asks.first())
+                .and_then(|level| level.s.as_ref())
+                .cloned(),
+            Some(Decimal::from_str("1.28052").expect("decimal literal should parse"))
+        );
     }
 
     #[test]

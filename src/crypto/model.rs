@@ -1,40 +1,40 @@
-use crate::common::time::Timestamp;
+use crate::common::{decimal::Decimal, time::Timestamp};
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Bar {
     pub t: Option<Timestamp>,
-    pub o: Option<f64>,
-    pub h: Option<f64>,
-    pub l: Option<f64>,
-    pub c: Option<f64>,
-    pub v: Option<f64>,
+    pub o: Option<Decimal>,
+    pub h: Option<Decimal>,
+    pub l: Option<Decimal>,
+    pub c: Option<Decimal>,
+    pub v: Option<Decimal>,
     pub n: Option<u64>,
-    pub vw: Option<f64>,
+    pub vw: Option<Decimal>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Quote {
     pub t: Option<Timestamp>,
-    pub bp: Option<f64>,
-    pub bs: Option<f64>,
-    pub ap: Option<f64>,
+    pub bp: Option<Decimal>,
+    pub bs: Option<Decimal>,
+    pub ap: Option<Decimal>,
     #[serde(rename = "as")]
-    pub r#as: Option<f64>,
+    pub r#as: Option<Decimal>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct Trade {
     pub t: Option<Timestamp>,
-    pub p: Option<f64>,
-    pub s: Option<f64>,
+    pub p: Option<Decimal>,
+    pub s: Option<Decimal>,
     pub i: Option<u64>,
     pub tks: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
 pub struct OrderbookLevel {
-    pub p: Option<f64>,
-    pub s: Option<f64>,
+    pub p: Option<Decimal>,
+    pub s: Option<Decimal>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]

@@ -26,8 +26,10 @@ impl PaginatedResponse for ListResponse {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use super::ListResponse;
-    use crate::transport::pagination::PaginatedResponse;
+    use crate::{Decimal, transport::pagination::PaginatedResponse};
 
     #[test]
     fn list_response_deserializes_official_bucketed_wrapper_shape() {
@@ -37,6 +39,10 @@ mod tests {
         .expect("response should deserialize");
 
         assert_eq!(response.corporate_actions.cash_dividends.len(), 1);
+        assert_eq!(
+            response.corporate_actions.cash_dividends[0].rate,
+            Decimal::from_str("0.055284").expect("decimal literal should parse")
+        );
         assert_eq!(response.corporate_actions.name_changes.len(), 1);
         assert_eq!(response.corporate_actions.contract_adjustments.len(), 1);
         assert_eq!(
@@ -67,6 +73,10 @@ mod tests {
         first.clear_next_page_token();
 
         assert_eq!(first.corporate_actions.cash_dividends.len(), 2);
+        assert_eq!(
+            first.corporate_actions.cash_dividends[1].rate,
+            Decimal::from_str("0.2").expect("decimal literal should parse")
+        );
         assert_eq!(first.corporate_actions.name_changes.len(), 1);
         assert_eq!(first.corporate_actions.contract_adjustments.len(), 2);
         assert_eq!(
