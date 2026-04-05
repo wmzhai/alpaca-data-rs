@@ -117,8 +117,15 @@ jobs:
         env:
           CRATE_NAME: ${{ steps.crate.outputs.name }}
           CRATE_VERSION: ${{ steps.crate.outputs.version }}
+          CRATES_IO_USER_AGENT: alpaca-data-release-check (+https://github.com/${{ github.repository }})
         run: |
-          http_status="$(curl -sS -o /tmp/crates-io-version.json -w '%{http_code}' "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")"
+          # crates.io may reject anonymous shared-runner traffic that does not identify itself.
+          http_status="$(curl -sS \
+            -A "$CRATES_IO_USER_AGENT" \
+            -H 'Accept: application/json' \
+            -o /tmp/crates-io-version.json \
+            -w '%{http_code}' \
+            "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")"
 
           case "$http_status" in
             200)
