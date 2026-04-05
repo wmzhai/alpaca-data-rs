@@ -214,7 +214,9 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
 }
 
 fn validate_option_symbols(symbols: &[String]) -> Result<(), Error> {
-    validate_required_symbols(symbols)?;
+    if symbols.is_empty() {
+        return validate_required_symbols(symbols);
+    }
 
     if symbols.len() > 100 {
         return Err(Error::InvalidRequest(
@@ -222,7 +224,7 @@ fn validate_option_symbols(symbols: &[String]) -> Result<(), Error> {
         ));
     }
 
-    Ok(())
+    validate_required_symbols(symbols)
 }
 
 fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
@@ -470,6 +472,27 @@ mod tests {
                     if message.contains("symbols") && message.contains("100")
             ));
         }
+    }
+
+    #[test]
+    fn oversized_symbol_lists_still_win_before_blank_entry_errors() {
+        let mut symbols = (0..101)
+            .map(|index| format!("AAPL260406C{:08}", index))
+            .collect::<Vec<_>>();
+        symbols[100] = "   ".into();
+
+        let error = LatestQuotesRequest {
+            symbols,
+            ..LatestQuotesRequest::default()
+        }
+        .validate()
+        .expect_err("mixed invalid symbol lists should still report the options cap first");
+
+        assert!(matches!(
+            error,
+            Error::InvalidRequest(message)
+                if message.contains("symbols") && message.contains("100")
+        ));
     }
 
     #[test]
