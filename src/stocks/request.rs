@@ -1,5 +1,6 @@
 use crate::Error;
 use crate::common::query::QueryWriter;
+use crate::common::validate::{validate_required_symbol, validate_required_symbols};
 use crate::transport::pagination::PaginatedRequest;
 
 use super::{Adjustment, AuctionFeed, Currency, DataFeed, Sort, Tape, TickType, TimeFrame};
@@ -464,32 +465,6 @@ fn latest_batch_query(
     query.push_opt("feed", feed);
     query.push_opt("currency", currency);
     query.finish()
-}
-
-fn validate_required_symbols(symbols: &[String]) -> Result<(), Error> {
-    if symbols.is_empty() {
-        return Err(Error::InvalidRequest(
-            "symbols are invalid: must not be empty".into(),
-        ));
-    }
-
-    if symbols.iter().any(|symbol| symbol.trim().is_empty()) {
-        return Err(Error::InvalidRequest(
-            "symbols are invalid: must not contain empty or whitespace-only entries".into(),
-        ));
-    }
-
-    Ok(())
-}
-
-fn validate_required_symbol(symbol: &str, field_name: &str) -> Result<(), Error> {
-    if symbol.trim().is_empty() {
-        return Err(Error::InvalidRequest(format!(
-            "{field_name} is invalid: must not be empty or whitespace-only"
-        )));
-    }
-
-    Ok(())
 }
 
 fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {

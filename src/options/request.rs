@@ -1,5 +1,6 @@
 use crate::Error;
 use crate::common::query::QueryWriter;
+use crate::common::validate::{validate_required_symbol, validate_required_symbols};
 use crate::transport::pagination::PaginatedRequest;
 
 use super::{ContractType, OptionsFeed, Sort, TickType, TimeFrame};
@@ -213,32 +214,12 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
 }
 
 fn validate_option_symbols(symbols: &[String]) -> Result<(), Error> {
-    if symbols.is_empty() {
-        return Err(Error::InvalidRequest(
-            "symbols are invalid: must not be empty".into(),
-        ));
-    }
+    validate_required_symbols(symbols)?;
 
     if symbols.len() > 100 {
         return Err(Error::InvalidRequest(
             "symbols must contain at most 100 contract symbols".into(),
         ));
-    }
-
-    if symbols.iter().any(|symbol| symbol.trim().is_empty()) {
-        return Err(Error::InvalidRequest(
-            "symbols are invalid: must not contain empty or whitespace-only entries".into(),
-        ));
-    }
-
-    Ok(())
-}
-
-fn validate_required_symbol(symbol: &str, field_name: &str) -> Result<(), Error> {
-    if symbol.trim().is_empty() {
-        return Err(Error::InvalidRequest(format!(
-            "{field_name} is invalid: must not be empty or whitespace-only"
-        )));
     }
 
     Ok(())
