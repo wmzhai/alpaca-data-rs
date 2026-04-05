@@ -16,7 +16,7 @@ The crate is built around two constraints:
 - crates.io package: `alpaca-data`
 - Public docs include a GitHub Pages site, generated API reference pages, rustdoc links, API coverage docs, and a tag-triggered release workflow
 
-Release automation is intentionally tag-triggered only and follows GitHub-hosted `stable`. The `github-pages` workflow runs the standard Rust validation steps and the documentation build only on pushed release tags such as `vX.Y.Z`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
+Release automation is intentionally tag-triggered only and follows GitHub-hosted `stable`. After the initial manual crates.io bootstrap release, the `github-pages` workflow runs the standard Rust validation steps, publishes the crate to crates.io through Trusted Publishing, and deploys the documentation build only on pushed release tags such as `vX.Y.Z`. The manifest intentionally omits `rust-version` until an audited MSRV policy exists.
 
 ## Design Contract
 
@@ -362,8 +362,8 @@ cargo bench --no-run
 
 ## Publication Notes
 
-The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while the tag-triggered release workflow verifies formatting, tests, examples, docs, package creation, and documentation-site builds on pushed release tags.
+The published crate excludes internal workflow material such as `.agents/`, `.github/`, and `AGENTS.md`, while the tag-triggered release workflow verifies formatting, tests, examples, docs, package creation, publishes through crates.io Trusted Publishing, and builds the documentation site on pushed release tags.
 
 The public documentation site is published at `https://wmzhai.github.io/alpaca-data-rs/`. `docs.rs` remains the primary rustdoc host, and the repository docs under `docs/` remain the narrative documentation surface.
 
-No automatic crates.io publication is performed by repository CI.
+Automatic crates.io publication is performed by repository CI for pushed `vX.Y.Z` tags after crates.io Trusted Publishing is configured for the repository. Workflow reruns skip the publish step when that tagged version already exists on crates.io.

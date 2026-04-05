@@ -21,7 +21,8 @@ The current branch baseline is `v0.10.0`.
 - `./scripts/api-sync-audit` has been run against the intended release baseline and reports no blocking drift
 - any detected mirror drift is resolved before convenience-layer compatibility is treated as valid again
 - the `github-pages` release workflow is the tag-triggered guardrail and runs only when a `vX.Y.Z` tag is pushed
-- the `github-pages` workflow covers Rust validation, packaging, docs-site build, and GitHub Pages deployment
+- after the first manual crates.io release, the repository is configured as a crates.io Trusted Publisher for the retained `github-pages` workflow before relying on CI publication
+- the `github-pages` workflow covers Rust validation, packaging, crates.io publication, docs-site build, and GitHub Pages deployment
 
 ## Verification Targets
 
