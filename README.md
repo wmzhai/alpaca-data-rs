@@ -142,6 +142,44 @@ let client = Client::builder()
 
 When `reqwest_client(...)` is used, reqwest-level settings such as `timeout(...)` must be configured on the injected client instead of on `ClientBuilder`.
 
+Optionally load paired credentials from process environment when a service prefers env-driven wiring:
+
+```rust
+use alpaca_data::Client;
+
+let client = Client::builder()
+    .credentials_from_env()?
+    .build()?;
+# let _ = client;
+# Ok::<(), alpaca_data::Error>(())
+```
+
+Observe successful transport completions without changing endpoint return types:
+
+```rust
+use std::sync::Arc;
+use alpaca_data::{Client, ObservedResponseMeta, TransportObserver};
+
+struct LoggingObserver;
+
+impl TransportObserver for LoggingObserver {
+    fn on_response(&self, meta: &ObservedResponseMeta) {
+        println!(
+            "endpoint={}, status={}, request_id={:?}",
+            meta.endpoint_name, meta.status, meta.request_id
+        );
+    }
+}
+
+let client = Client::builder()
+    .observer(Arc::new(LoggingObserver))
+    .build()?;
+# let _ = client;
+# Ok::<(), alpaca_data::Error>(())
+```
+
+Observers only receive successful-response metadata such as endpoint name, URL, status, request ID, retry attempt count, and elapsed time.
+
 Fetch stock latest bars:
 
 ```rust
@@ -205,6 +243,21 @@ Authentication behavior follows the implemented endpoint rules:
 
 - `stocks`, `options`, `news`, and `corporate_actions` require credentials
 - The currently implemented `crypto` HTTP endpoints can run without credentials
+
+The primary application path is still explicit credentials on the builder:
+
+```rust
+use alpaca_data::Client;
+
+let client = Client::builder()
+    .api_key(std::env::var("APCA_API_KEY_ID").expect("APCA_API_KEY_ID is required"))
+    .secret_key(std::env::var("APCA_API_SECRET_KEY").expect("APCA_API_SECRET_KEY is required"))
+    .build()?;
+# let _ = client;
+# Ok::<(), alpaca_data::Error>(())
+```
+
+`credentials_from_env()` and `credentials_from_env_names(...)` are optional ergonomics for integrations that already manage credentials through environment variables. They only load paired values; a partial pair returns `Error::InvalidConfiguration`.
 
 Live tests in this repository use:
 

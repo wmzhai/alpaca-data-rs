@@ -9,12 +9,15 @@ All notable changes to this project are documented in this file.
 - Added structured transport retry controls with opt-in 429 retries, optional `Retry-After` handling, bounded backoff, jitter, and total retry budgets through `ClientBuilder`.
 - Added stable endpoint names and preserved request identifiers plus retry-attempt metadata on transport-facing `Error::RateLimited` and `Error::HttpStatus` values.
 - Added `ClientBuilder::reqwest_client(...)` for advanced integrations that need to inject a preconfigured `reqwest::Client`.
+- Added `ClientBuilder::observer(...)` plus `TransportObserver` and `ObservedResponseMeta` so successful responses can emit immutable transport metadata.
+- Added `ClientBuilder::credentials_from_env()` and `credentials_from_env_names(...)` for optional environment-driven credential loading.
 
 ### Changed
 
 - Split the shared HTTP transport into explicit request-build, send, retry, and parse stages while keeping the public resource methods unchanged.
 - Truncated stored HTTP error bodies to readable snippets for diagnostics instead of retaining unbounded response payloads.
 - Added builder validation so reqwest-client-level settings such as `timeout(...)` fail cleanly when a custom `reqwest::Client` is injected.
+- Updated the builder example and authentication docs to keep explicit credentials as the primary path while documenting optional env helpers and observer-based metadata hooks.
 
 ## v0.9.2
 

@@ -1035,6 +1035,8 @@
         "shared": [
           "Endpoint",
           "HttpClient",
+          "ObservedResponseMeta",
+          "ObserverHandle",
           "RateLimiter",
           "ResponseMeta",
           "RetryConfig",

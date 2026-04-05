@@ -5,11 +5,17 @@ use crate::{
     auth::Auth,
     corporate_actions::CorporateActionsClient,
     crypto::CryptoClient,
+    env,
     error::Error,
     news::NewsClient,
     options::OptionsClient,
     stocks::StocksClient,
-    transport::{http::HttpClient, rate_limit::RateLimiter, retry::RetryConfig},
+    transport::{
+        http::HttpClient,
+        observer::{ObserverHandle, TransportObserver},
+        rate_limit::RateLimiter,
+        retry::RetryConfig,
+    },
 };
 
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -52,6 +58,7 @@ pub struct ClientBuilder {
     base_url: Option<String>,
     timeout: Option<Duration>,
     reqwest_client: Option<reqwest::Client>,
+    observer: Option<ObserverHandle>,
     retry_config: RetryConfig,
     max_in_flight: Option<usize>,
 }
@@ -101,17 +108,20 @@ impl Client {
         base_url: String,
         timeout: Option<Duration>,
         reqwest_client: Option<reqwest::Client>,
+        observer: Option<ObserverHandle>,
         retry_config: RetryConfig,
         max_in_flight: Option<usize>,
     ) -> Result<Self, Error> {
         let http = match reqwest_client {
             Some(client) => HttpClient::with_client(
                 client,
+                observer,
                 retry_config.clone(),
                 RateLimiter::new(max_in_flight),
             ),
             None => HttpClient::from_timeout(
                 timeout.unwrap_or(DEFAULT_TIMEOUT),
+                observer,
                 retry_config.clone(),
                 RateLimiter::new(max_in_flight),
             )?,
@@ -138,6 +148,7 @@ impl Default for ClientBuilder {
             base_url: None,
             timeout: None,
             reqwest_client: None,
+            observer: None,
             retry_config: RetryConfig::default(),
             max_in_flight: None,
         }
@@ -179,6 +190,15 @@ impl ClientBuilder {
     /// validation rejects conflicting builder settings such as `timeout(...)`.
     pub fn reqwest_client(mut self, reqwest_client: reqwest::Client) -> Self {
         self.reqwest_client = Some(reqwest_client);
+        self
+    }
+
+    /// Registers an immutable observer for successful transport responses.
+    ///
+    /// Observers receive endpoint metadata only. They cannot change request
+    /// execution or response shaping.
+    pub fn observer(mut self, observer: Arc<dyn TransportObserver>) -> Self {
+        self.observer = Some(ObserverHandle::new(observer));
         self
     }
 
@@ -224,6 +244,33 @@ impl ClientBuilder {
         self
     }
 
+    /// Loads credentials from `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY`.
+    ///
+    /// If both variables are unset, the builder is left unchanged. If only one
+    /// side is set, this returns [`Error::InvalidConfiguration`].
+    pub fn credentials_from_env(self) -> Result<Self, Error> {
+        self.credentials_from_env_names(env::DEFAULT_API_KEY_ENV, env::DEFAULT_SECRET_KEY_ENV)
+    }
+
+    /// Loads credentials from the provided environment variable names.
+    ///
+    /// If both variables are unset, the builder is left unchanged. If only one
+    /// side is set, this returns [`Error::InvalidConfiguration`].
+    pub fn credentials_from_env_names(
+        mut self,
+        api_key_var: &str,
+        secret_key_var: &str,
+    ) -> Result<Self, Error> {
+        if let Some((api_key, secret_key)) =
+            env::credentials_from_env_names(api_key_var, secret_key_var)?
+        {
+            self.api_key = Some(api_key);
+            self.secret_key = Some(secret_key);
+        }
+
+        Ok(self)
+    }
+
     /// Sets the maximum number of concurrent in-flight requests.
     pub fn max_in_flight(mut self, max_in_flight: usize) -> Self {
         self.max_in_flight = Some(max_in_flight);
@@ -256,6 +303,7 @@ impl ClientBuilder {
             base_url,
             self.timeout,
             self.reqwest_client,
+            self.observer,
             self.retry_config,
             self.max_in_flight,
         )

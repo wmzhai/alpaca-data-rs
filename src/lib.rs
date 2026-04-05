@@ -39,6 +39,7 @@
 mod auth;
 mod client;
 mod common;
+mod env;
 mod error;
 mod transport;
 
@@ -50,3 +51,4 @@ pub mod stocks;
 
 pub use client::{Client, ClientBuilder};
 pub use error::Error;
+pub use transport::observer::{ObservedResponseMeta, TransportObserver};

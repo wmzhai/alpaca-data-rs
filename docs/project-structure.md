@@ -67,6 +67,7 @@ sidebar_position: 4
   - `http.rs`
   - `meta.rs`
   - `mod.rs`
+  - `observer.rs`
   - `pagination.rs`
   - `rate_limit.rs`
   - `retry.rs`

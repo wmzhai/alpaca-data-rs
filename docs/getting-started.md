@@ -24,9 +24,12 @@ Use `Client::builder()` when you need explicit configuration:
 
 - `api_key(...)`
 - `secret_key(...)`
+- `credentials_from_env()?`
+- `credentials_from_env_names(...)?`
 - `base_url(...)`
 - `timeout(...)`
 - `reqwest_client(...)`
+- `observer(...)`
 - `max_retries(...)`
 - `retry_on_429(...)`
 - `respect_retry_after(...)`
@@ -39,6 +42,10 @@ Use `Client::builder()` when you need explicit configuration:
 The retry builder defaults stay conservative: 5xx retries remain enabled within the retry budget, while 429 retries and `Retry-After` handling stay opt-in until you enable them explicitly.
 
 Use `reqwest_client(...)` when a service integration needs to own reqwest-level settings such as connection pooling, default headers, or timeout behavior. When you inject a custom client, configure those reqwest-level knobs on the injected client instead of combining them with `timeout(...)` on `ClientBuilder`.
+
+Use `credentials_from_env()?` or `credentials_from_env_names(...)?` only as optional ergonomics when your runtime already manages paired environment variables. The primary credential path remains explicit `api_key(...)` plus `secret_key(...)`.
+
+Use `observer(...)` when you want successful-response metadata for logging or metrics. The observer sees endpoint name, URL, status, request ID, retry attempt count, and elapsed time, but it does not change request or response semantics.
 
 ## Choose a Resource
 

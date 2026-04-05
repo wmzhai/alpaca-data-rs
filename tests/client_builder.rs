@@ -1,6 +1,7 @@
 use std::time::Duration;
+use std::{ffi::OsString, sync::OnceLock};
 
-use alpaca_data::{Client, Error};
+use alpaca_data::{Client, Error, news};
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -145,4 +146,147 @@ async fn custom_reqwest_client_can_be_used_with_retry_controls() {
         .expect("request should succeed after retry");
 
     assert!(response.quotes.contains_key("BTC/USD"));
+}
+
+fn env_test_lock() -> &'static std::sync::Mutex<()> {
+    static LOCK: OnceLock<std::sync::Mutex<()>> = OnceLock::new();
+    LOCK.get_or_init(|| std::sync::Mutex::new(()))
+}
+
+struct EnvGuard {
+    entries: Vec<(String, Option<OsString>)>,
+}
+
+impl EnvGuard {
+    fn set(vars: &[(&str, Option<&str>)]) -> Self {
+        let entries = vars
+            .iter()
+            .map(|(name, value)| {
+                let previous = std::env::var_os(name);
+                match value {
+                    Some(value) => unsafe { std::env::set_var(name, value) },
+                    None => unsafe { std::env::remove_var(name) },
+                }
+                (name.to_string(), previous)
+            })
+            .collect();
+
+        Self { entries }
+    }
+}
+
+impl Drop for EnvGuard {
+    fn drop(&mut self) {
+        for (name, value) in self.entries.drain(..).rev() {
+            match value {
+                Some(value) => unsafe { std::env::set_var(&name, value) },
+                None => unsafe { std::env::remove_var(&name) },
+            }
+        }
+    }
+}
+
+fn news_success_body() -> &'static str {
+    r#"{"news":[{"id":24843171,"headline":"Apple headline","author":"Charles Gross","created_at":"2021-12-31T11:08:42Z","updated_at":"2021-12-31T11:08:43Z","summary":"Summary","content":"","url":"https://example.com/article","images":[],"symbols":["AAPL"],"source":"benzinga"}],"next_page_token":null}"#
+}
+
+#[tokio::test]
+async fn credentials_from_env_loads_default_apca_names() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v1beta1/news"))
+        .and(header("APCA-API-KEY-ID", "env-key"))
+        .and(header("APCA-API-SECRET-KEY", "env-secret"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_raw(news_success_body(), "application/json"),
+        )
+        .mount(&server)
+        .await;
+
+    let client = {
+        let _lock = env_test_lock()
+            .lock()
+            .expect("env lock should be available");
+        let _env = EnvGuard::set(&[
+            ("APCA_API_KEY_ID", Some("env-key")),
+            ("APCA_API_SECRET_KEY", Some("env-secret")),
+        ]);
+
+        Client::builder()
+            .base_url(server.uri())
+            .credentials_from_env()
+            .expect("env credentials should load")
+            .build()
+            .expect("client should build")
+    };
+
+    let response = client
+        .news()
+        .list(news::ListRequest::default())
+        .await
+        .expect("news request should succeed");
+
+    assert_eq!(response.news.len(), 1);
+}
+
+#[tokio::test]
+async fn credentials_from_env_names_load_custom_variable_names() {
+    let server = MockServer::start().await;
+
+    Mock::given(method("GET"))
+        .and(path("/v1beta1/news"))
+        .and(header("APCA-API-KEY-ID", "custom-key"))
+        .and(header("APCA-API-SECRET-KEY", "custom-secret"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_raw(news_success_body(), "application/json"),
+        )
+        .mount(&server)
+        .await;
+
+    let client = {
+        let _lock = env_test_lock()
+            .lock()
+            .expect("env lock should be available");
+        let _env = EnvGuard::set(&[
+            ("PHASE4_API_KEY", Some("custom-key")),
+            ("PHASE4_SECRET_KEY", Some("custom-secret")),
+        ]);
+
+        Client::builder()
+            .base_url(server.uri())
+            .credentials_from_env_names("PHASE4_API_KEY", "PHASE4_SECRET_KEY")
+            .expect("custom env credentials should load")
+            .build()
+            .expect("client should build")
+    };
+
+    let response = client
+        .news()
+        .list(news::ListRequest::default())
+        .await
+        .expect("news request should succeed");
+
+    assert_eq!(response.news.len(), 1);
+}
+
+#[test]
+fn credentials_from_env_reject_partial_values() {
+    let _lock = env_test_lock()
+        .lock()
+        .expect("env lock should be available");
+    let _env = EnvGuard::set(&[
+        ("APCA_API_KEY_ID", Some("env-key")),
+        ("APCA_API_SECRET_KEY", None),
+    ]);
+
+    let error = Client::builder()
+        .credentials_from_env()
+        .expect_err("partial env credentials must fail");
+
+    assert!(matches!(
+        error,
+        Error::InvalidConfiguration(message)
+            if message.contains("APCA_API_KEY_ID") && message.contains("APCA_API_SECRET_KEY")
+    ));
 }

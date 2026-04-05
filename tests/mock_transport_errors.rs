@@ -1,11 +1,29 @@
 use std::time::Duration;
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration as StdDuration,
+};
 
-use alpaca_data::{Client, Error, crypto};
+use alpaca_data::{Client, Error, ObservedResponseMeta, TransportObserver, crypto};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 fn latest_quotes_body() -> &'static str {
     r#"{"quotes":{"BTC/USD":{"ap":67005.5,"as":1.26733,"bp":66894.8,"bs":2.56753,"t":"2026-04-04T00:00:04.184229364Z"}}}"#
+}
+
+#[derive(Default)]
+struct RecordingObserver {
+    seen: Mutex<Vec<ObservedResponseMeta>>,
+}
+
+impl TransportObserver for RecordingObserver {
+    fn on_response(&self, meta: &ObservedResponseMeta) {
+        self.seen
+            .lock()
+            .expect("observer buffer should be available")
+            .push(meta.clone());
+    }
 }
 
 #[tokio::test]
@@ -257,4 +275,47 @@ async fn error_bodies_are_snippets_and_display_transport_metadata() {
     let display = error.to_string();
     assert!(display.contains("crypto.latest_quotes"));
     assert!(display.contains("req-long"));
+}
+
+#[tokio::test]
+async fn observer_receives_success_metadata() {
+    let server = MockServer::start().await;
+    let observer = Arc::new(RecordingObserver::default());
+
+    Mock::given(method("GET"))
+        .and(path("/v1beta3/crypto/us/latest/quotes"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .insert_header("apca-request-id", "req-success")
+                .set_body_raw(latest_quotes_body(), "application/json"),
+        )
+        .mount(&server)
+        .await;
+
+    let response = Client::builder()
+        .base_url(server.uri())
+        .observer(observer.clone())
+        .build()
+        .expect("client should build")
+        .crypto()
+        .latest_quotes(crypto::LatestQuotesRequest {
+            symbols: vec!["BTC/USD".into()],
+            loc: Some(crypto::Loc::Us),
+        })
+        .await
+        .expect("request should succeed");
+
+    assert!(response.quotes.contains_key("BTC/USD"));
+
+    let seen = observer
+        .seen
+        .lock()
+        .expect("observer buffer should be available");
+    assert_eq!(seen.len(), 1);
+    assert_eq!(seen[0].endpoint_name, "crypto.latest_quotes");
+    assert_eq!(seen[0].status, 200);
+    assert_eq!(seen[0].request_id.as_deref(), Some("req-success"));
+    assert_eq!(seen[0].attempt_count, 0);
+    assert!(seen[0].url.ends_with("/v1beta3/crypto/us/latest/quotes"));
+    assert!(seen[0].elapsed >= StdDuration::ZERO);
 }

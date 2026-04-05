@@ -6,6 +6,7 @@ use crate::{
     transport::{
         endpoint::Endpoint,
         meta::ResponseMeta,
+        observer::ObserverHandle,
         rate_limit::RateLimiter,
         retry::{RetryConfig, RetryDecision},
     },
@@ -14,6 +15,7 @@ use crate::{
 #[derive(Clone, Debug)]
 pub(crate) struct HttpClient {
     client: reqwest::Client,
+    observer: Option<ObserverHandle>,
     retry_config: RetryConfig,
     rate_limiter: RateLimiter,
 }
@@ -37,11 +39,13 @@ impl ResponseParts {
 impl HttpClient {
     pub(crate) fn with_client(
         client: reqwest::Client,
+        observer: Option<ObserverHandle>,
         retry_config: RetryConfig,
         rate_limiter: RateLimiter,
     ) -> Self {
         Self {
             client,
+            observer,
             retry_config,
             rate_limiter,
         }
@@ -49,6 +53,7 @@ impl HttpClient {
 
     pub(crate) fn from_timeout(
         timeout: Duration,
+        observer: Option<ObserverHandle>,
         retry_config: RetryConfig,
         rate_limiter: RateLimiter,
     ) -> Result<Self, Error> {
@@ -57,7 +62,12 @@ impl HttpClient {
             .build()
             .map_err(Error::from_reqwest)?;
 
-        Ok(Self::with_client(client, retry_config, rate_limiter))
+        Ok(Self::with_client(
+            client,
+            observer,
+            retry_config,
+            rate_limiter,
+        ))
     }
 
     pub(crate) async fn get_json<T>(
@@ -84,7 +94,13 @@ impl HttpClient {
             return Err(Error::from_http_status(meta, body));
         }
 
-        self.parse_json_body(&body)
+        let parsed = self.parse_json_body(&body)?;
+
+        if let Some(observer) = &self.observer {
+            observer.on_response(&meta);
+        }
+
+        Ok(parsed)
     }
 
     fn build_get_request(
