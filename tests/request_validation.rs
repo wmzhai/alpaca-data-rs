@@ -69,6 +69,24 @@ async fn stocks_snapshot_rejects_whitespace_only_symbol() {
 }
 
 #[tokio::test]
+async fn stocks_batch_requests_reject_blank_symbol_entries() {
+    let error = auth_client()
+        .stocks()
+        .bars(stocks::BarsRequest {
+            symbols: vec!["AAPL".into(), " ".into()],
+            timeframe: stocks::TimeFrame::from("1Min"),
+            ..stocks::BarsRequest::default()
+        })
+        .await
+        .expect_err("blank stock symbols must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbols") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
 async fn options_requests_reject_symbol_lists_over_one_hundred() {
     let symbols = (0..101)
         .map(|index| format!("AAPL260406C{:08}", index))
@@ -109,6 +127,23 @@ async fn options_chain_rejects_empty_underlying_symbol() {
 }
 
 #[tokio::test]
+async fn options_requests_reject_blank_symbol_entries() {
+    let error = auth_client()
+        .options()
+        .latest_quotes(options::LatestQuotesRequest {
+            symbols: vec!["AAPL260406C00180000".into(), " ".into()],
+            ..options::LatestQuotesRequest::default()
+        })
+        .await
+        .expect_err("blank option symbols must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbols") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
 async fn crypto_requests_reject_empty_symbols() {
     let error = crypto_client()
         .crypto()
@@ -122,6 +157,23 @@ async fn crypto_requests_reject_empty_symbols() {
     assert!(matches!(
         error,
         Error::InvalidRequest(message) if message.contains("symbols") && message.contains("empty")
+    ));
+}
+
+#[tokio::test]
+async fn crypto_requests_reject_blank_symbol_entries() {
+    let error = crypto_client()
+        .crypto()
+        .latest_quotes(crypto::LatestQuotesRequest {
+            symbols: vec!["BTC/USD".into(), " ".into()],
+            loc: None,
+        })
+        .await
+        .expect_err("blank crypto symbols must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbols") && message.contains("invalid")
     ));
 }
 

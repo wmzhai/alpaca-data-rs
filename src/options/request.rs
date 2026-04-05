@@ -214,12 +214,20 @@ fn latest_query(symbols: Vec<String>, feed: Option<OptionsFeed>) -> Vec<(String,
 
 fn validate_option_symbols(symbols: &[String]) -> Result<(), Error> {
     if symbols.is_empty() {
-        return Err(Error::InvalidRequest("symbols must not be empty".into()));
+        return Err(Error::InvalidRequest(
+            "symbols are invalid: must not be empty".into(),
+        ));
     }
 
     if symbols.len() > 100 {
         return Err(Error::InvalidRequest(
             "symbols must contain at most 100 contract symbols".into(),
+        ));
+    }
+
+    if symbols.iter().any(|symbol| symbol.trim().is_empty()) {
+        return Err(Error::InvalidRequest(
+            "symbols are invalid: must not contain empty or whitespace-only entries".into(),
         ));
     }
 
