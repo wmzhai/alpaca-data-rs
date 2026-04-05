@@ -6,7 +6,7 @@ Install `alpaca-data` from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = "0.10.1"
+alpaca-data = "0.10.2"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 

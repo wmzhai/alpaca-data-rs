@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## v0.10.2
+
+### Fixed
+
+- Identified the crates.io release-version probe in CI with an explicit `User-Agent` and JSON accept header so crates.io Trusted Publishing runs are no longer blocked by the crates.io data-access policy before publication begins.
+
 ## v0.10.1
 
 ### Fixed
