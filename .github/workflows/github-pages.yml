@@ -76,11 +76,83 @@ jobs:
         with:
           path: website/build
 
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Resolve crate metadata
+        id: crate
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import subprocess
+
+          meta = json.loads(
+              subprocess.check_output(
+                  ["cargo", "metadata", "--no-deps", "--format-version", "1"],
+                  text=True,
+              )
+          )
+          pkg = {item["id"]: item for item in meta["packages"]}[
+              meta["workspace_default_members"][0]
+          ]
+
+          print(f"name={pkg['name']}")
+          print(f"version={pkg['version']}")
+          PY
+
+      - name: Check whether the release is already published
+        id: published
+        env:
+          CRATE_NAME: ${{ steps.crate.outputs.name }}
+          CRATE_VERSION: ${{ steps.crate.outputs.version }}
+        run: |
+          http_status="$(curl -sS -o /tmp/crates-io-version.json -w '%{http_code}' "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")"
+
+          case "$http_status" in
+            200)
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              echo "${CRATE_NAME} ${CRATE_VERSION} already exists on crates.io; skipping publish."
+              ;;
+            404)
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "unexpected crates.io status: $http_status" >&2
+              cat /tmp/crates-io-version.json >&2 || true
+              exit 1
+              ;;
+          esac
+
+      - name: Authenticate with crates.io
+        if: steps.published.outputs.exists != 'true'
+        id: auth
+        uses: rust-lang/crates-io-auth-action@v1
+
+      - name: cargo publish --locked
+        if: steps.published.outputs.exists != 'true'
+        run: cargo publish --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
+    needs:
+      - build
+      - publish
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
