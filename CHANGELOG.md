@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## v0.10.3
+
+### Fixed
+
+- Replaced the GitHub Pages artifact upload wrapper with an explicit tar step plus `actions/upload-artifact@v7`, so release runs no longer depend on the deprecated Node 20-based artifact uploader.
+
 ## v0.10.2
 
 ### Fixed
