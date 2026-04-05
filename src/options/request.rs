@@ -144,6 +144,7 @@ impl SnapshotsRequest {
 
 impl ChainRequest {
     pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.underlying_symbol, "underlying_symbol")?;
         validate_limit(self.limit, 1, 1_000)
     }
 
@@ -220,6 +221,16 @@ fn validate_option_symbols(symbols: &[String]) -> Result<(), Error> {
         return Err(Error::InvalidRequest(
             "symbols must contain at most 100 contract symbols".into(),
         ));
+    }
+
+    Ok(())
+}
+
+fn validate_required_symbol(symbol: &str, field_name: &str) -> Result<(), Error> {
+    if symbol.trim().is_empty() {
+        return Err(Error::InvalidRequest(format!(
+            "{field_name} is invalid: must not be empty or whitespace-only"
+        )));
     }
 
     Ok(())

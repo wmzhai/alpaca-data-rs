@@ -401,6 +401,7 @@ impl StocksClient {
 
     pub async fn latest_bar(&self, request: LatestBarRequest) -> Result<LatestBarResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksLatestBar {
             symbol: request.symbol.clone(),
         };
@@ -437,6 +438,7 @@ impl StocksClient {
         request: LatestQuoteRequest,
     ) -> Result<LatestQuoteResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksLatestQuote {
             symbol: request.symbol.clone(),
         };
@@ -473,6 +475,7 @@ impl StocksClient {
         request: LatestTradeRequest,
     ) -> Result<LatestTradeResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksLatestTrade {
             symbol: request.symbol.clone(),
         };
@@ -503,6 +506,7 @@ impl StocksClient {
 
     pub async fn snapshot(&self, request: SnapshotRequest) -> Result<SnapshotResponse, Error> {
         self.ensure_credentials()?;
+        request.validate()?;
         let endpoint = Endpoint::StocksSnapshot {
             symbol: request.symbol.clone(),
         };

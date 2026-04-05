@@ -199,6 +199,7 @@ impl BarsRequest {
 
 impl BarsSingleRequest {
     pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")?;
         validate_limit(self.limit, 1, 10_000)
     }
 
@@ -241,6 +242,7 @@ impl AuctionsRequest {
 
 impl AuctionsSingleRequest {
     pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")?;
         validate_limit(self.limit, 1, 10_000)
     }
 
@@ -281,6 +283,7 @@ impl QuotesRequest {
 
 impl QuotesSingleRequest {
     pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")?;
         validate_limit(self.limit, 1, 10_000)
     }
 
@@ -321,6 +324,7 @@ impl TradesRequest {
 
 impl TradesSingleRequest {
     pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")?;
         validate_limit(self.limit, 1, 10_000)
     }
 
@@ -349,6 +353,10 @@ impl LatestBarsRequest {
 }
 
 impl LatestBarRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_single_query(self.feed, self.currency)
     }
@@ -365,6 +373,10 @@ impl LatestQuotesRequest {
 }
 
 impl LatestQuoteRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_single_query(self.feed, self.currency)
     }
@@ -381,6 +393,10 @@ impl LatestTradesRequest {
 }
 
 impl LatestTradeRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_single_query(self.feed, self.currency)
     }
@@ -397,6 +413,10 @@ impl SnapshotsRequest {
 }
 
 impl SnapshotRequest {
+    pub(crate) fn validate(&self) -> Result<(), Error> {
+        validate_required_symbol(&self.symbol, "symbol")
+    }
+
     pub(crate) fn to_query(self) -> Vec<(String, String)> {
         latest_single_query(self.feed, self.currency)
     }
@@ -449,6 +469,16 @@ fn latest_batch_query(
 fn validate_required_symbols(symbols: &[String]) -> Result<(), Error> {
     if symbols.is_empty() {
         return Err(Error::InvalidRequest("symbols must not be empty".into()));
+    }
+
+    Ok(())
+}
+
+fn validate_required_symbol(symbol: &str, field_name: &str) -> Result<(), Error> {
+    if symbol.trim().is_empty() {
+        return Err(Error::InvalidRequest(format!(
+            "{field_name} is invalid: must not be empty or whitespace-only"
+        )));
     }
 
     Ok(())

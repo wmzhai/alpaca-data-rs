@@ -35,6 +35,40 @@ async fn stocks_batch_requests_reject_empty_symbols() {
 }
 
 #[tokio::test]
+async fn stocks_single_latest_bar_rejects_empty_symbol() {
+    let error = auth_client()
+        .stocks()
+        .latest_bar(stocks::LatestBarRequest {
+            symbol: String::new(),
+            ..stocks::LatestBarRequest::default()
+        })
+        .await
+        .expect_err("empty stock symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
+async fn stocks_snapshot_rejects_whitespace_only_symbol() {
+    let error = auth_client()
+        .stocks()
+        .snapshot(stocks::SnapshotRequest {
+            symbol: "   ".into(),
+            ..stocks::SnapshotRequest::default()
+        })
+        .await
+        .expect_err("blank stock symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
+    ));
+}
+
+#[tokio::test]
 async fn options_requests_reject_symbol_lists_over_one_hundred() {
     let symbols = (0..101)
         .map(|index| format!("AAPL260406C{:08}", index))
@@ -54,6 +88,23 @@ async fn options_requests_reject_symbol_lists_over_one_hundred() {
         error,
         Error::InvalidRequest(message)
             if message.contains("symbols") && message.contains("100")
+    ));
+}
+
+#[tokio::test]
+async fn options_chain_rejects_empty_underlying_symbol() {
+    let error = auth_client()
+        .options()
+        .chain(options::ChainRequest {
+            underlying_symbol: String::new(),
+            ..options::ChainRequest::default()
+        })
+        .await
+        .expect_err("empty underlying symbol must fail before transport");
+
+    assert!(matches!(
+        error,
+        Error::InvalidRequest(message) if message.contains("symbol") && message.contains("invalid")
     ));
 }
 
