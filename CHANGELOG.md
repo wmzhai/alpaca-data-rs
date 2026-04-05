@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## v0.10.0
+
 ### Added
 
 - Added structured transport retry controls with opt-in 429 retries, optional `Retry-After` handling, bounded backoff, jitter, and total retry budgets through `ClientBuilder`.
