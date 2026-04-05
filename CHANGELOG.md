@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## Unreleased
+
+### Added
+
+- Added structured transport retry controls with opt-in 429 retries, optional `Retry-After` handling, bounded backoff, jitter, and total retry budgets through `ClientBuilder`.
+- Added stable endpoint names and preserved request identifiers plus retry-attempt metadata on transport-facing `Error::RateLimited` and `Error::HttpStatus` values.
+
+### Changed
+
+- Split the shared HTTP transport into explicit request-build, send, retry, and parse stages while keeping the public resource methods unchanged.
+- Truncated stored HTTP error bodies to readable snippets for diagnostics instead of retaining unbounded response payloads.
+
 ## v0.9.2
 
 ### Changed

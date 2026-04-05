@@ -143,6 +143,47 @@ impl Endpoint {
         }
     }
 
+    pub(crate) fn name(&self) -> &'static str {
+        match self {
+            Self::CryptoBars { .. } => "crypto.bars",
+            Self::CryptoQuotes { .. } => "crypto.quotes",
+            Self::CryptoTrades { .. } => "crypto.trades",
+            Self::CryptoLatestBars { .. } => "crypto.latest_bars",
+            Self::CryptoLatestQuotes { .. } => "crypto.latest_quotes",
+            Self::CryptoLatestTrades { .. } => "crypto.latest_trades",
+            Self::CryptoLatestOrderbooks { .. } => "crypto.latest_orderbooks",
+            Self::CryptoSnapshots { .. } => "crypto.snapshots",
+            Self::NewsList => "news.list",
+            Self::OptionsBars => "options.bars",
+            Self::OptionsConditionCodes { .. } => "options.condition_codes",
+            Self::OptionsTrades => "options.trades",
+            Self::OptionsLatestQuotes => "options.latest_quotes",
+            Self::OptionsLatestTrades => "options.latest_trades",
+            Self::OptionsSnapshots => "options.snapshots",
+            Self::OptionsChain { .. } => "options.chain",
+            Self::OptionsExchangeCodes => "options.exchange_codes",
+            Self::StocksBars => "stocks.bars",
+            Self::StocksAuctions => "stocks.auctions",
+            Self::StocksQuotes => "stocks.quotes",
+            Self::StocksTrades => "stocks.trades",
+            Self::StocksBarsSingle { .. } => "stocks.bars_single",
+            Self::StocksAuctionsSingle { .. } => "stocks.auctions_single",
+            Self::StocksQuotesSingle { .. } => "stocks.quotes_single",
+            Self::StocksTradesSingle { .. } => "stocks.trades_single",
+            Self::StocksLatestBars => "stocks.latest_bars",
+            Self::StocksLatestQuotes => "stocks.latest_quotes",
+            Self::StocksLatestTrades => "stocks.latest_trades",
+            Self::StocksLatestBar { .. } => "stocks.latest_bar_single",
+            Self::StocksLatestQuote { .. } => "stocks.latest_quote_single",
+            Self::StocksLatestTrade { .. } => "stocks.latest_trade_single",
+            Self::StocksSnapshots => "stocks.snapshots",
+            Self::StocksSnapshot { .. } => "stocks.snapshot_single",
+            Self::StocksConditionCodes { .. } => "stocks.condition_codes",
+            Self::StocksExchangeCodes => "stocks.exchange_codes",
+            Self::CorporateActionsList => "corporate_actions.list",
+        }
+    }
+
     pub(crate) fn path(&self) -> Cow<'_, str> {
         match self {
             Self::CryptoBars { loc } => Cow::Owned(format!("/v1beta3/crypto/{loc}/bars")),
@@ -305,6 +346,25 @@ mod tests {
             "/v1/corporate-actions"
         );
         assert!(Endpoint::CorporateActionsList.requires_auth());
+    }
+
+    #[test]
+    fn endpoint_names_are_stable_for_representative_routes() {
+        assert_eq!(Endpoint::StocksSnapshots.name(), "stocks.snapshots");
+        assert_eq!(
+            Endpoint::stocks_latest_quote("AAPL").name(),
+            "stocks.latest_quote_single"
+        );
+        assert_eq!(Endpoint::options_chain("AAPL").name(), "options.chain");
+        assert_eq!(
+            Endpoint::crypto_latest_quotes(Loc::Us).name(),
+            "crypto.latest_quotes"
+        );
+        assert_eq!(Endpoint::NewsList.name(), "news.list");
+        assert_eq!(
+            Endpoint::CorporateActionsList.name(),
+            "corporate_actions.list"
+        );
     }
 
     #[test]

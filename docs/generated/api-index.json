@@ -1036,6 +1036,7 @@
           "Endpoint",
           "HttpClient",
           "RateLimiter",
+          "ResponseMeta",
           "RetryConfig",
           "RetryDecision"
         ]

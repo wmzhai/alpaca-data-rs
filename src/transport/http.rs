@@ -5,6 +5,7 @@ use crate::{
     auth::Auth,
     transport::{
         endpoint::Endpoint,
+        meta::ResponseMeta,
         rate_limit::RateLimiter,
         retry::{RetryConfig, RetryDecision},
     },
@@ -19,14 +20,17 @@ pub(crate) struct HttpClient {
 
 #[derive(Debug)]
 struct ResponseParts {
-    status: reqwest::StatusCode,
-    headers: reqwest::header::HeaderMap,
+    meta: ResponseMeta,
     body: String,
 }
 
 impl ResponseParts {
     fn retry_after(&self) -> Option<Duration> {
-        parse_retry_after(&self.headers)
+        self.meta.retry_after
+    }
+
+    fn status_code(&self) -> reqwest::StatusCode {
+        self.meta.status_code()
     }
 }
 
@@ -62,21 +66,14 @@ impl HttpClient {
         let response = self
             .send_with_retry(base_url, &endpoint, auth, &query)
             .await?;
-        let retry_after = response.retry_after().map(|value| value.as_secs());
-        let ResponseParts { status, body, .. } = response;
+        let ResponseParts { meta, body } = response;
 
-        if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
-            return Err(Error::RateLimited {
-                retry_after,
-                body: Some(body),
-            });
+        if meta.status_code() == reqwest::StatusCode::TOO_MANY_REQUESTS {
+            return Err(Error::from_rate_limited(meta, body));
         }
 
-        if !status.is_success() {
-            return Err(Error::HttpStatus {
-                status: status.as_u16(),
-                body: Some(body),
-            });
+        if !meta.status_code().is_success() {
+            return Err(Error::from_http_status(meta, body));
         }
 
         self.parse_json_body(&body)
@@ -88,25 +85,36 @@ impl HttpClient {
         endpoint: &Endpoint,
         auth: &Auth,
         query: &[(String, String)],
-    ) -> Result<reqwest::RequestBuilder, Error> {
+    ) -> Result<(String, reqwest::RequestBuilder), Error> {
         let path = endpoint.path();
         let url = format!("{}{}", base_url.trim_end_matches('/'), path.as_ref());
-        let request = self.client.get(url).query(query);
+        let request = self.client.get(&url).query(query);
 
         auth.apply(request, endpoint.requires_auth())
+            .map(|request| (url, request))
     }
 
-    async fn send_once(&self, request: reqwest::RequestBuilder) -> Result<ResponseParts, Error> {
+    async fn send_once(
+        &self,
+        endpoint: &Endpoint,
+        url: String,
+        attempt_count: u32,
+        started_at: Instant,
+        request: reqwest::RequestBuilder,
+    ) -> Result<ResponseParts, Error> {
         let response = request.send().await.map_err(Error::from_reqwest)?;
         let status = response.status();
-        let headers = response.headers().clone();
+        let meta = ResponseMeta::from_response(
+            endpoint.name(),
+            url,
+            status,
+            response.headers(),
+            attempt_count,
+            started_at.elapsed(),
+        );
         let body = response.text().await.map_err(Error::from_reqwest)?;
 
-        Ok(ResponseParts {
-            status,
-            headers,
-            body,
-        })
+        Ok(ResponseParts { meta, body })
     }
 
     async fn send_with_retry(
@@ -120,15 +128,19 @@ impl HttpClient {
         let mut attempt = 0;
 
         loop {
-            let request = self.build_get_request(base_url, endpoint, auth, query)?;
-            let response = self.send_once(request).await?;
+            let (url, request) = self.build_get_request(base_url, endpoint, auth, query)?;
+            let response = self
+                .send_once(endpoint, url, attempt, started_at, request)
+                .await?;
             let retry_after = response.retry_after();
-            let elapsed = started_at.elapsed();
+            let elapsed = response.meta.elapsed;
 
-            match self
-                .retry_config
-                .classify_status(response.status, attempt, retry_after, elapsed)
-            {
+            match self.retry_config.classify_status(
+                response.status_code(),
+                attempt,
+                retry_after,
+                elapsed,
+            ) {
                 RetryDecision::DoNotRetry => return Ok(response),
                 RetryDecision::RetryAfter(wait) => {
                     attempt += 1;
@@ -144,12 +156,4 @@ impl HttpClient {
     {
         serde_json::from_str(body).map_err(|error| Error::Deserialize(error.to_string()))
     }
-}
-
-fn parse_retry_after(headers: &reqwest::header::HeaderMap) -> Option<Duration> {
-    headers
-        .get(reqwest::header::RETRY_AFTER)
-        .and_then(|value| value.to_str().ok())
-        .and_then(|value| value.parse::<u64>().ok())
-        .map(Duration::from_secs)
 }

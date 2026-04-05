@@ -65,6 +65,7 @@ sidebar_position: 4
 - `src/transport/`
   - `endpoint.rs`
   - `http.rs`
+  - `meta.rs`
   - `mod.rs`
   - `pagination.rs`
   - `rate_limit.rs`

@@ -17,6 +17,7 @@ async fn rate_limit_maps_retry_after_header() {
         .respond_with(
             ResponseTemplate::new(429)
                 .insert_header("retry-after", "3")
+                .insert_header("apca-request-id", "req-429")
                 .set_body_string("too many requests"),
         )
         .mount(&server)
@@ -37,10 +38,16 @@ async fn rate_limit_maps_retry_after_header() {
     assert!(matches!(
         error,
         Error::RateLimited {
+            endpoint: "crypto.latest_quotes",
             retry_after: Some(3),
+            request_id: Some(ref request_id),
+            attempt_count: 0,
             ..
-        }
+        } if request_id == "req-429"
     ));
+
+    assert_eq!(error.endpoint(), Some("crypto.latest_quotes"));
+    assert_eq!(error.request_id(), Some("req-429"));
 }
 
 #[tokio::test]
@@ -166,7 +173,11 @@ async fn server_errors_return_terminal_status_after_retry_budget_is_exhausted() 
 
     Mock::given(method("GET"))
         .and(path("/v1beta3/crypto/us/latest/quotes"))
-        .respond_with(ResponseTemplate::new(500).set_body_string("server error"))
+        .respond_with(
+            ResponseTemplate::new(500)
+                .insert_header("apca-request-id", "req-500")
+                .set_body_string("server error"),
+        )
         .expect(2)
         .mount(&server)
         .await;
@@ -186,5 +197,64 @@ async fn server_errors_return_terminal_status_after_retry_budget_is_exhausted() 
         .await
         .expect_err("request should fail after retry budget is exhausted");
 
-    assert!(matches!(error, Error::HttpStatus { status: 500, .. }));
+    assert!(matches!(
+        error,
+        Error::HttpStatus {
+            endpoint: "crypto.latest_quotes",
+            status: 500,
+            request_id: Some(ref request_id),
+            attempt_count: 1,
+            ..
+        } if request_id == "req-500"
+    ));
+    assert_eq!(error.endpoint(), Some("crypto.latest_quotes"));
+    assert_eq!(error.request_id(), Some("req-500"));
+}
+
+#[tokio::test]
+async fn error_bodies_are_snippets_and_display_transport_metadata() {
+    let server = MockServer::start().await;
+    let long_body = "x".repeat(1024);
+
+    Mock::given(method("GET"))
+        .and(path("/v1beta3/crypto/us/latest/quotes"))
+        .respond_with(
+            ResponseTemplate::new(500)
+                .insert_header("apca-request-id", "req-long")
+                .set_body_string(long_body.clone()),
+        )
+        .mount(&server)
+        .await;
+
+    let error = Client::builder()
+        .base_url(server.uri())
+        .build()
+        .expect("client should build")
+        .crypto()
+        .latest_quotes(crypto::LatestQuotesRequest {
+            symbols: vec!["BTC/USD".into()],
+            loc: Some(crypto::Loc::Us),
+        })
+        .await
+        .expect_err("request should fail");
+
+    match &error {
+        Error::HttpStatus {
+            endpoint,
+            request_id,
+            body,
+            ..
+        } => {
+            assert_eq!(*endpoint, "crypto.latest_quotes");
+            assert_eq!(request_id.as_deref(), Some("req-long"));
+            let body = body.as_deref().expect("body snippet should be preserved");
+            assert!(body.len() < long_body.len());
+            assert!(body.ends_with("..."));
+        }
+        other => panic!("expected HttpStatus error, got {other:?}"),
+    }
+
+    let display = error.to_string();
+    assert!(display.contains("crypto.latest_quotes"));
+    assert!(display.contains("req-long"));
 }

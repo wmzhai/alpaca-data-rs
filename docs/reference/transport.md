@@ -24,23 +24,23 @@ Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infra
 
 | Variant | Official Value |
 | --- | --- |
-| `NewsList` | `NewsList` |
-| `OptionsBars` | `OptionsBars` |
-| `OptionsTrades` | `OptionsTrades` |
-| `OptionsLatestQuotes` | `OptionsLatestQuotes` |
-| `OptionsLatestTrades` | `OptionsLatestTrades` |
-| `OptionsSnapshots` | `OptionsSnapshots` |
-| `OptionsExchangeCodes` | `OptionsExchangeCodes` |
-| `StocksBars` | `StocksBars` |
-| `StocksAuctions` | `StocksAuctions` |
-| `StocksQuotes` | `StocksQuotes` |
-| `StocksTrades` | `StocksTrades` |
-| `StocksLatestBars` | `StocksLatestBars` |
-| `StocksLatestQuotes` | `StocksLatestQuotes` |
-| `StocksLatestTrades` | `StocksLatestTrades` |
-| `StocksSnapshots` | `StocksSnapshots` |
-| `StocksExchangeCodes` | `StocksExchangeCodes` |
-| `CorporateActionsList` | `CorporateActionsList` |
+| `NewsList` | `news.list` |
+| `OptionsBars` | `options.bars` |
+| `OptionsTrades` | `options.trades` |
+| `OptionsLatestQuotes` | `options.latest_quotes` |
+| `OptionsLatestTrades` | `options.latest_trades` |
+| `OptionsSnapshots` | `options.snapshots` |
+| `OptionsExchangeCodes` | `options.exchange_codes` |
+| `StocksBars` | `stocks.bars` |
+| `StocksAuctions` | `stocks.auctions` |
+| `StocksQuotes` | `stocks.quotes` |
+| `StocksTrades` | `stocks.trades` |
+| `StocksLatestBars` | `stocks.latest_bars` |
+| `StocksLatestQuotes` | `stocks.latest_quotes` |
+| `StocksLatestTrades` | `stocks.latest_trades` |
+| `StocksSnapshots` | `stocks.snapshots` |
+| `StocksExchangeCodes` | `stocks.exchange_codes` |
+| `CorporateActionsList` | `corporate_actions.list` |
 
 ### `HttpClient`
 
@@ -55,6 +55,13 @@ Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infra
 - Summary: -
 - docs.rs: [RateLimiter](https://docs.rs/alpaca-data/latest/alpaca_data/transport/struct.RateLimiter.html)
 - Site rustdoc: [RateLimiter](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/struct.RateLimiter.html)
+
+### `ResponseMeta`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [ResponseMeta](https://docs.rs/alpaca-data/latest/alpaca_data/transport/struct.ResponseMeta.html)
+- Site rustdoc: [ResponseMeta](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/struct.ResponseMeta.html)
 
 ### `RetryConfig`
 
