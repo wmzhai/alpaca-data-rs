@@ -9,7 +9,7 @@ use crate::{
     news::NewsClient,
     options::OptionsClient,
     stocks::StocksClient,
-    transport::{http::HttpClient, rate_limit::RateLimiter, retry::RetryPolicy},
+    transport::{http::HttpClient, rate_limit::RateLimiter, retry::RetryConfig},
 };
 
 /// Root async client for Alpaca Market Data HTTP APIs.
@@ -38,7 +38,7 @@ pub(crate) struct Inner {
     pub(crate) auth: Auth,
     pub(crate) base_url: String,
     pub(crate) timeout: Duration,
-    pub(crate) max_retries: u32,
+    pub(crate) retry_config: RetryConfig,
     pub(crate) max_in_flight: Option<usize>,
     pub(crate) http: HttpClient,
 }
@@ -49,7 +49,7 @@ pub struct ClientBuilder {
     secret_key: Option<String>,
     base_url: Option<String>,
     timeout: Duration,
-    max_retries: u32,
+    retry_config: RetryConfig,
     max_in_flight: Option<usize>,
 }
 
@@ -97,12 +97,12 @@ impl Client {
         auth: Auth,
         base_url: String,
         timeout: Duration,
-        max_retries: u32,
+        retry_config: RetryConfig,
         max_in_flight: Option<usize>,
     ) -> Result<Self, Error> {
         let http = HttpClient::new(
             timeout,
-            RetryPolicy::new(max_retries),
+            retry_config.clone(),
             RateLimiter::new(max_in_flight),
         )?;
 
@@ -111,7 +111,7 @@ impl Client {
                 auth,
                 base_url,
                 timeout,
-                max_retries,
+                retry_config,
                 max_in_flight,
                 http,
             }),
@@ -126,7 +126,7 @@ impl Default for ClientBuilder {
             secret_key: None,
             base_url: None,
             timeout: Duration::from_secs(10),
-            max_retries: 3,
+            retry_config: RetryConfig::default(),
             max_in_flight: None,
         }
     }
@@ -159,7 +159,43 @@ impl ClientBuilder {
 
     /// Sets the retry budget for the shared HTTP transport.
     pub fn max_retries(mut self, max_retries: u32) -> Self {
-        self.max_retries = max_retries;
+        self.retry_config.max_retries = max_retries;
+        self
+    }
+
+    /// Enables or disables automatic retries on HTTP 429 responses.
+    pub fn retry_on_429(mut self, retry_on_429: bool) -> Self {
+        self.retry_config.retry_on_429 = retry_on_429;
+        self
+    }
+
+    /// Enables or disables honoring the `Retry-After` response header.
+    pub fn respect_retry_after(mut self, respect_retry_after: bool) -> Self {
+        self.retry_config.respect_retry_after = respect_retry_after;
+        self
+    }
+
+    /// Sets the base retry backoff used by the shared HTTP transport.
+    pub fn base_backoff(mut self, base_backoff: Duration) -> Self {
+        self.retry_config.base_backoff = base_backoff;
+        self
+    }
+
+    /// Sets the maximum retry backoff used by the shared HTTP transport.
+    pub fn max_backoff(mut self, max_backoff: Duration) -> Self {
+        self.retry_config.max_backoff = max_backoff;
+        self
+    }
+
+    /// Sets an optional jitter window applied to retry waits.
+    pub fn retry_jitter(mut self, retry_jitter: Duration) -> Self {
+        self.retry_config.jitter = Some(retry_jitter);
+        self
+    }
+
+    /// Sets an optional total retry time budget for a request.
+    pub fn total_retry_budget(mut self, total_retry_budget: Duration) -> Self {
+        self.retry_config.total_retry_budget = Some(total_retry_budget);
         self
     }
 
@@ -173,6 +209,12 @@ impl ClientBuilder {
     ///
     /// Credentials must be provided as a pair or omitted as a pair.
     pub fn build(self) -> Result<Client, Error> {
+        if self.retry_config.max_backoff < self.retry_config.base_backoff {
+            return Err(Error::InvalidConfiguration(
+                "max_backoff must be greater than or equal to base_backoff".into(),
+            ));
+        }
+
         let auth = Auth::new(self.api_key, self.secret_key)?;
         let base_url = self
             .base_url
@@ -182,7 +224,7 @@ impl ClientBuilder {
             auth,
             base_url,
             self.timeout,
-            self.max_retries,
+            self.retry_config,
             self.max_in_flight,
         )
     }

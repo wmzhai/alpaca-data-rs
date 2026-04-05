@@ -56,12 +56,23 @@ Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infra
 - docs.rs: [RateLimiter](https://docs.rs/alpaca-data/latest/alpaca_data/transport/struct.RateLimiter.html)
 - Site rustdoc: [RateLimiter](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/struct.RateLimiter.html)
 
-### `RetryPolicy`
+### `RetryConfig`
 
 - Kind: struct
 - Summary: -
-- docs.rs: [RetryPolicy](https://docs.rs/alpaca-data/latest/alpaca_data/transport/struct.RetryPolicy.html)
-- Site rustdoc: [RetryPolicy](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/struct.RetryPolicy.html)
+- docs.rs: [RetryConfig](https://docs.rs/alpaca-data/latest/alpaca_data/transport/struct.RetryConfig.html)
+- Site rustdoc: [RetryConfig](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/struct.RetryConfig.html)
+
+### `RetryDecision`
+
+- Kind: enum
+- Summary: -
+- docs.rs: [RetryDecision](https://docs.rs/alpaca-data/latest/alpaca_data/transport/enum.RetryDecision.html)
+- Site rustdoc: [RetryDecision](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/enum.RetryDecision.html)
+
+| Variant | Official Value |
+| --- | --- |
+| `DoNotRetry` | `DoNotRetry` |
 
 
 ## Related Repository Artifacts

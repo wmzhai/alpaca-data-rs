@@ -39,3 +39,20 @@ fn builder_accepts_explicit_shared_runtime_settings() {
 
     let _ = client.stocks();
 }
+
+#[test]
+fn builder_accepts_structured_retry_settings() {
+    let client = Client::builder()
+        .base_url("https://data.alpaca.markets")
+        .max_retries(2)
+        .retry_on_429(true)
+        .respect_retry_after(true)
+        .base_backoff(Duration::from_millis(10))
+        .max_backoff(Duration::from_millis(20))
+        .retry_jitter(Duration::from_millis(5))
+        .total_retry_budget(Duration::from_millis(50))
+        .build()
+        .expect("configured retry client should build");
+
+    let _ = client.crypto();
+}

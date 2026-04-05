@@ -96,6 +96,27 @@ let client = Client::builder().build()?;
 # Ok::<(), alpaca_data::Error>(())
 ```
 
+Tune transport retries when a service integration needs stronger transient-failure handling:
+
+```rust
+use std::time::Duration;
+use alpaca_data::Client;
+
+let client = Client::builder()
+    .timeout(Duration::from_secs(5))
+    .max_retries(2)
+    .retry_on_429(true)
+    .respect_retry_after(true)
+    .base_backoff(Duration::from_millis(100))
+    .max_backoff(Duration::from_millis(500))
+    .max_in_flight(32)
+    .build()?;
+# let _ = client;
+# Ok::<(), alpaca_data::Error>(())
+```
+
+The default retry behavior stays conservative: retrying 429 responses and honoring `Retry-After` remain opt-in.
+
 Fetch stock latest bars:
 
 ```rust

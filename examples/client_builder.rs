@@ -7,6 +7,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut builder = Client::builder()
         .timeout(Duration::from_secs(5))
         .max_retries(2)
+        .retry_on_429(true)
+        .respect_retry_after(true)
+        .base_backoff(Duration::from_millis(100))
+        .max_backoff(Duration::from_millis(500))
         .max_in_flight(32);
 
     if let Ok(api_key) = std::env::var("APCA_API_KEY_ID") {

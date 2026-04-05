@@ -1036,7 +1036,8 @@
           "Endpoint",
           "HttpClient",
           "RateLimiter",
-          "RetryPolicy"
+          "RetryConfig",
+          "RetryDecision"
         ]
       },
       "convenience_methods": [],

@@ -27,7 +27,15 @@ Use `Client::builder()` when you need explicit configuration:
 - `base_url(...)`
 - `timeout(...)`
 - `max_retries(...)`
+- `retry_on_429(...)`
+- `respect_retry_after(...)`
+- `base_backoff(...)`
+- `max_backoff(...)`
+- `retry_jitter(...)`
+- `total_retry_budget(...)`
 - `max_in_flight(...)`
+
+The retry builder defaults stay conservative: 5xx retries remain enabled within the retry budget, while 429 retries and `Retry-After` handling stay opt-in until you enable them explicitly.
 
 ## Choose a Resource
 
