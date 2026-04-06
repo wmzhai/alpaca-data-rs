@@ -94,6 +94,32 @@ async fn malformed_json_maps_deserialize_error() {
 }
 
 #[tokio::test]
+async fn malformed_base_url_transport_errors_redact_userinfo() {
+    for base_url in ["user:pass@example.test", "//user:pass@example.test"] {
+        let error = Client::builder()
+            .base_url(base_url)
+            .timeout(Duration::from_millis(50))
+            .build()
+            .expect("client should build")
+            .crypto()
+            .latest_quotes(crypto::LatestQuotesRequest {
+                symbols: vec!["BTC/USD".into()],
+                loc: Some(crypto::Loc::Us),
+            })
+            .await
+            .expect_err("request should fail");
+
+        let message = match &error {
+            Error::Transport(message) | Error::Timeout(message) => message,
+            other => panic!("expected runtime transport error, got {other:?}"),
+        };
+
+        assert_transport_error_redacts_userinfo(base_url, message);
+        assert_transport_error_redacts_userinfo(base_url, &error.to_string());
+    }
+}
+
+#[tokio::test]
 async fn retry_on_429_can_succeed_when_enabled() {
     let server = MockServer::start().await;
 
@@ -318,4 +344,15 @@ async fn observer_receives_success_metadata() {
     assert_eq!(seen[0].attempt_count, 0);
     assert!(seen[0].url.ends_with("/v1beta3/crypto/us/latest/quotes"));
     assert!(seen[0].elapsed >= StdDuration::ZERO);
+}
+
+fn assert_transport_error_redacts_userinfo(base_url: &str, text: &str) {
+    assert!(
+        !text.contains(base_url),
+        "transport error leaked raw base_url {base_url:?}: {text}"
+    );
+    assert!(
+        !text.contains("user:pass@"),
+        "transport error leaked raw userinfo: {text}"
+    );
 }

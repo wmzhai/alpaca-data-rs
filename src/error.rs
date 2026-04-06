@@ -103,10 +103,12 @@ impl Error {
     }
 
     pub(crate) fn from_reqwest(error: reqwest::Error) -> Self {
+        let message = sanitize_reqwest_error_message(&error.to_string());
+
         if error.is_timeout() {
-            Self::Timeout(error.to_string())
+            Self::Timeout(message)
         } else {
-            Self::Transport(error.to_string())
+            Self::Transport(message)
         }
     }
 
@@ -155,4 +157,81 @@ fn write_transport_error(
     }
 
     Ok(())
+}
+
+fn sanitize_reqwest_error_message(message: &str) -> String {
+    if !message.contains('@') {
+        return message.to_string();
+    }
+
+    let mut sanitized = String::with_capacity(message.len());
+    let mut segment_start = 0;
+    let mut in_segment = false;
+
+    for (index, ch) in message.char_indices() {
+        if is_message_delimiter(ch) {
+            if in_segment {
+                sanitized.push_str(&redact_urlish_userinfo(&message[segment_start..index]));
+                in_segment = false;
+            }
+
+            sanitized.push(ch);
+        } else if !in_segment {
+            segment_start = index;
+            in_segment = true;
+        }
+    }
+
+    if in_segment {
+        sanitized.push_str(&redact_urlish_userinfo(&message[segment_start..]));
+    }
+
+    sanitized
+}
+
+fn is_message_delimiter(ch: char) -> bool {
+    ch.is_whitespace()
+        || matches!(
+            ch,
+            '"' | '\'' | '(' | ')' | '[' | ']' | '{' | '}' | '<' | '>' | ',' | ';'
+        )
+}
+
+fn redact_urlish_userinfo(segment: &str) -> String {
+    if let Ok(mut url) = reqwest::Url::parse(segment) {
+        if !url.username().is_empty() || url.password().is_some() {
+            let _ = url.set_username("");
+            let _ = url.set_password(None);
+            return url.to_string();
+        }
+    }
+
+    redact_urlish_userinfo_fallback(segment)
+}
+
+fn redact_urlish_userinfo_fallback(segment: &str) -> String {
+    let (prefix, rest) = if let Some((scheme, rest)) = segment.split_once("://") {
+        (&segment[..scheme.len() + 3], rest)
+    } else if let Some(rest) = segment.strip_prefix("//") {
+        ("//", rest)
+    } else {
+        ("", segment)
+    };
+
+    let (authority, suffix) = split_authority_and_suffix(rest);
+
+    match authority.rfind('@') {
+        Some(index) => format!("{prefix}{}{}", &authority[index + 1..], suffix),
+        None => segment.to_string(),
+    }
+}
+
+fn split_authority_and_suffix(rest: &str) -> (&str, &str) {
+    match rest
+        .char_indices()
+        .find_map(|(index, ch)| matches!(ch, '/' | '?' | '#').then_some(index))
+    {
+        Some(index) => (&rest[..index], &rest[index..]),
+        None => (rest, ""),
+    }
 }
