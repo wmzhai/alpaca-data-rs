@@ -1032,7 +1032,8 @@
         "models": [],
         "enums": [],
         "shared": [
-          "ObservedResponseMeta"
+          "ObservedResponseMeta",
+          "TransportObserver"
         ]
       },
       "convenience_methods": [],

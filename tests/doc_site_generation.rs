@@ -48,8 +48,20 @@ fn generate_doc_site_writes_expected_public_artifacts() {
     assert!(stocks_reference.contains("StocksClient"));
     assert!(stocks_reference.contains("bars_all"));
 
+    let common_reference = read_to_string(&fixture_root.join("docs/reference/common.md"));
+    assert!(common_reference.contains("Currency"));
+    assert!(!common_reference.contains("https://docs.rs/alpaca-data/latest/alpaca_data/common/"));
+    assert!(!common_reference.contains("https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/"));
+
     let transport_reference = read_to_string(&fixture_root.join("docs/reference/transport.md"));
     assert!(transport_reference.contains("ObservedResponseMeta"));
+    assert!(transport_reference.contains("TransportObserver"));
+    assert!(transport_reference.contains("https://docs.rs/alpaca-data/latest/alpaca_data/struct.ObservedResponseMeta.html"));
+    assert!(transport_reference.contains("https://docs.rs/alpaca-data/latest/alpaca_data/trait.TransportObserver.html"));
+    assert!(transport_reference.contains("https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/struct.ObservedResponseMeta.html"));
+    assert!(transport_reference.contains("https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/trait.TransportObserver.html"));
+    assert!(!transport_reference.contains("https://docs.rs/alpaca-data/latest/alpaca_data/transport/"));
+    assert!(!transport_reference.contains("https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/"));
     assert!(!transport_reference.contains("TransportErrorMeta"));
     assert!(!transport_reference.contains("struct.TransportErrorMeta.html"));
 
@@ -57,6 +69,7 @@ fn generate_doc_site_writes_expected_public_artifacts() {
     assert!(api_index.contains("\"resource_accessors\""));
     assert!(api_index.contains("\"stocks\""));
     assert!(api_index.contains("\"ObservedResponseMeta\""));
+    assert!(api_index.contains("\"TransportObserver\""));
     assert!(!api_index.contains("\"TransportErrorMeta\""));
 
     let sidebars = read_to_string(&fixture_root.join("website/sidebars.ts"));

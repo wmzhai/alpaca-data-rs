@@ -7,8 +7,8 @@ description: "Shared query, response, enum, and timestamp primitives used across
 
 - Module path: `alpaca_data::common`
 - Client type: internal-only module
-- docs.rs module: [https://docs.rs/alpaca-data/latest/alpaca_data/common/](https://docs.rs/alpaca-data/latest/alpaca_data/common/)
-- Site rustdoc module: [https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/)
+- docs.rs module: not linked; this is an internal-only generated page and the crate does not ship a public rustdoc module at this path.
+- Site rustdoc module: not linked; this is an internal-only generated page and the site does not publish a public rustdoc module at this path.
 - Scope: Internal architecture support only
 
 Shared query, response, enum, and timestamp primitives used across resource modules.
@@ -19,16 +19,16 @@ Shared query, response, enum, and timestamp primitives used across resource modu
 
 - Kind: struct
 - Summary: -
-- docs.rs: [Currency](https://docs.rs/alpaca-data/latest/alpaca_data/common/struct.Currency.html)
-- Site rustdoc: [Currency](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/struct.Currency.html)
+- docs.rs: not linked; no canonical public rustdoc path is shipped for this item.
+- Site rustdoc: not linked; no canonical public rustdoc path is shipped for this item.
 - Example constructors: `usd -> USD`
 
 ### `Sort`
 
 - Kind: enum
 - Summary: -
-- docs.rs: [Sort](https://docs.rs/alpaca-data/latest/alpaca_data/common/enum.Sort.html)
-- Site rustdoc: [Sort](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/enum.Sort.html)
+- docs.rs: not linked; no canonical public rustdoc path is shipped for this item.
+- Site rustdoc: not linked; no canonical public rustdoc path is shipped for this item.
 
 | Variant | Official Value |
 | --- | --- |
@@ -39,8 +39,8 @@ Shared query, response, enum, and timestamp primitives used across resource modu
 
 - Kind: type
 - Summary: -
-- docs.rs: [Timestamp](https://docs.rs/alpaca-data/latest/alpaca_data/common/type.Timestamp.html)
-- Site rustdoc: [Timestamp](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/type.Timestamp.html)
+- docs.rs: not linked; no canonical public rustdoc path is shipped for this item.
+- Site rustdoc: not linked; no canonical public rustdoc path is shipped for this item.
 - Alias target: `String`
 
 

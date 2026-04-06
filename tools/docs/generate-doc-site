@@ -118,6 +118,12 @@ class TypeInfo:
         return f"{LOCAL_RUSTDOC_BASE}/{module_url}/{rustdoc_name}.{self.name}.html"
 
 
+@dataclass(frozen=True)
+class RustdocTarget:
+    module_path: str
+    label: str | None = None
+
+
 @dataclass
 class MethodInfo:
     name: str
@@ -253,6 +259,7 @@ def parse_types(path: Path) -> dict[str, TypeInfo]:
 
         struct_match = re.match(r"(pub(?:\([^)]*\))?)\s+struct\s+([A-Za-z0-9_]+)", stripped)
         enum_match = re.match(r"(pub(?:\([^)]*\))?)\s+enum\s+([A-Za-z0-9_]+)", stripped)
+        trait_match = re.match(r"(pub(?:\([^)]*\))?)\s+trait\s+([A-Za-z0-9_]+)\b", stripped)
         type_match = re.match(r"(pub(?:\([^)]*\))?)\s+type\s+([A-Za-z0-9_]+)\s*=\s*(.+);", stripped)
 
         if struct_match:
@@ -290,6 +297,22 @@ def parse_types(path: Path) -> dict[str, TypeInfo]:
                 summary=summary,
                 variants=variants,
                 rustdoc_kind="enum",
+            )
+            docs = []
+            attrs = []
+            i = next_index
+            continue
+
+        if trait_match:
+            visibility, name = trait_match.groups()
+            block_lines, next_index = collect_item_block(lines, i)
+            summary = summarize_doc_lines(docs)
+            items[name] = TypeInfo(
+                name=name,
+                kind="trait",
+                visibility=visibility,
+                summary=summary,
+                rustdoc_kind="trait",
             )
             docs = []
             attrs = []
@@ -1091,6 +1114,7 @@ def render_module_reference(module: ModuleDoc) -> str:
     model_rows = [render_type_row(type_info, module.module_path) for type_info in module.models]
     enum_rows = [render_type_row(type_info, module.module_path) for type_info in module.enums]
     shared_rows = [render_type_row(type_info, module.module_path) for type_info in module.shared]
+    rustdoc_metadata = render_module_rustdoc_metadata(module)
 
     sections = [
         "---",
@@ -1102,8 +1126,7 @@ def render_module_reference(module: ModuleDoc) -> str:
         "",
         f"- Module path: `{module.module_path}`",
         f"- Client type: `{module.client_type}`" if module.client_type else "- Client type: internal-only module",
-        f"- docs.rs module: [{DOCS_RS_BASE}/{module.module_path.replace('::', '/')}/]({DOCS_RS_BASE}/{module.module_path.replace('::', '/')}/)",
-        f"- Site rustdoc module: [{DOCS_SITE_URL}api/{module.module_path.replace('::', '/')}/]({DOCS_SITE_URL}api/{module.module_path.replace('::', '/')}/)",
+        *rustdoc_metadata,
         f"- Scope: {'Internal architecture support only' if module.internal_only else 'Public API surface'}",
         "",
         f"{module.summary}",
@@ -1133,7 +1156,7 @@ def render_module_reference(module: ModuleDoc) -> str:
             continue
         sections.extend([f"## {heading}", ""])
         for type_info in type_list:
-            sections.extend(render_type_section(type_info, module.module_path))
+            sections.extend(render_type_section(type_info, module))
         sections.append("")
 
     sections.extend(
@@ -1161,15 +1184,36 @@ def render_type_row(type_info: TypeInfo, module_path: str) -> str:
     )
 
 
-def render_type_section(type_info: TypeInfo, module_path: str) -> list[str]:
+def render_module_rustdoc_metadata(module: ModuleDoc) -> list[str]:
+    if not module.internal_only:
+        module_url = module.module_path.replace("::", "/")
+        return [
+            f"- docs.rs module: [{DOCS_RS_BASE}/{module_url}/]({DOCS_RS_BASE}/{module_url}/)",
+            f"- Site rustdoc module: [{DOCS_SITE_URL}api/{module_url}/]({DOCS_SITE_URL}api/{module_url}/)",
+        ]
+
+    notes = [
+        "- docs.rs module: not linked; this is an internal-only generated page and the crate does not ship a public rustdoc module at this path.",
+        "- Site rustdoc module: not linked; this is an internal-only generated page and the site does not publish a public rustdoc module at this path.",
+    ]
+    public_targets = [
+        format_public_rustdoc_link(type_info, module)
+        for type_info in module.shared
+        if canonical_public_rustdoc_target(module, type_info) is not None
+    ]
+    if public_targets:
+        notes.append(f"- Public rustdoc entries: {', '.join(public_targets)}")
+    return notes
+
+
+def render_type_section(type_info: TypeInfo, module: ModuleDoc) -> list[str]:
     lines = [
         f"### `{type_info.name}`",
         "",
         f"- Kind: {type_info.kind}",
         f"- Summary: {safe_summary(type_info.summary)}",
-        f"- docs.rs: [{type_info.name}]({type_info.docs_rs_url(module_path)})",
-        f"- Site rustdoc: [{type_info.name}]({type_info.local_rustdoc_url(module_path)})",
     ]
+    lines.extend(render_type_rustdoc_lines(type_info, module))
     if type_info.aliases_to:
         lines.append(f"- Alias target: `{type_info.aliases_to}`")
     if type_info.wrapper_examples:
@@ -1188,6 +1232,42 @@ def render_type_section(type_info: TypeInfo, module_path: str) -> list[str]:
             )
     lines.append("")
     return lines
+
+
+def render_type_rustdoc_lines(type_info: TypeInfo, module: ModuleDoc) -> list[str]:
+    target = canonical_public_rustdoc_target(module, type_info)
+    if target is None:
+        if module.internal_only:
+            return [
+                "- docs.rs: not linked; no canonical public rustdoc path is shipped for this item.",
+                "- Site rustdoc: not linked; no canonical public rustdoc path is shipped for this item.",
+            ]
+        return [
+            f"- docs.rs: [{type_info.name}]({type_info.docs_rs_url(module.module_path)})",
+            f"- Site rustdoc: [{type_info.name}]({type_info.local_rustdoc_url(module.module_path)})",
+        ]
+
+    label = target.label or type_info.name
+    return [
+        f"- docs.rs: [{label}]({type_info.docs_rs_url(target.module_path)})",
+        f"- Site rustdoc: [{label}]({type_info.local_rustdoc_url(target.module_path)})",
+    ]
+
+
+def canonical_public_rustdoc_target(module: ModuleDoc, type_info: TypeInfo) -> RustdocTarget | None:
+    if not module.internal_only:
+        return None
+    if module.slug == "transport" and type_info.name in {"ObservedResponseMeta", "TransportObserver"}:
+        return RustdocTarget(module_path="alpaca_data")
+    return None
+
+
+def format_public_rustdoc_link(type_info: TypeInfo, module: ModuleDoc) -> str:
+    target = canonical_public_rustdoc_target(module, type_info)
+    if target is None:
+        return f"`{type_info.name}`"
+    label = target.label or type_info.name
+    return f"[`{label}`]({type_info.docs_rs_url(target.module_path)})"
 
 
 def render_method_row(method: MethodInfo, module_path: str) -> str:
