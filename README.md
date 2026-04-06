@@ -110,6 +110,11 @@ let client = Client::builder().build()?;
 # Ok::<(), alpaca_data::Error>(())
 ```
 
+`ClientBuilder`, `Client`, and the resource clients keep `Debug` output readable
+without exposing configured credentials. If you set `base_url(...)` with URL
+userinfo such as `https://user:pass@example.test`, the `Debug` output redacts
+that userinfo and shows only the sanitized URL.
+
 Tune transport retries when a service integration needs stronger transient-failure handling:
 
 ```rust

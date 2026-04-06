@@ -1,10 +1,21 @@
+use std::fmt;
+
 use crate::Error;
 use reqwest::{RequestBuilder, header::HeaderValue};
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Default)]
 pub(crate) struct Auth {
     pub(crate) api_key: Option<String>,
     pub(crate) secret_key: Option<String>,
+}
+
+impl fmt::Debug for Auth {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Auth")
+            .field("api_key", &RedactedCredential(&self.api_key))
+            .field("secret_key", &RedactedCredential(&self.secret_key))
+            .finish()
+    }
 }
 
 impl Auth {
@@ -55,4 +66,15 @@ fn validate_credential(name: &str, value: String) -> Result<String, Error> {
     })?;
 
     Ok(value)
+}
+
+struct RedactedCredential<'a>(&'a Option<String>);
+
+impl fmt::Debug for RedactedCredential<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.0 {
+            Some(_) => f.write_str("\"[REDACTED]\""),
+            None => f.write_str("None"),
+        }
+    }
 }

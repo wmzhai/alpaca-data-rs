@@ -40,6 +40,11 @@ Use `Client::builder()` when you need explicit configuration:
 - `total_retry_budget(...)`
 - `max_in_flight(...)`
 
+`ClientBuilder`, `Client`, and the resource clients redact configured
+credentials in their `Debug` output by default. If `base_url(...)` includes URL
+userinfo such as `https://user:pass@example.test`, `Debug` output redacts the
+userinfo and shows only the sanitized URL.
+
 The retry builder defaults stay conservative: 5xx retries remain enabled within the retry budget, while 429 retries and `Retry-After` handling stay opt-in until you enable them explicitly.
 
 Use `retry_jitter(...)` to add a bounded random delay on top of each computed retry wait so concurrent callers are less likely to retry in lockstep.

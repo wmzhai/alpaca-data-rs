@@ -1,5 +1,9 @@
 use alpaca_data::{Client, corporate_actions, crypto, news, options, stocks};
 
+const API_KEY: &str = "live-api-key";
+const SECRET_KEY: &str = "live-secret-key";
+const BASE_URL_WITH_USERINFO: &str = "https://user:pass@example.test";
+
 #[test]
 fn client_exposes_resource_accessors() {
     let client = Client::new();
@@ -20,6 +24,54 @@ fn client_builder_builds_client() {
     let _ = client.crypto();
     let _ = client.news();
     let _ = client.corporate_actions();
+}
+
+#[test]
+fn client_builder_debug_redacts_credentials_and_base_url_userinfo() {
+    let debug = format!(
+        "{:?}",
+        Client::builder()
+            .api_key(API_KEY)
+            .secret_key(SECRET_KEY)
+            .base_url(BASE_URL_WITH_USERINFO)
+    );
+
+    assert_redacted_debug(&debug);
+    assert!(debug.contains("api_key: \"[REDACTED]\""));
+    assert!(debug.contains("secret_key: \"[REDACTED]\""));
+    assert!(debug.contains("base_url: Some(\"https://example.test/\""));
+}
+
+#[test]
+fn client_debug_redacts_credentials_and_base_url_userinfo() {
+    let client = Client::builder()
+        .api_key(API_KEY)
+        .secret_key(SECRET_KEY)
+        .base_url(BASE_URL_WITH_USERINFO)
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{client:?}");
+
+    assert_redacted_debug(&debug);
+    assert!(debug.contains("auth: Auth { api_key: \"[REDACTED]\", secret_key: \"[REDACTED]\" }"));
+    assert!(debug.contains("base_url: \"https://example.test/\""));
+}
+
+#[test]
+fn resource_client_debug_redacts_nested_client_state() {
+    let client = Client::builder()
+        .api_key(API_KEY)
+        .secret_key(SECRET_KEY)
+        .base_url(BASE_URL_WITH_USERINFO)
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{:?}", client.stocks());
+
+    assert_redacted_debug(&debug);
+    assert!(debug.contains("auth: Auth { api_key: \"[REDACTED]\", secret_key: \"[REDACTED]\" }"));
+    assert!(debug.contains("base_url: \"https://example.test/\""));
 }
 
 #[test]
@@ -263,6 +315,25 @@ fn resource_clients_expose_core_method_names() {
     let _ = client
         .corporate_actions()
         .list_stream(corporate_actions::ListRequest::default());
+}
+
+fn assert_redacted_debug(debug: &str) {
+    assert!(
+        !debug.contains(API_KEY),
+        "debug output leaked api_key: {debug}"
+    );
+    assert!(
+        !debug.contains(SECRET_KEY),
+        "debug output leaked secret_key: {debug}"
+    );
+    assert!(
+        !debug.contains(BASE_URL_WITH_USERINFO),
+        "debug output leaked base_url userinfo: {debug}"
+    );
+    assert!(
+        !debug.contains("user:pass"),
+        "debug output leaked base_url userinfo components: {debug}"
+    );
 }
 
 #[test]

@@ -1,3 +1,4 @@
+use std::fmt;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -35,13 +36,12 @@ const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 /// # let _ = client;
 /// # Ok::<(), alpaca_data::Error>(())
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Client {
     pub(crate) inner: Arc<Inner>,
 }
 
 #[allow(dead_code)]
-#[derive(Debug)]
 pub(crate) struct Inner {
     pub(crate) auth: Auth,
     pub(crate) base_url: String,
@@ -51,7 +51,7 @@ pub(crate) struct Inner {
     pub(crate) http: HttpClient,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ClientBuilder {
     api_key: Option<String>,
     secret_key: Option<String>,
@@ -61,6 +61,42 @@ pub struct ClientBuilder {
     observer: Option<ObserverHandle>,
     retry_config: RetryConfig,
     max_in_flight: Option<usize>,
+}
+
+impl fmt::Debug for Client {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Client")
+            .field("inner", &self.inner)
+            .finish()
+    }
+}
+
+impl fmt::Debug for Inner {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Inner")
+            .field("auth", &self.auth)
+            .field("base_url", &RedactedBaseUrl(&self.base_url))
+            .field("timeout", &self.timeout)
+            .field("retry_config", &self.retry_config)
+            .field("max_in_flight", &self.max_in_flight)
+            .field("http", &self.http)
+            .finish()
+    }
+}
+
+impl fmt::Debug for ClientBuilder {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ClientBuilder")
+            .field("api_key", &RedactedCredential(&self.api_key))
+            .field("secret_key", &RedactedCredential(&self.secret_key))
+            .field("base_url", &self.base_url.as_deref().map(RedactedBaseUrl))
+            .field("timeout", &self.timeout)
+            .field("reqwest_client", &self.reqwest_client)
+            .field("observer", &self.observer)
+            .field("retry_config", &self.retry_config)
+            .field("max_in_flight", &self.max_in_flight)
+            .finish()
+    }
 }
 
 impl Client {
@@ -328,5 +364,53 @@ impl ClientBuilder {
             self.retry_config,
             self.max_in_flight,
         )
+    }
+}
+
+struct RedactedCredential<'a>(&'a Option<String>);
+
+impl fmt::Debug for RedactedCredential<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.0 {
+            Some(_) => f.write_str("\"[REDACTED]\""),
+            None => f.write_str("None"),
+        }
+    }
+}
+
+struct RedactedBaseUrl<'a>(&'a str);
+
+impl fmt::Debug for RedactedBaseUrl<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt::Debug::fmt(&redact_base_url_userinfo(self.0), f)
+    }
+}
+
+fn redact_base_url_userinfo(base_url: &str) -> String {
+    match reqwest::Url::parse(base_url) {
+        Ok(mut url) => {
+            if !url.username().is_empty() || url.password().is_some() {
+                let _ = url.set_username("");
+                let _ = url.set_password(None);
+            }
+            url.to_string()
+        }
+        Err(_) => redact_base_url_userinfo_fallback(base_url),
+    }
+}
+
+fn redact_base_url_userinfo_fallback(base_url: &str) -> String {
+    let Some((scheme, rest)) = base_url.split_once("://") else {
+        return base_url.to_string();
+    };
+
+    let (authority, suffix) = match rest.find('/') {
+        Some(index) => (&rest[..index], &rest[index..]),
+        None => (rest, ""),
+    };
+
+    match authority.rfind('@') {
+        Some(index) => format!("{scheme}://{}{}", &authority[index + 1..], suffix),
+        None => base_url.to_string(),
     }
 }
