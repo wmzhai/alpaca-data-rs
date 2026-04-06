@@ -115,6 +115,11 @@ without exposing configured credentials. If you set `base_url(...)` with URL
 userinfo such as `https://user:pass@example.test`, the `Debug` output redacts
 that userinfo and shows only the sanitized URL.
 
+When credentials are provided explicitly or through the environment helpers,
+`ClientBuilder::build()` rejects blank, whitespace-only, and HTTP
+header-invalid `api_key` or `secret_key` values before constructing the
+client.
+
 Tune transport retries when a service integration needs stronger transient-failure handling:
 
 ```rust
@@ -279,6 +284,15 @@ let client = Client::builder()
 ```
 
 `credentials_from_env()` and `credentials_from_env_names(...)` are optional ergonomics for integrations that already manage credentials through environment variables. They only load paired values; a partial pair returns `Error::InvalidConfiguration`.
+
+Whenever credentials are provided, `api_key` and `secret_key` must both be
+present or both be omitted. `ClientBuilder::build()` rejects blank,
+whitespace-only, and HTTP header-invalid values before constructing the
+client.
+
+`ClientBuilder`, `Client`, and resource-client `Debug` output redact
+configured credentials, and any `base_url(...)` URL userinfo is removed from
+the rendered debug URL.
 
 Live tests in this repository use:
 

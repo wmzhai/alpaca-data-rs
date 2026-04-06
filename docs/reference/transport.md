@@ -104,6 +104,13 @@ Shared HTTP transport, endpoint routing, pagination, retry, and rate-limit infra
 | --- | --- |
 | `DoNotRetry` | `DoNotRetry` |
 
+### `TransportErrorMeta`
+
+- Kind: struct
+- Summary: -
+- docs.rs: [TransportErrorMeta](https://docs.rs/alpaca-data/latest/alpaca_data/transport/struct.TransportErrorMeta.html)
+- Site rustdoc: [TransportErrorMeta](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/transport/struct.TransportErrorMeta.html)
+
 
 ## Related Repository Artifacts
 

@@ -1040,7 +1040,8 @@
           "RateLimiter",
           "ResponseMeta",
           "RetryConfig",
-          "RetryDecision"
+          "RetryDecision",
+          "TransportErrorMeta"
         ]
       },
       "convenience_methods": [],

@@ -6,8 +6,8 @@
 
 - both `api_key` and `secret_key` must be present
 - or both must be omitted
-- blank or whitespace-only values are rejected
-- provided values must be valid HTTP header values before the client is constructed
+- `ClientBuilder::build()` rejects blank, whitespace-only, and HTTP
+  header-invalid values before the client is constructed
 
 Supplying only one side is an invalid configuration error.
 
@@ -56,9 +56,18 @@ Environment helpers follow the same pairing rule:
 - both variables absent -> the builder is left unchanged
 - only one variable present -> `Error::InvalidConfiguration`
 
-When both environment variables are present, `build()` still rejects blank or
-whitespace-only credential values and rejects values that are not valid HTTP
-header values.
+When both environment variables are present, `ClientBuilder::build()` applies
+the same credential validation and still rejects blank, whitespace-only, and
+HTTP header-invalid values before constructing the client.
+
+## Debug Redaction
+
+`ClientBuilder`, `Client`, and resource clients redact configured credentials
+in `Debug` output.
+
+If `base_url(...)` includes URL userinfo such as
+`https://user:pass@example.test`, `Debug` output removes that userinfo and
+shows only the sanitized URL.
 
 ## Current Auth Rules
 

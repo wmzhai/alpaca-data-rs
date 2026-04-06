@@ -4,8 +4,14 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Fixed
+
+- Rejected blank, whitespace-only, and header-invalid `api_key` or `secret_key` values during `Client::builder().build()` instead of deferring those failures to the first authenticated request.
+- Redacted credentials and base URL userinfo from `ClientBuilder`, `Client`, and resource-client `Debug` output.
+
 ### Changed
 
+- Centralized shared transport error metadata internally so rate-limit and terminal HTTP errors continue surfacing the same endpoint, request-id, retry, and body-snippet details from one shaping path.
 - Made pushed `vX.Y.Z` tags create or update the matching GitHub Release and populate its notes from the corresponding `CHANGELOG.md` section after the retained release workflow succeeds.
 
 ## v0.11.0

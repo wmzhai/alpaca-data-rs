@@ -42,7 +42,7 @@ Use `Client::builder()` when you need explicit configuration:
 
 `ClientBuilder`, `Client`, and the resource clients redact configured
 credentials in their `Debug` output by default. If `base_url(...)` includes URL
-userinfo such as `https://user:pass@example.test`, `Debug` output redacts the
+userinfo such as `https://user:pass@example.test`, `Debug` output removes that
 userinfo and shows only the sanitized URL.
 
 The retry builder defaults stay conservative: 5xx retries remain enabled within the retry budget, while 429 retries and `Retry-After` handling stay opt-in until you enable them explicitly.
@@ -55,10 +55,10 @@ Use `reqwest_client(...)` when a service integration needs to own reqwest-level 
 
 Use `credentials_from_env()?` or `credentials_from_env_names(...)?` only as optional ergonomics when your runtime already manages paired environment variables. The primary credential path remains explicit `api_key(...)` plus `secret_key(...)`.
 
-Whenever you provide credentials, both `api_key` and `secret_key` must be
-present or both omitted. `ClientBuilder::build()` rejects blank or
-whitespace-only values and rejects values that are not valid HTTP header values
-before constructing the client.
+Whenever you provide credentials explicitly or through the env helpers, both
+`api_key` and `secret_key` must be present or both omitted.
+`ClientBuilder::build()` rejects blank, whitespace-only, and HTTP
+header-invalid values before constructing the client.
 
 Use `observer(...)` when you want successful-response metadata for logging or metrics. The observer sees endpoint name, URL, status, request ID, retry attempt count, and elapsed time, but it does not change request or response semantics.
 
