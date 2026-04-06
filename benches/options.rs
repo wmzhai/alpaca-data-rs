@@ -1,5 +1,8 @@
+use std::str::FromStr;
+
 use alpaca_data::{Client, options};
 use criterion::{Criterion, criterion_group, criterion_main};
+use rust_decimal::Decimal;
 use tokio::runtime::Runtime;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -30,8 +33,8 @@ fn bench_options_chain_local(c: &mut Criterion) {
         underlying_symbol: "AAPL".into(),
         feed: None,
         r#type: Some(options::ContractType::Call),
-        strike_price_gte: Some(200.0),
-        strike_price_lte: Some(230.0),
+        strike_price_gte: Some(Decimal::from_str("200.0").expect("decimal literal should parse")),
+        strike_price_lte: Some(Decimal::from_str("230.0").expect("decimal literal should parse")),
         expiration_date: Some("2026-04-06".into()),
         expiration_date_gte: None,
         expiration_date_lte: None,

@@ -1,9 +1,10 @@
 use std::str::FromStr;
 
-use alpaca_data::{Decimal, corporate_actions};
+use alpaca_data::corporate_actions;
+use rust_decimal::Decimal;
 
 #[test]
-fn crate_root_decimal_reexport_preserves_trailing_zero_scale() {
+fn rust_decimal_preserves_trailing_zero_scale() {
     let value = Decimal::from_str("175.10").expect("decimal literal should parse");
 
     assert_eq!(value.to_string(), "175.10");
@@ -37,8 +38,7 @@ fn serde_json_decimal_preserves_signed_scale() {
 fn serde_json_decimal_serializes_with_preserved_scale() {
     let value = Decimal::from_str("175.10").expect("decimal literal should parse");
 
-    let serialized =
-        serde_json::to_string(&value).expect("decimal value should serialize to JSON");
+    let serialized = serde_json::to_string(&value).expect("decimal value should serialize to JSON");
 
     assert_eq!(serialized, "\"175.10\"");
 }

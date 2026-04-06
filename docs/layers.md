@@ -19,7 +19,7 @@ Mirror-layer rules:
 
 - endpoint semantics come from the official HTTP API
 - request and response field words use the official API terms
-- typed numeric payload fields use `Decimal` rather than `f64`
+- typed numeric request filters and payload fields use exact `rust_decimal::Decimal` values
 - wrapper shapes such as `next_page_token` are preserved
 - documented request-shape violations fail fast with `Error::InvalidRequest`
 

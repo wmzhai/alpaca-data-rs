@@ -253,13 +253,13 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `o` | `o` | `Option<Decimal>` | - |
-| `h` | `h` | `Option<Decimal>` | - |
-| `l` | `l` | `Option<Decimal>` | - |
-| `c` | `c` | `Option<Decimal>` | - |
-| `v` | `v` | `Option<Decimal>` | - |
+| `o` | `o` | `Option<rust_decimal::Decimal>` | - |
+| `h` | `h` | `Option<rust_decimal::Decimal>` | - |
+| `l` | `l` | `Option<rust_decimal::Decimal>` | - |
+| `c` | `c` | `Option<rust_decimal::Decimal>` | - |
+| `v` | `v` | `Option<rust_decimal::Decimal>` | - |
 | `n` | `n` | `Option<u64>` | - |
-| `vw` | `vw` | `Option<Decimal>` | - |
+| `vw` | `vw` | `Option<rust_decimal::Decimal>` | - |
 
 ### `Orderbook`
 
@@ -283,8 +283,8 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
-| `p` | `p` | `Option<Decimal>` | - |
-| `s` | `s` | `Option<Decimal>` | - |
+| `p` | `p` | `Option<rust_decimal::Decimal>` | - |
+| `s` | `s` | `Option<rust_decimal::Decimal>` | - |
 
 ### `Quote`
 
@@ -296,10 +296,10 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `bp` | `bp` | `Option<Decimal>` | - |
-| `bs` | `bs` | `Option<Decimal>` | - |
-| `ap` | `ap` | `Option<Decimal>` | - |
-| `r#as` | `as` | `Option<Decimal>` | - |
+| `bp` | `bp` | `Option<rust_decimal::Decimal>` | - |
+| `bs` | `bs` | `Option<rust_decimal::Decimal>` | - |
+| `ap` | `ap` | `Option<rust_decimal::Decimal>` | - |
+| `r#as` | `as` | `Option<rust_decimal::Decimal>` | - |
 
 ### `Snapshot`
 
@@ -326,8 +326,8 @@ Crypto market data endpoints. Mirror methods cover historical bars, quotes, trad
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `p` | `p` | `Option<Decimal>` | - |
-| `s` | `s` | `Option<Decimal>` | - |
+| `p` | `p` | `Option<rust_decimal::Decimal>` | - |
+| `s` | `s` | `Option<rust_decimal::Decimal>` | - |
 | `i` | `i` | `Option<u64>` | - |
 | `tks` | `tks` | `Option<String>` | - |
 

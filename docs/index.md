@@ -22,7 +22,7 @@ sidebar_position: 1
 ## Root Entry Point
 
 - Crate: `alpaca-data`
-- Version: `v0.10.3`
+- Version: `v0.11.0`
 - Root client: `alpaca_data::Client`
 - Resource accessors: `stocks()`, `options()`, `crypto()`, `news()`, `corporate_actions()`
 - Documentation hosts:

@@ -114,7 +114,6 @@
       "name": "common",
       "path": "src/common",
       "files": [
-        "decimal.rs",
         "enums.rs",
         "mod.rs",
         "query.rs",
@@ -181,6 +180,11 @@
     },
     {
       "path": "tests/decimal_precision.rs",
+      "kind": "integration",
+      "resource": "shared"
+    },
+    {
+      "path": "tests/decimal_type_paths.rs",
       "kind": "integration",
       "resource": "shared"
     },

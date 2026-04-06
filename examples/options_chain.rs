@@ -1,6 +1,7 @@
 use std::{error::Error, str::FromStr};
 
-use alpaca_data::{Client, Decimal, options};
+use alpaca_data::{Client, options};
+use rust_decimal::Decimal;
 
 fn authenticated_client() -> Result<Client, Box<dyn Error>> {
     let mut builder = Client::builder()

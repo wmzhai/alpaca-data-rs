@@ -6,7 +6,8 @@ Install `alpaca-data` from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = "0.10.3"
+alpaca-data = "0.11.0"
+rust_decimal = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -68,16 +69,17 @@ The root client exposes five resource entrypoints:
 
 The convenience layer does not rename official fields. It only automates pagination.
 
-Typed numeric market-data fields use `alpaca_data::Decimal` so price and ratio values keep the precision and scale returned by Alpaca.
+Typed numeric public API fields and request filters use exact `rust_decimal::Decimal` values so price, strike, ratio, and rate values keep the precision and scale returned by Alpaca.
 
 ## Build Decimal-Based Requests
 
-Use `alpaca_data::Decimal` for numeric request fields such as options chain strike filters:
+Use `rust_decimal::Decimal` for numeric request fields such as options chain strike filters:
 
 ```rust
 use std::str::FromStr;
 
-use alpaca_data::{Client, Decimal, options};
+use alpaca_data::{Client, options};
+use rust_decimal::Decimal;
 
 # async fn example(client: &Client) -> Result<(), alpaca_data::Error> {
 let response = client

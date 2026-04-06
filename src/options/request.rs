@@ -1,5 +1,4 @@
 use crate::Error;
-use crate::common::decimal::Decimal;
 use crate::common::query::QueryWriter;
 use crate::common::validate::{validate_required_symbol, validate_required_symbols};
 use crate::transport::pagination::PaginatedRequest;
@@ -52,8 +51,8 @@ pub struct ChainRequest {
     pub underlying_symbol: String,
     pub feed: Option<OptionsFeed>,
     pub r#type: Option<ContractType>,
-    pub strike_price_gte: Option<Decimal>,
-    pub strike_price_lte: Option<Decimal>,
+    pub strike_price_gte: Option<rust_decimal::Decimal>,
+    pub strike_price_lte: Option<rust_decimal::Decimal>,
     pub expiration_date: Option<String>,
     pub expiration_date_gte: Option<String>,
     pub expiration_date_lte: Option<String>,
@@ -244,8 +243,8 @@ fn validate_limit(limit: Option<u32>, min: u32, max: u32) -> Result<(), Error> {
 mod tests {
     use std::str::FromStr;
 
-    use crate::Decimal;
     use crate::Error;
+    use rust_decimal::Decimal;
 
     use super::{
         BarsRequest, ChainRequest, ConditionCodesRequest, ContractType, LatestQuotesRequest,

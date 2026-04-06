@@ -567,7 +567,7 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
 | `x` | `x` | `Option<String>` | - |
-| `p` | `p` | `Option<Decimal>` | - |
+| `p` | `p` | `Option<rust_decimal::Decimal>` | - |
 | `s` | `s` | `Option<u64>` | - |
 | `c` | `c` | `Option<String>` | - |
 
@@ -581,13 +581,13 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 | Field | Official Word | Type | Notes |
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
-| `o` | `o` | `Option<Decimal>` | - |
-| `h` | `h` | `Option<Decimal>` | - |
-| `l` | `l` | `Option<Decimal>` | - |
-| `c` | `c` | `Option<Decimal>` | - |
+| `o` | `o` | `Option<rust_decimal::Decimal>` | - |
+| `h` | `h` | `Option<rust_decimal::Decimal>` | - |
+| `l` | `l` | `Option<rust_decimal::Decimal>` | - |
+| `c` | `c` | `Option<rust_decimal::Decimal>` | - |
 | `v` | `v` | `Option<u64>` | - |
 | `n` | `n` | `Option<u64>` | - |
-| `vw` | `vw` | `Option<Decimal>` | - |
+| `vw` | `vw` | `Option<rust_decimal::Decimal>` | - |
 
 ### `DailyAuction`
 
@@ -613,10 +613,10 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
 | `bx` | `bx` | `Option<String>` | - |
-| `bp` | `bp` | `Option<Decimal>` | - |
+| `bp` | `bp` | `Option<rust_decimal::Decimal>` | - |
 | `bs` | `bs` | `Option<u64>` | - |
 | `ax` | `ax` | `Option<String>` | - |
-| `ap` | `ap` | `Option<Decimal>` | - |
+| `ap` | `ap` | `Option<rust_decimal::Decimal>` | - |
 | `r#as` | `as` | `Option<u64>` | - |
 | `c` | `c` | `Option<Vec<String>>` | - |
 | `z` | `z` | `Option<String>` | - |
@@ -647,7 +647,7 @@ Stock market data endpoints. Mirror methods cover historical batch and single-sy
 | --- | --- | --- | --- |
 | `t` | `t` | `Option<Timestamp>` | - |
 | `x` | `x` | `Option<String>` | - |
-| `p` | `p` | `Option<Decimal>` | - |
+| `p` | `p` | `Option<rust_decimal::Decimal>` | - |
 | `s` | `s` | `Option<u64>` | - |
 | `i` | `i` | `Option<u64>` | - |
 | `c` | `c` | `Option<Vec<String>>` | - |

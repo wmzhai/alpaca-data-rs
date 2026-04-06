@@ -8,6 +8,13 @@ All notable changes to this project are documented in this file.
 
 - Made pushed `vX.Y.Z` tags create or update the matching GitHub Release and populate its notes from the corresponding `CHANGELOG.md` section after the retained release workflow succeeds.
 
+## v0.11.0
+
+### Changed
+
+- Replaced floating-point numerics across the public API surface with exact `rust_decimal::Decimal` values so request filters and decoded payloads preserve Alpaca precision and trailing-zero scale.
+- Updated the retained public docs, generated site artifacts, and release-preparation guidance to describe the exact-decimal API surface for `v0.11.0`.
+
 ## v0.10.3
 
 ### Fixed

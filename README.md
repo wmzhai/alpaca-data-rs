@@ -14,7 +14,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.10.3`
+- Current branch baseline: `v0.11.0`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
@@ -47,7 +47,7 @@ The crate exposes two layers:
 
 The convenience layer never changes the official payload words. It only automates pagination.
 
-Typed numeric market-data fields use `alpaca_data::Decimal` so the client preserves API precision and trailing-zero scale instead of normalizing values through `f64`.
+Typed numeric public API fields and request filters use exact `rust_decimal::Decimal` values so the client preserves API precision and trailing-zero scale with exact decimal decoding.
 
 ### Request guardrails stay official-only
 
@@ -95,7 +95,8 @@ Install from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = "0.10.3"
+alpaca-data = "0.11.0"
+rust_decimal = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 

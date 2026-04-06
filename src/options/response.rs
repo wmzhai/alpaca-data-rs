@@ -139,7 +139,8 @@ mod tests {
         Bar, BarsResponse, ChainResponse, ConditionCodesResponse, ExchangeCodesResponse,
         LatestQuotesResponse, LatestTradesResponse, SnapshotsResponse, Trade, TradesResponse,
     };
-    use crate::{Decimal, Error, transport::pagination::PaginatedResponse};
+    use crate::{Error, transport::pagination::PaginatedResponse};
+    use rust_decimal::Decimal;
 
     #[test]
     fn historical_responses_deserialize_official_wrapper_shapes() {

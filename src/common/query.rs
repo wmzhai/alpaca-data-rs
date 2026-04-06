@@ -60,10 +60,12 @@ mod tests {
     fn query_writer_keeps_decimal_scale() {
         use std::str::FromStr;
 
+        use rust_decimal::Decimal;
+
         let mut query = QueryWriter::default();
         query.push_opt(
             "strike_price_gte",
-            Some(crate::Decimal::from_str("180.0").expect("decimal literal should parse")),
+            Some(Decimal::from_str("180.0").expect("decimal literal should parse")),
         );
 
         assert_eq!(

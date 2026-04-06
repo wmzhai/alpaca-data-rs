@@ -2,7 +2,7 @@
 
 This checklist describes the release-preparation bar for the repository.
 
-The current branch baseline is `v0.10.3`.
+The current branch baseline is `v0.11.0`.
 
 ## Public Surface
 

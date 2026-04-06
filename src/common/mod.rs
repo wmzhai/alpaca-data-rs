@@ -1,4 +1,3 @@
-pub(crate) mod decimal;
 pub(crate) mod enums;
 pub(crate) mod query;
 pub(crate) mod response;

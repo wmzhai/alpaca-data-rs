@@ -1,11 +1,6 @@
 use alpaca_data::{Client, corporate_actions, crypto, news, options, stocks};
 
 #[test]
-fn crate_root_reexports_decimal() {
-    let _: alpaca_data::Decimal = "1.23".parse().expect("decimal should parse");
-}
-
-#[test]
 fn client_exposes_resource_accessors() {
     let client = Client::new();
 

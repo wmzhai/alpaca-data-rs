@@ -351,7 +351,8 @@ mod tests {
         LatestQuoteResponse, LatestQuotesResponse, LatestTradeResponse, LatestTradesResponse,
         QuotesSingleResponse, SnapshotResponse, SnapshotsResponse, TradesSingleResponse,
     };
-    use crate::{Decimal, Error, transport::pagination::PaginatedResponse};
+    use crate::{Error, transport::pagination::PaginatedResponse};
+    use rust_decimal::Decimal;
 
     #[test]
     fn single_historical_responses_deserialize_official_wrapper_fields() {

@@ -1,7 +1,8 @@
 use std::str::FromStr;
 
-use alpaca_data::{Client, Decimal, options};
+use alpaca_data::{Client, options};
 use futures_util::StreamExt;
+use rust_decimal::Decimal;
 
 #[derive(Clone, Debug)]
 struct SeedContract {
@@ -72,9 +73,9 @@ async fn seed_contract(underlying_symbol: &str, limit: usize) -> SeedContract {
         "P" => options::ContractType::Put,
         value => panic!("unexpected option contract type marker: {value}"),
     };
-    let strike_price = Decimal::from_str(&first_symbol[first_symbol.len() - 8..])
-        .expect("seed symbol should include an OCC strike suffix")
-        / Decimal::from(1000u32);
+    let strike_suffix = i64::from_str(&first_symbol[first_symbol.len() - 8..])
+        .expect("seed symbol should include an OCC strike suffix");
+    let strike_price = Decimal::new(strike_suffix, 3);
 
     SeedContract {
         symbols,
@@ -148,12 +149,10 @@ async fn options_snapshots_and_chain_endpoints_use_real_api() {
         feed: None,
         r#type: Some(seed.contract_type),
         strike_price_gte: Some(
-            seed.strike_price
-                + Decimal::from_str("20.0").expect("decimal literal should parse"),
+            seed.strike_price + Decimal::from_str("20.0").expect("decimal literal should parse"),
         ),
         strike_price_lte: Some(
-            seed.strike_price
-                + Decimal::from_str("50.0").expect("decimal literal should parse"),
+            seed.strike_price + Decimal::from_str("50.0").expect("decimal literal should parse"),
         ),
         expiration_date: Some(seed.expiration_date.clone()),
         expiration_date_gte: None,

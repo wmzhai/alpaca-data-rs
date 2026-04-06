@@ -29,7 +29,8 @@ mod tests {
     use std::str::FromStr;
 
     use super::ListResponse;
-    use crate::{Decimal, transport::pagination::PaginatedResponse};
+    use crate::transport::pagination::PaginatedResponse;
+    use rust_decimal::Decimal;
 
     #[test]
     fn list_response_deserializes_official_bucketed_wrapper_shape() {

@@ -108,7 +108,8 @@ impl PaginatedResponse for TradesResponse {
 mod tests {
     use std::{collections::HashMap, str::FromStr};
 
-    use crate::{Decimal, transport::pagination::PaginatedResponse};
+    use crate::transport::pagination::PaginatedResponse;
+    use rust_decimal::Decimal;
 
     use super::{
         Bar, BarsResponse, LatestBarsResponse, LatestOrderbooksResponse, LatestQuotesResponse,
