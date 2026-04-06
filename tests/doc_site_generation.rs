@@ -48,9 +48,16 @@ fn generate_doc_site_writes_expected_public_artifacts() {
     assert!(stocks_reference.contains("StocksClient"));
     assert!(stocks_reference.contains("bars_all"));
 
+    let transport_reference = read_to_string(&fixture_root.join("docs/reference/transport.md"));
+    assert!(transport_reference.contains("ObservedResponseMeta"));
+    assert!(!transport_reference.contains("TransportErrorMeta"));
+    assert!(!transport_reference.contains("struct.TransportErrorMeta.html"));
+
     let api_index = read_to_string(&fixture_root.join("docs/generated/api-index.json"));
     assert!(api_index.contains("\"resource_accessors\""));
     assert!(api_index.contains("\"stocks\""));
+    assert!(api_index.contains("\"ObservedResponseMeta\""));
+    assert!(!api_index.contains("\"TransportErrorMeta\""));
 
     let sidebars = read_to_string(&fixture_root.join("website/sidebars.ts"));
     assert!(sidebars.contains("reference/stocks"));

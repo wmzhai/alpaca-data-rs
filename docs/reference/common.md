@@ -23,13 +23,6 @@ Shared query, response, enum, and timestamp primitives used across resource modu
 - Site rustdoc: [Currency](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/struct.Currency.html)
 - Example constructors: `usd -> USD`
 
-### `QueryWriter`
-
-- Kind: struct
-- Summary: -
-- docs.rs: [QueryWriter](https://docs.rs/alpaca-data/latest/alpaca_data/common/struct.QueryWriter.html)
-- Site rustdoc: [QueryWriter](https://wmzhai.github.io/alpaca-data-rs/api/alpaca_data/common/struct.QueryWriter.html)
-
 ### `Sort`
 
 - Kind: enum

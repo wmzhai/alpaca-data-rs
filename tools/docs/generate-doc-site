@@ -701,7 +701,7 @@ def collect_internal_types(slug: str, type_index: dict[str, dict[str, TypeInfo]]
     collected: list[TypeInfo] = []
     for file_path, items in type_index.items():
         if file_path.startswith(base):
-            collected.extend(items.values())
+            collected.extend(type_info for type_info in items.values() if type_info.visibility == "pub")
     return sorted(collected, key=lambda item: item.name)
 
 
