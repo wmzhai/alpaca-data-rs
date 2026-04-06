@@ -6,6 +6,8 @@
 
 - both `api_key` and `secret_key` must be present
 - or both must be omitted
+- blank or whitespace-only values are rejected
+- provided values must be valid HTTP header values before the client is constructed
 
 Supplying only one side is an invalid configuration error.
 
@@ -53,6 +55,10 @@ Environment helpers follow the same pairing rule:
 - both variables present -> credentials are loaded onto the builder
 - both variables absent -> the builder is left unchanged
 - only one variable present -> `Error::InvalidConfiguration`
+
+When both environment variables are present, `build()` still rejects blank or
+whitespace-only credential values and rejects values that are not valid HTTP
+header values.
 
 ## Current Auth Rules
 

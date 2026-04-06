@@ -1,5 +1,5 @@
 use crate::Error;
-use reqwest::RequestBuilder;
+use reqwest::{RequestBuilder, header::HeaderValue};
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct Auth {
@@ -11,8 +11,8 @@ impl Auth {
     pub(crate) fn new(api_key: Option<String>, secret_key: Option<String>) -> Result<Self, Error> {
         match (api_key, secret_key) {
             (Some(api_key), Some(secret_key)) => Ok(Self {
-                api_key: Some(api_key),
-                secret_key: Some(secret_key),
+                api_key: Some(validate_credential("api_key", api_key)?),
+                secret_key: Some(validate_credential("secret_key", secret_key)?),
             }),
             (None, None) => Ok(Self::default()),
             _ => Err(Error::InvalidConfiguration(
@@ -41,4 +41,20 @@ impl Auth {
             _ => Err(Error::MissingCredentials),
         }
     }
+}
+
+fn validate_credential(name: &str, value: String) -> Result<String, Error> {
+    if value.trim().is_empty() {
+        return Err(Error::InvalidConfiguration(format!(
+            "{name} must not be blank or whitespace-only"
+        )));
+    }
+
+    HeaderValue::from_str(&value).map_err(|_| {
+        Error::InvalidConfiguration(format!(
+            "{name} must be a valid HTTP header value"
+        ))
+    })?;
+
+    Ok(value)
 }

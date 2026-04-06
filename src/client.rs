@@ -298,7 +298,9 @@ impl ClientBuilder {
 
     /// Validates configuration and builds a [`Client`].
     ///
-    /// Credentials must be provided as a pair or omitted as a pair.
+    /// Credentials must be provided as a pair or omitted as a pair. Any
+    /// provided `api_key` and `secret_key` values must be nonblank and valid
+    /// HTTP header values before the client is constructed.
     pub fn build(self) -> Result<Client, Error> {
         if self.retry_config.max_backoff < self.retry_config.base_backoff {
             return Err(Error::InvalidConfiguration(

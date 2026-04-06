@@ -29,6 +29,57 @@ fn builder_rejects_partial_credentials() {
 }
 
 #[test]
+fn builder_rejects_blank_or_whitespace_credentials() {
+    for (field, builder) in [
+        ("api_key", Client::builder().api_key("").secret_key("secret")),
+        ("api_key", Client::builder().api_key("   ").secret_key("secret")),
+        ("secret_key", Client::builder().api_key("key").secret_key("")),
+        (
+            "secret_key",
+            Client::builder().api_key("key").secret_key(" \t "),
+        ),
+    ] {
+        let error = builder
+            .build()
+            .expect_err("blank or whitespace-only credentials must fail");
+
+        assert!(matches!(
+            error,
+            Error::InvalidConfiguration(message)
+                if message.contains(field) && message.contains("blank")
+        ));
+    }
+}
+
+#[test]
+fn builder_rejects_header_invalid_credentials() {
+    for (field, builder) in [
+        (
+            "api_key",
+            Client::builder()
+                .api_key("key\nwrapped")
+                .secret_key("secret"),
+        ),
+        (
+            "secret_key",
+            Client::builder()
+                .api_key("key")
+                .secret_key("secret\nwrapped"),
+        ),
+    ] {
+        let error = builder
+            .build()
+            .expect_err("header-invalid credentials must fail");
+
+        assert!(matches!(
+            error,
+            Error::InvalidConfiguration(message)
+                if message.contains(field) && message.contains("header")
+        ));
+    }
+}
+
+#[test]
 fn builder_accepts_explicit_shared_runtime_settings() {
     let client = Client::builder()
         .api_key("key")
