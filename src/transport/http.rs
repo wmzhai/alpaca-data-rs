@@ -5,7 +5,7 @@ use crate::{
     auth::Auth,
     transport::{
         endpoint::Endpoint,
-        meta::ResponseMeta,
+        meta::{ResponseMeta, TransportErrorMeta},
         observer::ObserverHandle,
         rate_limit::RateLimiter,
         retry::{RetryConfig, RetryDecision},
@@ -27,6 +27,10 @@ struct ResponseParts {
 }
 
 impl ResponseParts {
+    fn into_error_meta(self) -> TransportErrorMeta {
+        TransportErrorMeta::from_response_meta(self.meta, self.body)
+    }
+
     fn retry_after(&self) -> Option<Duration> {
         self.meta.retry_after
     }
@@ -84,16 +88,16 @@ impl HttpClient {
         let response = self
             .send_with_retry(base_url, &endpoint, auth, &query)
             .await?;
+
+        if response.status_code() == reqwest::StatusCode::TOO_MANY_REQUESTS {
+            return Err(Error::from_rate_limited(response.into_error_meta()));
+        }
+
+        if !response.status_code().is_success() {
+            return Err(Error::from_http_status(response.into_error_meta()));
+        }
+
         let ResponseParts { meta, body } = response;
-
-        if meta.status_code() == reqwest::StatusCode::TOO_MANY_REQUESTS {
-            return Err(Error::from_rate_limited(meta, body));
-        }
-
-        if !meta.status_code().is_success() {
-            return Err(Error::from_http_status(meta, body));
-        }
-
         let parsed = self.parse_json_body(&body)?;
 
         if let Some(observer) = &self.observer {

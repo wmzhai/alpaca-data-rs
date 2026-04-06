@@ -60,8 +60,8 @@ async fn rate_limit_maps_retry_after_header() {
             retry_after: Some(3),
             request_id: Some(ref request_id),
             attempt_count: 0,
-            ..
-        } if request_id == "req-429"
+            body: Some(ref body),
+        } if request_id == "req-429" && body == "too many requests"
     ));
 
     assert_eq!(error.endpoint(), Some("crypto.latest_quotes"));

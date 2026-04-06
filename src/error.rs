@@ -1,8 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use crate::transport::meta::ResponseMeta;
-
-const MAX_ERROR_BODY_CHARS: usize = 256;
+use crate::transport::meta::TransportErrorMeta;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Error {
@@ -84,23 +82,23 @@ impl Display for Error {
 impl std::error::Error for Error {}
 
 impl Error {
-    pub(crate) fn from_rate_limited(meta: ResponseMeta, body: String) -> Self {
+    pub(crate) fn from_rate_limited(meta: TransportErrorMeta) -> Self {
         Self::RateLimited {
-            endpoint: meta.endpoint_name,
-            retry_after: meta.retry_after.map(|value| value.as_secs()),
+            endpoint: meta.endpoint,
+            retry_after: meta.retry_after,
             request_id: meta.request_id,
             attempt_count: meta.attempt_count,
-            body: snippet_body(body),
+            body: meta.body,
         }
     }
 
-    pub(crate) fn from_http_status(meta: ResponseMeta, body: String) -> Self {
+    pub(crate) fn from_http_status(meta: TransportErrorMeta) -> Self {
         Self::HttpStatus {
-            endpoint: meta.endpoint_name,
+            endpoint: meta.endpoint,
             status: meta.status,
             request_id: meta.request_id,
             attempt_count: meta.attempt_count,
-            body: snippet_body(body),
+            body: meta.body,
         }
     }
 
@@ -157,17 +155,4 @@ fn write_transport_error(
     }
 
     Ok(())
-}
-
-fn snippet_body(body: String) -> Option<String> {
-    if body.is_empty() {
-        return None;
-    }
-
-    let mut snippet: String = body.chars().take(MAX_ERROR_BODY_CHARS).collect();
-    if snippet.len() < body.len() {
-        snippet.push_str("...");
-    }
-
-    Some(snippet)
 }
