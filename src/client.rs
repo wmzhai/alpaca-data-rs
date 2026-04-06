@@ -401,30 +401,40 @@ impl fmt::Debug for ConfiguredDebug {
 }
 
 fn redact_base_url_userinfo(base_url: &str) -> String {
-    match reqwest::Url::parse(base_url) {
-        Ok(mut url) => {
-            if !url.username().is_empty() || url.password().is_some() {
-                let _ = url.set_username("");
-                let _ = url.set_password(None);
-            }
-            url.to_string()
+    if let Ok(mut url) = reqwest::Url::parse(base_url) {
+        if !url.username().is_empty() || url.password().is_some() {
+            let _ = url.set_username("");
+            let _ = url.set_password(None);
+            return url.to_string();
         }
-        Err(_) => redact_base_url_userinfo_fallback(base_url),
     }
+
+    redact_base_url_userinfo_fallback(base_url)
 }
 
 fn redact_base_url_userinfo_fallback(base_url: &str) -> String {
-    let Some((scheme, rest)) = base_url.split_once("://") else {
-        return base_url.to_string();
+    let (prefix, rest) = if let Some((scheme, rest)) = base_url.split_once("://") {
+        (&base_url[..scheme.len() + 3], rest)
+    } else if let Some(rest) = base_url.strip_prefix("//") {
+        ("//", rest)
+    } else {
+        ("", base_url)
     };
 
-    let (authority, suffix) = match rest.find('/') {
-        Some(index) => (&rest[..index], &rest[index..]),
-        None => (rest, ""),
-    };
+    let (authority, suffix) = split_authority_and_suffix(rest);
 
     match authority.rfind('@') {
-        Some(index) => format!("{scheme}://{}{}", &authority[index + 1..], suffix),
+        Some(index) => format!("{prefix}{}{}", &authority[index + 1..], suffix),
         None => base_url.to_string(),
+    }
+}
+
+fn split_authority_and_suffix(rest: &str) -> (&str, &str) {
+    match rest
+        .char_indices()
+        .find_map(|(index, ch)| matches!(ch, '/' | '?' | '#').then_some(index))
+    {
+        Some(index) => (&rest[..index], &rest[index..]),
+        None => (rest, ""),
     }
 }

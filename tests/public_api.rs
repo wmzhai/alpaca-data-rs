@@ -4,6 +4,8 @@ use reqwest::header::{HeaderMap, HeaderValue};
 const API_KEY: &str = "live-api-key";
 const SECRET_KEY: &str = "live-secret-key";
 const BASE_URL_WITH_USERINFO: &str = "https://user:pass@example.test";
+const BASE_URL_WITH_SCHEMELESS_USERINFO: &str = "user:pass@example.test";
+const BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO: &str = "//user:pass@example.test";
 
 #[test]
 fn client_exposes_resource_accessors() {
@@ -73,6 +75,98 @@ fn resource_client_debug_redacts_nested_client_state() {
     assert_redacted_debug(&debug);
     assert!(debug.contains("auth: Auth { api_key: \"[REDACTED]\", secret_key: \"[REDACTED]\" }"));
     assert!(debug.contains("base_url: \"https://example.test/\""));
+}
+
+#[test]
+fn client_builder_debug_redacts_scheme_less_authority_like_base_url_userinfo() {
+    let debug = format!(
+        "{:?}",
+        Client::builder().base_url(BASE_URL_WITH_SCHEMELESS_USERINFO)
+    );
+
+    assert_debug_redacts_base_url_userinfo(
+        &debug,
+        BASE_URL_WITH_SCHEMELESS_USERINFO,
+        "base_url: Some(\"example.test\")",
+    );
+}
+
+#[test]
+fn client_debug_redacts_scheme_less_authority_like_base_url_userinfo() {
+    let client = Client::builder()
+        .base_url(BASE_URL_WITH_SCHEMELESS_USERINFO)
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{client:?}");
+
+    assert_debug_redacts_base_url_userinfo(
+        &debug,
+        BASE_URL_WITH_SCHEMELESS_USERINFO,
+        "base_url: \"example.test\"",
+    );
+}
+
+#[test]
+fn resource_client_debug_redacts_scheme_less_authority_like_base_url_userinfo() {
+    let client = Client::builder()
+        .base_url(BASE_URL_WITH_SCHEMELESS_USERINFO)
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{:?}", client.stocks());
+
+    assert_debug_redacts_base_url_userinfo(
+        &debug,
+        BASE_URL_WITH_SCHEMELESS_USERINFO,
+        "base_url: \"example.test\"",
+    );
+}
+
+#[test]
+fn client_builder_debug_redacts_double_slash_authority_base_url_userinfo() {
+    let debug = format!(
+        "{:?}",
+        Client::builder().base_url(BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO)
+    );
+
+    assert_debug_redacts_base_url_userinfo(
+        &debug,
+        BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO,
+        "base_url: Some(\"//example.test\")",
+    );
+}
+
+#[test]
+fn client_debug_redacts_double_slash_authority_base_url_userinfo() {
+    let client = Client::builder()
+        .base_url(BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO)
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{client:?}");
+
+    assert_debug_redacts_base_url_userinfo(
+        &debug,
+        BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO,
+        "base_url: \"//example.test\"",
+    );
+}
+
+#[test]
+fn resource_client_debug_redacts_double_slash_authority_base_url_userinfo() {
+    let client = Client::builder()
+        .base_url(BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO)
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{:?}", client.stocks());
+
+    assert_debug_redacts_base_url_userinfo(
+        &debug,
+        BASE_URL_WITH_AUTHORITY_PREFIX_USERINFO,
+        "base_url: \"//example.test\"",
+    );
 }
 
 #[test]
@@ -368,6 +462,25 @@ fn assert_redacted_debug(debug: &str) {
     assert!(
         !debug.contains("user:pass"),
         "debug output leaked base_url userinfo components: {debug}"
+    );
+}
+
+fn assert_debug_redacts_base_url_userinfo(
+    debug: &str,
+    raw_base_url: &str,
+    expected_base_url: &str,
+) {
+    assert!(
+        !debug.contains(raw_base_url),
+        "debug output leaked base_url userinfo: {debug}"
+    );
+    assert!(
+        !debug.contains("user:pass"),
+        "debug output leaked base_url userinfo components: {debug}"
+    );
+    assert!(
+        debug.contains(expected_base_url),
+        "debug output did not contain sanitized base_url {expected_base_url}: {debug}"
     );
 }
 
