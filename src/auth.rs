@@ -51,9 +51,7 @@ fn validate_credential(name: &str, value: String) -> Result<String, Error> {
     }
 
     HeaderValue::from_str(&value).map_err(|_| {
-        Error::InvalidConfiguration(format!(
-            "{name} must be a valid HTTP header value"
-        ))
+        Error::InvalidConfiguration(format!("{name} must be a valid HTTP header value"))
     })?;
 
     Ok(value)

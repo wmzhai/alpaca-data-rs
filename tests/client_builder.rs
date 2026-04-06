@@ -31,9 +31,18 @@ fn builder_rejects_partial_credentials() {
 #[test]
 fn builder_rejects_blank_or_whitespace_credentials() {
     for (field, builder) in [
-        ("api_key", Client::builder().api_key("").secret_key("secret")),
-        ("api_key", Client::builder().api_key("   ").secret_key("secret")),
-        ("secret_key", Client::builder().api_key("key").secret_key("")),
+        (
+            "api_key",
+            Client::builder().api_key("").secret_key("secret"),
+        ),
+        (
+            "api_key",
+            Client::builder().api_key("   ").secret_key("secret"),
+        ),
+        (
+            "secret_key",
+            Client::builder().api_key("key").secret_key(""),
+        ),
         (
             "secret_key",
             Client::builder().api_key("key").secret_key(" \t "),
@@ -339,5 +348,28 @@ fn credentials_from_env_reject_partial_values() {
         error,
         Error::InvalidConfiguration(message)
             if message.contains("APCA_API_KEY_ID") && message.contains("APCA_API_SECRET_KEY")
+    ));
+}
+
+#[test]
+fn credentials_from_env_loads_invalid_values_but_build_rejects_them() {
+    let _lock = env_test_lock()
+        .lock()
+        .expect("env lock should be available");
+    let _env = EnvGuard::set(&[
+        ("APCA_API_KEY_ID", Some("env-key\nwrapped")),
+        ("APCA_API_SECRET_KEY", Some("env-secret")),
+    ]);
+
+    let error = Client::builder()
+        .credentials_from_env()
+        .expect("env helper should load paired values onto the builder")
+        .build()
+        .expect_err("invalid env credential values must fail during build");
+
+    assert!(matches!(
+        error,
+        Error::InvalidConfiguration(message)
+            if message.contains("api_key") && message.contains("header")
     ));
 }
