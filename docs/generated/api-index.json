@@ -1,7 +1,7 @@
 {
   "crate": {
     "name": "alpaca-data",
-    "version": "0.11.0",
+    "version": "0.11.1",
     "edition": "2024",
     "repository": "https://github.com/wmzhai/alpaca-data-rs",
     "documentation": "https://docs.rs/alpaca-data",

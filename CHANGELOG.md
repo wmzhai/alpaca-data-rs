@@ -4,14 +4,19 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## v0.11.1
+
 ### Fixed
 
 - Rejected blank, whitespace-only, and header-invalid `api_key` or `secret_key` values during `Client::builder().build()` instead of deferring those failures to the first authenticated request.
-- Redacted credentials and base URL userinfo from `ClientBuilder`, `Client`, and resource-client `Debug` output.
+- Redacted configured credentials and `base_url(...)` userinfo from `ClientBuilder`, `Client`, and resource-client `Debug` output, including malformed authority-like base URLs.
+- Sanitized runtime `Error::Transport` and `Error::Timeout` messages so malformed base URLs no longer leak userinfo through reqwest error text.
+- Removed private transport internals and dead rustdoc paths from the generated public reference docs.
 
 ### Changed
 
 - Centralized shared transport error metadata internally so rate-limit and terminal HTTP errors continue surfacing the same endpoint, request-id, retry, and body-snippet details from one shaping path.
+- Regenerated the retained docs and reference artifacts to match the stricter credential validation, debug redaction, and corrected public transport documentation surface.
 - Made pushed `vX.Y.Z` tags create or update the matching GitHub Release and populate its notes from the corresponding `CHANGELOG.md` section after the retained release workflow succeeds.
 
 ## v0.11.0

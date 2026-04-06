@@ -14,7 +14,7 @@ The crate is built around two constraints:
 
 ## Status
 
-- Current branch baseline: `v0.11.0`
+- Current branch baseline: `v0.11.1`
 - Implemented resource families: `stocks`, `options`, `crypto`, `news`, `corporate_actions`
 - This repository does not cover Trading API, Broker API, WebSocket, or SSE
 - This crate is async-only
@@ -95,7 +95,7 @@ Install from crates.io:
 
 ```toml
 [dependencies]
-alpaca-data = "0.11.0"
+alpaca-data = "0.11.1"
 rust_decimal = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
