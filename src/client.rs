@@ -79,7 +79,7 @@ impl fmt::Debug for Inner {
             .field("timeout", &self.timeout)
             .field("retry_config", &self.retry_config)
             .field("max_in_flight", &self.max_in_flight)
-            .field("http", &self.http)
+            .field("http", &ConfiguredDebug("HttpClient"))
             .finish()
     }
 }
@@ -91,7 +91,13 @@ impl fmt::Debug for ClientBuilder {
             .field("secret_key", &RedactedCredential(&self.secret_key))
             .field("base_url", &self.base_url.as_deref().map(RedactedBaseUrl))
             .field("timeout", &self.timeout)
-            .field("reqwest_client", &self.reqwest_client)
+            .field(
+                "reqwest_client",
+                &self
+                    .reqwest_client
+                    .as_ref()
+                    .map(|_| ConfiguredDebug("reqwest::Client")),
+            )
             .field("observer", &self.observer)
             .field("retry_config", &self.retry_config)
             .field("max_in_flight", &self.max_in_flight)
@@ -383,6 +389,14 @@ struct RedactedBaseUrl<'a>(&'a str);
 impl fmt::Debug for RedactedBaseUrl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(&redact_base_url_userinfo(self.0), f)
+    }
+}
+
+struct ConfiguredDebug(&'static str);
+
+impl fmt::Debug for ConfiguredDebug {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "\"{} {{ .. }}\"", self.0)
     }
 }
 

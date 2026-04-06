@@ -1,4 +1,5 @@
 use alpaca_data::{Client, corporate_actions, crypto, news, options, stocks};
+use reqwest::header::{HeaderMap, HeaderValue};
 
 const API_KEY: &str = "live-api-key";
 const SECRET_KEY: &str = "live-secret-key";
@@ -72,6 +73,40 @@ fn resource_client_debug_redacts_nested_client_state() {
     assert_redacted_debug(&debug);
     assert!(debug.contains("auth: Auth { api_key: \"[REDACTED]\", secret_key: \"[REDACTED]\" }"));
     assert!(debug.contains("base_url: \"https://example.test/\""));
+}
+
+#[test]
+fn client_builder_debug_redacts_injected_reqwest_default_headers() {
+    let debug = format!(
+        "{:?}",
+        Client::builder().reqwest_client(injected_reqwest_client())
+    );
+
+    assert_redacted_debug(&debug);
+}
+
+#[test]
+fn client_debug_redacts_injected_reqwest_default_headers() {
+    let client = Client::builder()
+        .reqwest_client(injected_reqwest_client())
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{client:?}");
+
+    assert_redacted_debug(&debug);
+}
+
+#[test]
+fn resource_client_debug_redacts_injected_reqwest_default_headers() {
+    let client = Client::builder()
+        .reqwest_client(injected_reqwest_client())
+        .build()
+        .expect("client should build");
+
+    let debug = format!("{:?}", client.stocks());
+
+    assert_redacted_debug(&debug);
 }
 
 #[test]
@@ -334,6 +369,17 @@ fn assert_redacted_debug(debug: &str) {
         !debug.contains("user:pass"),
         "debug output leaked base_url userinfo components: {debug}"
     );
+}
+
+fn injected_reqwest_client() -> reqwest::Client {
+    let mut headers = HeaderMap::new();
+    headers.insert("APCA-API-KEY-ID", HeaderValue::from_static(API_KEY));
+    headers.insert("APCA-API-SECRET-KEY", HeaderValue::from_static(SECRET_KEY));
+
+    reqwest::Client::builder()
+        .default_headers(headers)
+        .build()
+        .expect("reqwest client should build")
 }
 
 #[test]
